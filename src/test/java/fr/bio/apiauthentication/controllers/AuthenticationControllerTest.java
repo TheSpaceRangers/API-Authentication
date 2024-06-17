@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class AuthenticationControllerTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         request = new CreateUserRequest(
                 "John",
