@@ -18,6 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test User JPA Repository")
 @DataJpaTest
+@Transactional
 public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +43,6 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testSaveUser() {
         User savedUser = userRepository.save(user);
 
@@ -51,7 +51,6 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testFindById() {
         User savedUser = userRepository.save(user);
 
@@ -62,7 +61,6 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testFindByEmail() {
         User savedUser = userRepository.save(user);
 
@@ -72,7 +70,6 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testFindByFirstNameAndLastName() {
         User savedUser = userRepository.save(user);
 
@@ -82,7 +79,6 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testDeleteById() {
         User savedUser = userRepository.save(user);
 

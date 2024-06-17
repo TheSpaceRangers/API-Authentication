@@ -15,6 +15,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test Role JPA Repository")
 @DataJpaTest
+@Transactional
 public class RoleRepositoryTest {
     @Autowired
     private RoleRepository roleRepository;
@@ -35,7 +36,6 @@ public class RoleRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testSaveRole() {
         Role savedRole = roleRepository.save(role);
 
@@ -44,7 +44,6 @@ public class RoleRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testFindByRoleName() {
         Role savedRole = roleRepository.save(role);
 
@@ -54,7 +53,6 @@ public class RoleRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testDeleteRole() {
         Role savedRole = roleRepository.save(role);
 
