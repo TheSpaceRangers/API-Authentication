@@ -22,7 +22,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .email(request.email())
-                .password(this.passwordEncoder.encode(request.password()))
+                .password(passwordEncoder.encode(request.password()))
                 .build();
 
         this.userRepository.save(user);
