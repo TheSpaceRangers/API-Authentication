@@ -1,6 +1,8 @@
 package fr.bio.apiauthentication.repositories;
 
 import fr.bio.apiauthentication.entities.Role;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
