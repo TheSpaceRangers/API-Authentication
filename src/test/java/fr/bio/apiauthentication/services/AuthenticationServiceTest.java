@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@DisplayName("Test User Service")
+@DisplayName("Test Authentication Service")
 public class AuthenticationServiceTest {
     @Mock
     private UserRepository userRepository;
