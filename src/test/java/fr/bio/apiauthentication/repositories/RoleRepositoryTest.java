@@ -49,7 +49,7 @@ public class RoleRepositoryTest {
     public void testFindByRoleName() {
         Role savedRole = roleRepository.save(role);
 
-        Optional<Role> foundRole = roleRepository.findByRoleName(role.getRoleName());
+        Optional<Role> foundRole = roleRepository.findByRoleName(savedRole.getRoleName());
 
         assertThat(foundRole.isPresent()).isTrue();
     }
@@ -60,7 +60,7 @@ public class RoleRepositoryTest {
 
         roleRepository.deleteById(savedRole.getIdRole());
 
-        Optional<Role> foundRole = roleRepository.findById(role.getIdRole());
+        Optional<Role> foundRole = roleRepository.findById(savedRole.getIdRole());
 
         assertThat(foundRole.isPresent()).isFalse();
     }
