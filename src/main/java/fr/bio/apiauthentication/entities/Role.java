@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,4 +24,7 @@ public class Role {
     private String roleName;
 
     private boolean enabled = true;
+
+    @ManyToMany(mappedBy = "roles")
+    private Collection<User> users;
 }

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -30,4 +32,15 @@ public class User {
     private String lastName;
 
     private boolean enabled;
+
+    @ManyToMany
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(
+                    name = "id_user_fk", referencedColumnName = "id_user"
+            ), inverseJoinColumns = @JoinColumn(
+                    name = "id_role_fk", referencedColumnName = "id_role"
+            )
+    )
+    private Collection<Role> roles;
 }
