@@ -1,5 +1,7 @@
 package fr.bio.apiauthentication.config;
 
+import fr.bio.apiauthentication.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,6 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
@@ -20,7 +24,10 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@RequiredArgsConstructor
 public class SecurityConfiguration {
+
+    private UserRepository userRepository;
 
     @Bean
     public DefaultSecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -36,6 +43,12 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
