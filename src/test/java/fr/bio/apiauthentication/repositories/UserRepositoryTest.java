@@ -23,7 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @DisplayName("Test User JPA Repository")
 @DataJpaTest
 @Transactional
-public class UserRepositoryTest {
+public class    UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
