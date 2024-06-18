@@ -122,7 +122,7 @@ public class AuthenticationService implements IAuthenticationService {
                 () -> new UsernameNotFoundException("User not found")
         );
 
-        List<Token> tokens = tokenRepository.findAllValidTokenByUser(user);
+        List<Token> tokens = tokenRepository.findAllValidTokenByUser(user.getIdUser());
         tokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
