@@ -15,6 +15,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test User JPA Entity")
 @DataJpaTest
+@Transactional
 public class UserTest {
     @Autowired
     private TestEntityManager entityManager;
@@ -38,13 +39,11 @@ public class UserTest {
     }
 
     @Test
-    @Transactional
     public void testCreateUser() {
         user = entityManager.persistAndFlush(user);
     }
 
     @Test
-    @Transactional
     public void testUpdateUser() {
         //user.setIdUser(12345);
         user.setFirstName("John");
@@ -57,25 +56,21 @@ public class UserTest {
     }
 
     @Test
-    @Transactional
     public void testEquals_SameObject() {
         assertThat(user).isEqualTo(user);
     }
 
     @Test
-    @Transactional
     public void testEquals_Null() {
         assertThat(user).isNotEqualTo(null);
     }
 
     @Test
-    @Transactional
     public void testEquals_DifferentClass() {
         assertThat(user).isNotEqualTo("This is a different object");
     }
 
     @Test
-    @Transactional
     public void testEquals_DifferentFields() {
         User differentFields = User.builder()
                 .email("c.tronel@test.com")
@@ -89,7 +84,6 @@ public class UserTest {
     }
 
     @Test
-    @Transactional
     public void testEquals_SameFields() {
         User sameFields = User.builder()
                 .email("c.tronel@test.com")
@@ -103,25 +97,21 @@ public class UserTest {
     }
 
     @Test
-    @Transactional
     public void testHashCode_SameObject() {
         assertThat(user.hashCode()).isEqualTo(user.hashCode());
     }
 
     @Test
-    @Transactional
     public void testHashCode_Null() {
         assertThat(user.hashCode()).isNotEqualTo(null);
     }
 
     @Test
-    @Transactional
     public void testHashCode_DifferentClass() {
         assertThat(user.hashCode()).isNotEqualTo("This is a different object".hashCode());
     }
 
     @Test
-    @Transactional
     public void testHashCode_DifferentFields() {
         User differentFields = User.builder()
                 .email("c.tronel@test.com")
@@ -135,7 +125,6 @@ public class UserTest {
     }
 
     @Test
-    @Transactional
     public void testHashCode_SameFields() {
         User sameFields = User.builder()
                 .email("c.tronel@test.com")
