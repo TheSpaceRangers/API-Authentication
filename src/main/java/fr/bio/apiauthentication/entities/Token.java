@@ -25,10 +25,10 @@ public class Token {
     private String token;
 
     @Enumerated(EnumType.STRING)
-    private TokenType type;
+    private TokenType type = TokenType.BEARER;
 
-    private boolean revoked;
-    private boolean expired;
+    private boolean revoked = false;
+    private boolean expired = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
