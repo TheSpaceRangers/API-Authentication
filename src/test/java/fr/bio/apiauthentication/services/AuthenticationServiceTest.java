@@ -95,7 +95,7 @@ public class AuthenticationServiceTest {
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
-                () -> { authenticationService.register(request); }
+                () -> authenticationService.register(request)
         );
 
         assertThat(exception.getMessage()).isEqualTo("Role 'USER' not found");
