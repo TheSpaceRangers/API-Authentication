@@ -26,7 +26,7 @@ public class AuthenticationService implements IAuthenticationService {
     @Override
     public ResponseEntity<AuthenticationResponse> register(CreateUserRequest request) {
         Role role = roleRepository.findByRoleName("USER").orElseThrow(
-                () -> new RoleNotFoundException("Role USER not found")
+                () -> new RoleNotFoundException("Role 'USER' not found")
         );
 
         User user = User.builder()

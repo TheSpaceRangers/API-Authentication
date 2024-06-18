@@ -4,6 +4,7 @@ import fr.bio.apiauthentication.dto.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -85,5 +87,21 @@ public class AuthenticationServiceTest {
         verify(passwordEncoder, times(1)).encode("1234567890");
         verify(userRepository, times(1)).save(any(User.class));
         verify(roleRepository, times(1)).findByRoleName("USER");
+    }
+
+    @Test
+    public void testRegisterUserRoleNotExists() {
+        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty());
+
+        RoleNotFoundException exception = assertThrows(
+                RoleNotFoundException.class,
+                () -> { authenticationService.register(request); }
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("Role 'USER' not found");
+
+        verify(roleRepository, times(1)).findByRoleName("USER");
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any(User.class));
     }
 }
