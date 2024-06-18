@@ -2,7 +2,9 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.dto.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.CreateUserRequest;
+import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -19,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +34,9 @@ public class AuthenticationServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -37,6 +44,7 @@ public class AuthenticationServiceTest {
 
     private CreateUserRequest request;
     private User user;
+    private Role role;
 
     @BeforeEach
     public void setUp() {
@@ -55,6 +63,11 @@ public class AuthenticationServiceTest {
                 .email("c.tronel@test.com")
                 .password("1234567890")
                 .build();
+
+        role = Role.builder()
+                .roleName("USER")
+                .build();
+        roleRepository.save(role);
     }
 
     @Test
@@ -62,6 +75,7 @@ public class AuthenticationServiceTest {
     public void testRegisterUser() {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.of(role));
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.register(request);
 
@@ -70,5 +84,6 @@ public class AuthenticationServiceTest {
 
         verify(passwordEncoder, times(1)).encode("1234567890");
         verify(userRepository, times(1)).save(any(User.class));
+        verify(roleRepository, times(1)).findByRoleName("USER");
     }
 }
