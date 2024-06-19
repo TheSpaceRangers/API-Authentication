@@ -24,9 +24,8 @@ public class AccountController {
 
     @PutMapping(value = "/profil")
     public ResponseEntity<UserProfilResponse> updateProfile(
-            @Validated @RequestBody UserProfilRequest request,
-            @Validated @RequestBody UpdateUserProfilRequest updateRequest
+            @Validated @RequestBody UpdateUserProfilRequest request
     ) {
-        return accountService.updateUserProfile(request, updateRequest);
+        return accountService.updateUserProfile(request);
     }
 }

@@ -8,5 +8,5 @@ import org.springframework.http.ResponseEntity;
 public interface IAccountService {
     ResponseEntity<UserProfilResponse> getUserProfile(UserProfilRequest request);
 
-    ResponseEntity<UserProfilResponse> updateUserProfile(UserProfilRequest request, UpdateUserProfilRequest updateRequest);
+    ResponseEntity<UserProfilResponse> updateUserProfile(UpdateUserProfilRequest request);
 }

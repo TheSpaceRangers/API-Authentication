@@ -48,22 +48,21 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<UserProfilResponse> updateUserProfile(
-            UserProfilRequest request,
-            UpdateUserProfilRequest updateRequest
+            UpdateUserProfilRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());
 
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
-        if (!user.getFirstName().equals(updateRequest.firstName()))
-            user.setFirstName(updateRequest.firstName());
+        if (!user.getFirstName().equals(request.firstName()))
+            user.setFirstName(request.firstName());
 
-        if (!user.getLastName().equals(updateRequest.lastName()))
-            user.setLastName(updateRequest.lastName());
+        if (!user.getLastName().equals(request.lastName()))
+            user.setLastName(request.lastName());
 
-        if (!user.getEmail().equals(updateRequest.email()))
-            user.setEmail(updateRequest.email());
+        if (!user.getEmail().equals(request.email()))
+            user.setEmail(request.email());
 
         userRepository.save(user);
 
