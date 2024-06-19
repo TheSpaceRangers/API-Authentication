@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -35,18 +37,20 @@ public class AccountServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private AccountService accountService;
 
     private User user;
-    private Role role;
     private String token;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        role = Role.builder()
+        Role role = Role.builder()
                 .roleName("USER")
                 .build();
         roleRepository.save(role);
@@ -132,6 +136,61 @@ public class AccountServiceTest {
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> accountService.updateUserProfile(request));
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
+    }
+
+    @Test
+    @DisplayName("Test update password")
+    public void testUpdatePassword_Success() {
+        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "1234567890", "newPassword");
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
+        when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+        when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("newPassword");
+
+        ResponseEntity<UserProfilResponse> responseEntity = accountService.updatePassword(request);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
+        verify(userRepository, times(2)).save(user);
+    }
+
+    @Test
+    @DisplayName("Test update password but old password is invalid")
+    public void testUpdatePassword_OldPasswordIsInvalid() {
+        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "invalidOldPassword", "newPassword");
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
+        when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(false);
+
+        ResponseEntity<UserProfilResponse> responseEntity = accountService.updatePassword(request);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
+        verify(passwordEncoder, times(1)).matches(request.oldPassword(), user.getPassword());
+    }
+
+    @Test
+    @DisplayName("Test update password but user not found")
+    public void testUpdatePassword_UserNotFound() {
+        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "oldPassword", "newPassword");
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
+        when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.updatePassword(request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.com");

@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.controllers;
 
+import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
@@ -27,5 +28,12 @@ public class AccountController {
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
         return accountService.updateUserProfile(request);
+    }
+
+    @PutMapping(value = "/password")
+    public ResponseEntity<UserProfilResponse> updatePassword(
+            @Validated @RequestBody UpdatePasswordRequest request
+    ) {
+        return accountService.updatePassword(request);
     }
 }
