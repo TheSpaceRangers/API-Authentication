@@ -38,6 +38,7 @@ public class RoleRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test save role")
     public void testSaveRole() {
         Role savedRole = roleRepository.save(role);
 
@@ -46,6 +47,7 @@ public class RoleRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test find role by role name")
     public void testFindByRoleName() {
         Role savedRole = roleRepository.save(role);
 
@@ -55,6 +57,7 @@ public class RoleRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test delete role")
     public void testDeleteRole() {
         Role savedRole = roleRepository.save(role);
 

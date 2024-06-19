@@ -13,6 +13,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test Role JPA Entity")
 @DataJpaTest
+@Transactional
 public class RoleTest {
     @Autowired
     private TestEntityManager entityManager;
@@ -32,7 +33,7 @@ public class RoleTest {
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test create role")
     public void testCreateRole() {
         Role persistedRole = entityManager.persist(role);
 
@@ -40,7 +41,7 @@ public class RoleTest {
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test update role")
     public void testUpdateRole() {
         Role newRole = role;
 
@@ -53,25 +54,25 @@ public class RoleTest {
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test same object")
     public void testEquals_SameObject() {
         assertThat(role).isEqualTo(role);
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test null")
     public void testEquals_Null() {
         assertThat(role).isNotEqualTo(null);
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test different class")
     public void testEquals_DifferentClass() {
         assertThat(role).isNotEqualTo("This is a different object");
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         Role differentFields = Role.builder()
                 .roleName("ADMIN")
@@ -82,7 +83,7 @@ public class RoleTest {
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         Role sameFields = Role.builder()
                 .roleName("USER")
@@ -92,7 +93,7 @@ public class RoleTest {
     }
 
     @Test
-    @Transactional
+    @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
         Role sameFields = Role.builder()
                 .roleName("USER")

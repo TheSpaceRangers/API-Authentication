@@ -110,8 +110,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @Transactional
-    public void testRegisterUser() {
+    @DisplayName("Test register user")
+    public void testRegisterUser_Success() {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(roleRepository.findByRoleName("USER")).thenReturn(Optional.of(role));
@@ -127,7 +127,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testRegisterUserRoleNotExists() {
+    @DisplayName("Test register user but role not found")
+    public void testRegisterUser_RoleNotFound() {
         when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty());
 
         RoleNotFoundException exception = assertThrows(
@@ -143,7 +144,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testLoginSuccess() {
+    @DisplayName("Test login user")
+    public void testLogin_Success() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mock(Authentication.class));
@@ -164,7 +166,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testLoginUserNotFound() {
+    @DisplayName("Test login user but user not found")
+    public void testLogin_UserNotFound() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> authenticationService.login(authenticationRequest));
@@ -174,7 +177,8 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testLoginInvalidCredentials() {
+    @DisplayName("Test login user but credentials are invalid")
+    public void testLogin_InvalidCredentials() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new InvalidCredentialsException("Email et/ou mot de passe incorrecte"));

@@ -44,6 +44,7 @@ public class TokenTest {
     }
 
     @Test
+    @DisplayName("Test create token")
     public void testCreateToken() {
         Token savedToken = entityManager.persistAndFlush(token);
 
@@ -51,6 +52,7 @@ public class TokenTest {
     }
 
     @Test
+    @DisplayName("Test update token")
     public void testUpdateToken() {
         Token savedToken = entityManager.persistAndFlush(token);
 
@@ -65,21 +67,25 @@ public class TokenTest {
     }
 
     @Test
+    @DisplayName("Test same object")
     public void testEquals_SameObject() {
         assertThat(token).isEqualTo(token);
     }
 
     @Test
+    @DisplayName("Test null")
     public void testEquals_Null() {
         assertThat(token).isNotEqualTo(null);
     }
 
     @Test
+    @DisplayName("Test different class")
     public void testEquals_DifferentClass() {
         assertThat(token).isNotEqualTo("This is a different object");
     }
 
     @Test
+    @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         Token differentFields = Token.builder()
                 .token("This is a test with different fields")
@@ -92,6 +98,7 @@ public class TokenTest {
     }
 
     @Test
+    @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         Token sameFields = Token.builder()
                 .token("This is a test")
@@ -102,6 +109,7 @@ public class TokenTest {
     }
 
     @Test
+    @DisplayName("Test same fields hashcode")
     public void testHashCode_SameFields() {
         Token sameFields = Token.builder()
                 .token("This is a test")

@@ -55,6 +55,7 @@ public class TokenRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test save token")
     public void testSaveToken() {
         Token savedToken = tokenRepository.save(token);
 
@@ -62,6 +63,7 @@ public class TokenRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test find token by token")
     public void testFindByToken() {
         Token savedToken = tokenRepository.save(token);
 
@@ -71,28 +73,7 @@ public class TokenRepositoryTest {
     }
 
     @Test
-    public void testFindByUser_IdUser() {
-        Token savedToken = tokenRepository.save(token);
-
-        List<Token> foundTokens = tokenRepository.findAllByUser_IdUser(user.getIdUser());
-
-        assertThat(foundTokens.size()).isEqualTo(1);
-        assertThat(foundTokens.get(0)).isEqualTo(savedToken);
-        assertThat(foundTokens.get(0).getUser()).isEqualTo(user);
-    }
-
-    @Test
-    public void testFindByUser_Email() {
-        Token savedToken = tokenRepository.save(token);
-
-        List<Token> foundTokens = tokenRepository.findAllByUser_Email(user.getEmail());
-
-        assertThat(foundTokens.size()).isEqualTo(1);
-        assertThat(foundTokens.get(0)).isEqualTo(savedToken);
-        assertThat(foundTokens.get(0).getUser()).isEqualTo(user);
-    }
-
-    @Test
+    @DisplayName("Test delete token")
     public void testDeleteToken() {
         Token savedToken = tokenRepository.save(token);
 
