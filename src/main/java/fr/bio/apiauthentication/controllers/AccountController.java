@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService accountService;
 
-    @GetMapping(value = "/profil")
+    @PostMapping(value = "/profil")
     public ResponseEntity<UserProfilResponse> login(
             @Validated @RequestBody UserProfilRequest request
     ) {
