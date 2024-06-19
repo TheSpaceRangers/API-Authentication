@@ -26,7 +26,9 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
-    public DefaultSecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public DefaultSecurityFilterChain defaultSecurityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
