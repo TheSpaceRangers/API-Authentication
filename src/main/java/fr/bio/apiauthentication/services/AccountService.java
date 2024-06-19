@@ -61,13 +61,13 @@ public class AccountService implements IAccountService {
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
-        if (!user.getFirstName().equals(request.firstName()))
+        if (request.firstName() != null && !request.firstName().isBlank() && !user.getFirstName().equals(request.firstName()))
             user.setFirstName(request.firstName());
 
-        if (!user.getLastName().equals(request.lastName()))
+        if (request.lastName() != null && !request.lastName().isEmpty() && !user.getLastName().equals(request.lastName()))
             user.setLastName(request.lastName());
 
-        if (!user.getEmail().equals(request.email()))
+        if (request.email() != null && !request.email().isEmpty() && !user.getEmail().equals(request.email()))
             user.setEmail(request.email());
 
         userRepository.save(user);
@@ -99,6 +99,26 @@ public class AccountService implements IAccountService {
                 .headers(getHeaders(request.token()))
                 .body(MessageResponse.builder()
                         .message("User password has been changed")
+                        .build()
+                );
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> deactivateAccount(
+            AccountTokenRequest request
+    ) {
+        final String email = jwtService.getUsernameFromToken(request.token());
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+
+        user.setEnabled(false);
+        userRepository.save(user);
+
+        return ResponseEntity.ok()
+                .headers(getHeaders(request.token()))
+                .body(MessageResponse.builder()
+                        .message("User account has been deactivated")
                         .build()
                 );
     }
