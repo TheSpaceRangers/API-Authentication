@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.controllers;
 
+import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.services.AccountService;
@@ -19,5 +20,13 @@ public class AccountController {
             @Validated @RequestBody UserProfilRequest request
     ) {
         return accountService.getUserProfile(request);
+    }
+
+    @PutMapping(value = "/profil")
+    public ResponseEntity<UserProfilResponse> updateProfile(
+            @Validated @RequestBody UserProfilRequest request,
+            @Validated @RequestBody UpdateUserProfilRequest updateRequest
+    ) {
+        return accountService.updateUserProfile(request, updateRequest);
     }
 }
