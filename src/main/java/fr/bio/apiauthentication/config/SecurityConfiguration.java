@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.config;
 
+import fr.bio.apiauthentication.components.JwtTokenFilter;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +29,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private UserRepository userRepository;
+    private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
     public DefaultSecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -40,24 +42,9 @@ public class SecurityConfiguration {
                     authorizationManagerRequestMatcherRegistry
                             .requestMatchers("/api/v1/auth/*").permitAll();
                 })
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
