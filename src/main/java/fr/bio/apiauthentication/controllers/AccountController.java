@@ -1,8 +1,9 @@
 package fr.bio.apiauthentication.controllers;
 
+import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.account.UserProfilRequest;
+import fr.bio.apiauthentication.dto.account.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.services.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -18,20 +19,20 @@ public class AccountController {
 
     @PostMapping(value = "/profil")
     public ResponseEntity<UserProfilResponse> login(
-            @Validated @RequestBody UserProfilRequest request
+            @Validated @RequestBody AccountTokenRequest request
     ) {
         return accountService.getUserProfile(request);
     }
 
     @PutMapping(value = "/profil")
-    public ResponseEntity<UserProfilResponse> updateProfile(
+    public ResponseEntity<MessageResponse> updateProfile(
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
         return accountService.updateUserProfile(request);
     }
 
     @PutMapping(value = "/password")
-    public ResponseEntity<UserProfilResponse> updatePassword(
+    public ResponseEntity<MessageResponse> updatePassword(
             @Validated @RequestBody UpdatePasswordRequest request
     ) {
         return accountService.updatePassword(request);

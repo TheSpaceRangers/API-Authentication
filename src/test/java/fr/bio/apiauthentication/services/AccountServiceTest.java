@@ -1,8 +1,9 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.account.UserProfilRequest;
+import fr.bio.apiauthentication.dto.account.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
@@ -70,7 +71,7 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test get user profile")
     public void testGetUserProfile_Success() {
-        UserProfilRequest request = new UserProfilRequest(token);
+        AccountTokenRequest request = new AccountTokenRequest(token);
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
@@ -93,7 +94,7 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test get user profile but user not found")
     void testGetUserProfil_UserNotFound() {
-        UserProfilRequest request = new UserProfilRequest(token);
+        AccountTokenRequest request = new AccountTokenRequest(token);
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
@@ -112,15 +113,13 @@ public class AccountServiceTest {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
 
-        ResponseEntity<UserProfilResponse> responseEntity = accountService.updateUserProfile(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updateUserProfile(request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
-        assertThat(responseEntity.getBody().getFirstName()).isEqualTo("John");
-        assertThat(responseEntity.getBody().getLastName()).isEqualTo("Doe");
-        assertThat(responseEntity.getBody().getEmail()).isEqualTo("j.doe@test.com");
+        assertThat(responseEntity.getBody().getMessage()).isEqualTo("");
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
@@ -152,7 +151,7 @@ public class AccountServiceTest {
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("newPassword");
 
-        ResponseEntity<UserProfilResponse> responseEntity = accountService.updatePassword(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -172,7 +171,7 @@ public class AccountServiceTest {
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(false);
 
-        ResponseEntity<UserProfilResponse> responseEntity = accountService.updatePassword(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
