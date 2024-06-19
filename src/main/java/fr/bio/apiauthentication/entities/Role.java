@@ -23,6 +23,7 @@ public class Role {
     @Column(name = "role_name")
     private String roleName;
 
+    @Builder.Default
     private boolean enabled = true;
 
     @ManyToMany(mappedBy = "roles")

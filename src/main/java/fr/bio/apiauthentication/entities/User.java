@@ -34,7 +34,8 @@ public class User implements UserDetails {
     @Column(name = "last_nam")
     private String lastName;
 
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = true;
 
     @ManyToMany
     @JoinTable(

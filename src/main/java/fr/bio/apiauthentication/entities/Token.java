@@ -25,9 +25,13 @@ public class Token {
     private String token;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private TokenType type = TokenType.BEARER;
 
+    @Builder.Default
     private boolean revoked = false;
+
+    @Builder.Default
     private boolean expired = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
