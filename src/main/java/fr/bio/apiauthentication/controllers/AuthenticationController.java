@@ -3,7 +3,7 @@ package fr.bio.apiauthentication.controllers;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
-import fr.bio.apiauthentication.services.IAuthenticationService;
+import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package fr.bio.apiauthentication.services;
+package fr.bio.apiauthentication.services.interfaces;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

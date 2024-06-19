@@ -11,6 +11,7 @@ import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
+import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

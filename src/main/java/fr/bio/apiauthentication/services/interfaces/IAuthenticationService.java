@@ -1,4 +1,4 @@
-package fr.bio.apiauthentication.services;
+package fr.bio.apiauthentication.services.interfaces;
 
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;

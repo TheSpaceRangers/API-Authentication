@@ -10,7 +10,7 @@ import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
-import fr.bio.apiauthentication.services.IAuthenticationService;
+import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 
 import fr.bio.apiauthentication.services.JwtService;
 import org.junit.jupiter.api.BeforeEach;

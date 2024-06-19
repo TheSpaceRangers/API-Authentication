@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.services.interfaces.IJwtService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
