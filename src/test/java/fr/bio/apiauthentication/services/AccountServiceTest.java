@@ -63,13 +63,13 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void testGetUserProfil_Success() {
+    public void testGetUserProfile_Success() {
         UserProfilRequest request = new UserProfilRequest(token);
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
 
-        ResponseEntity<UserProfilResponse> responseEntity = accountService.getUserProfil(request  );
+        ResponseEntity<UserProfilResponse> responseEntity = accountService.getUserProfile(request  );
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -91,7 +91,7 @@ public class AccountServiceTest {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.getUserProfil(request));
+        assertThrows(UsernameNotFoundException.class, () -> accountService.getUserProfile(request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.com");

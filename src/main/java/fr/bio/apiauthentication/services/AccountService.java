@@ -22,7 +22,7 @@ public class AccountService implements IAccountService {
     private final JwtService jwtService;
 
     @Override
-    public ResponseEntity<UserProfilResponse> getUserProfil(
+    public ResponseEntity<UserProfilResponse> getUserProfile(
             UserProfilRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());

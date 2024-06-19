@@ -18,6 +18,6 @@ public class AccountController {
     public ResponseEntity<UserProfilResponse> login(
             @Validated @RequestBody UserProfilRequest request
     ) {
-        return accountService.getUserProfil(request);
+        return accountService.getUserProfile(request);
     }
 }

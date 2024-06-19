@@ -5,5 +5,5 @@ import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface IAccountService {
-    ResponseEntity<UserProfilResponse> getUserProfil (UserProfilRequest request);
+    ResponseEntity<UserProfilResponse> getUserProfile(UserProfilRequest request);
 }
