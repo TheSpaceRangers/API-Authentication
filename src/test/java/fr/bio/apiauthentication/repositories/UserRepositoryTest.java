@@ -38,7 +38,7 @@ public class    UserRepositoryTest {
         role = Role.builder()
                 .roleName("ADMIN")
                 .build();
-        roleRepository.save(role);
+        role = roleRepository.save(role);
 
         user = User.builder()
                 .email("c.tronel@test.com")
@@ -52,14 +52,15 @@ public class    UserRepositoryTest {
 
     @AfterEach
     void tearDown() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
+        userRepository.delete(user);
+        roleRepository.delete(role);
 
         user = null;
         role = null;
     }
 
     @Test
+    @DisplayName("Test save user")
     public void testSaveUser() {
         User savedUser = userRepository.save(user);
 
@@ -67,27 +68,36 @@ public class    UserRepositoryTest {
         assertThat(savedUser.getEmail()).isEqualTo(user.getEmail());
         assertThat(savedUser.getRoles().size()).isEqualTo(1);
         assertThat(savedUser.getRoles().iterator().next().getRoleName()).isEqualTo("ADMIN");
+
+        userRepository.delete(savedUser);
     }
 
     @Test
+    @DisplayName("Test find user by email")
     public void testFindByEmail() {
         User savedUser = userRepository.save(user);
 
         Optional<User> foundUser = userRepository.findByEmail(savedUser.getEmail());
 
         assertThat(foundUser.isPresent()).isTrue();
+
+        userRepository.delete(savedUser);
     }
 
     @Test
+    @DisplayName("Test find user by first name and last name")
     public void testFindByFirstNameAndLastName() {
         User savedUser = userRepository.save(user);
 
         Optional<User> foundUser = userRepository.findByFirstNameAndLastName(savedUser.getFirstName(), savedUser.getLastName());
 
         assertThat(foundUser.isPresent()).isTrue();
+
+        userRepository.delete(savedUser);
     }
 
     @Test
+    @DisplayName("Test delete user by ID")
     public void testDeleteById() {
         User savedUser = userRepository.save(user);
 
@@ -96,5 +106,7 @@ public class    UserRepositoryTest {
         Optional<User> deletedUser = userRepository.findById(savedUser.getIdUser());
 
         assertThat(deletedUser.isPresent()).isFalse();
+
+        userRepository.delete(savedUser);
     }
 }
