@@ -1,4 +1,4 @@
-package fr.bio.apiauthentication.dto;
+package fr.bio.apiauthentication.dto.authentication;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

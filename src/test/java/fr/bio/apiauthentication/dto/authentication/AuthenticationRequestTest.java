@@ -1,4 +1,4 @@
-package fr.bio.apiauthentication.dto;
+package fr.bio.apiauthentication.dto.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;

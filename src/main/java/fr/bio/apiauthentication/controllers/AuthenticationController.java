@@ -1,8 +1,8 @@
 package fr.bio.apiauthentication.controllers;
 
-import fr.bio.apiauthentication.dto.AuthenticationRequest;
-import fr.bio.apiauthentication.dto.AuthenticationResponse;
-import fr.bio.apiauthentication.dto.CreateUserRequest;
+import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
+import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
+import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.services.IAuthenticationService;
 
 import lombok.RequiredArgsConstructor;

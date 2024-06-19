@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.bio.apiauthentication.components.JwtTokenFilter;
 import fr.bio.apiauthentication.config.SecurityConfiguration;
-import fr.bio.apiauthentication.dto.AuthenticationRequest;
-import fr.bio.apiauthentication.dto.AuthenticationResponse;
-import fr.bio.apiauthentication.dto.CreateUserRequest;
+import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
+import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
+import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
