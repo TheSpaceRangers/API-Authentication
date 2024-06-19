@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService accountService;
 
+    // TODO Front Token delete BEARER
+
     @PostMapping(value = "/profil")
     public ResponseEntity<UserProfilResponse> login(
             @Validated @RequestBody AccountTokenRequest request
@@ -36,5 +38,12 @@ public class AccountController {
             @Validated @RequestBody UpdatePasswordRequest request
     ) {
         return accountService.updatePassword(request);
+    }
+
+    @PutMapping(value = "/desactivate")
+    public ResponseEntity<MessageResponse> desactivate(
+            @Validated @RequestBody AccountTokenRequest request
+    ) {
+        return accountService.deactivateAccount(request);
     }
 }
