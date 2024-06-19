@@ -16,8 +16,6 @@ public interface IJwtService {
 
     Date getExpirationDateFromToken(String token);
 
-    boolean validate(String token);
-
     boolean validateToken(String token, UserDetails userDetails);
 
     boolean isTokenExpired(String token);
