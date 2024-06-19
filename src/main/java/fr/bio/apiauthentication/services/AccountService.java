@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
@@ -9,8 +10,10 @@ import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -21,6 +24,8 @@ public class AccountService implements IAccountService {
     private final UserRepository userRepository;
 
     private final JwtService jwtService;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(
@@ -64,6 +69,36 @@ public class AccountService implements IAccountService {
         if (!user.getEmail().equals(request.email()))
             user.setEmail(request.email());
 
+        userRepository.save(user);
+
+        return ResponseEntity.ok()
+                .headers(getHeaders(request.token()))
+                .body(UserProfilResponse.builder()
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .roles(user.getRoles()
+                                .stream()
+                                .map(Role::getRoleName)
+                                .collect(Collectors.toList())
+                        )
+                        .build()
+                );
+    }
+
+    @Override
+    public ResponseEntity<UserProfilResponse> updatePassword(
+            UpdatePasswordRequest request
+    ) {
+        final String email = jwtService.getUsernameFromToken(request.token());
+
+        final User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(getHeaders(request.token())).body(null);
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok()
