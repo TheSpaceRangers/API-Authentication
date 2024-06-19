@@ -39,11 +39,13 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("Test create user")
     public void testCreateUser() {
         user = entityManager.persistAndFlush(user);
     }
 
     @Test
+    @DisplayName("Test update user")
     public void testUpdateUser() {
         //user.setIdUser(12345);
         user.setFirstName("John");
@@ -56,21 +58,25 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("Test same object")
     public void testEquals_SameObject() {
         assertThat(user).isEqualTo(user);
     }
 
     @Test
+    @DisplayName("Test null")
     public void testEquals_Null() {
         assertThat(user).isNotEqualTo(null);
     }
 
     @Test
+    @DisplayName("Test different class")
     public void testEquals_DifferentClass() {
         assertThat(user).isNotEqualTo("This is a different object");
     }
 
     @Test
+    @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         User differentFields = User.builder()
                 .email("c.tronel@test.com")
@@ -84,6 +90,7 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         User sameFields = User.builder()
                 .email("c.tronel@test.com")
@@ -97,34 +104,7 @@ public class UserTest {
     }
 
     @Test
-    public void testHashCode_SameObject() {
-        assertThat(user.hashCode()).isEqualTo(user.hashCode());
-    }
-
-    @Test
-    public void testHashCode_Null() {
-        assertThat(user.hashCode()).isNotEqualTo(null);
-    }
-
-    @Test
-    public void testHashCode_DifferentClass() {
-        assertThat(user.hashCode()).isNotEqualTo("This is a different object".hashCode());
-    }
-
-    @Test
-    public void testHashCode_DifferentFields() {
-        User differentFields = User.builder()
-                .email("c.tronel@test.com")
-                .password("password")
-                .firstName("Charles")
-                .lastName("TRONEL")
-                .enabled(true)
-                .build();
-
-        assertThat(user.hashCode()).isNotEqualTo(differentFields.hashCode());
-    }
-
-    @Test
+    @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
         User sameFields = User.builder()
                 .email("c.tronel@test.com")

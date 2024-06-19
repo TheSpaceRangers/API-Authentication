@@ -64,6 +64,7 @@ public class AccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test get user profile")
     public void testGetUserProfile_Success() {
         UserProfilRequest request = new UserProfilRequest(token);
 
@@ -86,6 +87,7 @@ public class AccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test get user profile but user not found")
     void testGetUserProfil_UserNotFound() {
         UserProfilRequest request = new UserProfilRequest(token);
 
@@ -99,6 +101,7 @@ public class AccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test update user profile")
     public void testUpdateUserProfile_Success() {
         UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.com");
 
@@ -121,6 +124,7 @@ public class AccountServiceTest {
     }
 
     @Test
+    @DisplayName("Test update user profile but user not found")
     public void testUpdateUserProfile_UserNotFound() {
         UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.com");
 
