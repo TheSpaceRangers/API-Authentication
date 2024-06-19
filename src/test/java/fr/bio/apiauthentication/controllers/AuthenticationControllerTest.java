@@ -2,17 +2,14 @@ package fr.bio.apiauthentication.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.bio.apiauthentication.components.JwtTokenFilter;
 import fr.bio.apiauthentication.config.SecurityConfiguration;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.repositories.RoleRepository;
-import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 
-import fr.bio.apiauthentication.services.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,8 +22,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -49,22 +44,7 @@ public class AuthenticationControllerTest {
     private IAuthenticationService authenticationService;
 
     @MockBean
-    private JwtService jwtService;
-
-    @MockBean
-    private JwtTokenFilter jwtTokenFilter;
-
-    @MockBean
     private RoleRepository roleRepository;
-
-    @MockBean
-    private TokenRepository tokenRepository;
-
-    @MockBean
-    private AuthenticationProvider authenticationProvider;
-
-    @MockBean
-    private UserDetailsService userDetailsService;
 
     private CreateUserRequest requestRegister;
     private AuthenticationRequest resquestLogin;
