@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

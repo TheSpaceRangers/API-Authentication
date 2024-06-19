@@ -3,7 +3,7 @@ package fr.bio.apiauthentication.services;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.account.AccountTokenRequest;
+import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
