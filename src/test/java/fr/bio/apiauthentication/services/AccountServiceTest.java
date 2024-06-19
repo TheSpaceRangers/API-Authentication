@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
@@ -92,6 +93,41 @@ public class AccountServiceTest {
         when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> accountService.getUserProfile(request));
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
+    }
+
+    @Test
+    public void testUpdateUserProfile_Success() {
+        UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.com");
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
+        when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.of(user));
+
+        ResponseEntity<UserProfilResponse> responseEntity = accountService.updateUserProfile(request);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        assertThat(responseEntity.getBody().getFirstName()).isEqualTo("John");
+        assertThat(responseEntity.getBody().getLastName()).isEqualTo("Doe");
+        assertThat(responseEntity.getBody().getEmail()).isEqualTo("j.doe@test.com");
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
+        verify(userRepository, times(2)).save(user);
+    }
+
+    @Test
+    public void testUpdateUserProfile_UserNotFound() {
+        UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.com");
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.com");
+        when(userRepository.findByEmail("c.tronel@test.com")).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.updateUserProfile(request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.com");
