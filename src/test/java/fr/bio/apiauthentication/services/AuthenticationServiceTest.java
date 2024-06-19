@@ -12,8 +12,6 @@ import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 
-import jakarta.transaction.Transactional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
