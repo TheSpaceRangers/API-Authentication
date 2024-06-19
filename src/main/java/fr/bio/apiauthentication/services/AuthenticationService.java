@@ -85,7 +85,7 @@ public class AuthenticationService implements IAuthenticationService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
         final String token = jwtService.generateToken(userDetails);
-        final String refreshToken = jwtService.generateRefreshToken(userDetails);
+        //final String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         revokeAllUserTokens(userDetails);
         saveUserToken(userDetails, token);

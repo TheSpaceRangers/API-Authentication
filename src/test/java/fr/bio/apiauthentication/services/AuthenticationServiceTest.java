@@ -154,7 +154,7 @@ public class AuthenticationServiceTest {
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.login(authenticationRequest);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getHeaders().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer jwt-token");
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com est connecté !");
@@ -167,9 +167,7 @@ public class AuthenticationServiceTest {
     public void testLoginUserNotFound() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> {
-            authenticationService.login(authenticationRequest);
-        });
+        assertThrows(UsernameNotFoundException.class, () -> authenticationService.login(authenticationRequest));
 
         verify(authenticationManager, never()).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtService, never()).generateToken(any(UserDetails.class));
@@ -181,9 +179,7 @@ public class AuthenticationServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new InvalidCredentialsException("Email et/ou mot de passe incorrecte"));
 
-        assertThrows(InvalidCredentialsException.class, () -> {
-            authenticationService.login(authenticationRequest);
-        });
+        assertThrows(InvalidCredentialsException.class, () -> authenticationService.login(authenticationRequest));
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtService, never()).generateToken(any(UserDetails.class));
