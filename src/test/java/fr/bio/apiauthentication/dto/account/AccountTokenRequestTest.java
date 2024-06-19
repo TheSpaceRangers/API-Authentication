@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test get user profile DTO Request")
-public class UserProfilRequestTest {
+public class AccountTokenRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private UserProfilRequest request;
+    private AccountTokenRequest request;
 
     @BeforeEach
     void setUp() {
-        request = new UserProfilRequest("This is a token test");
+        request = new AccountTokenRequest("This is a token test");
     }
 
     @AfterEach
@@ -31,14 +31,14 @@ public class UserProfilRequestTest {
 
     @Test
     public void testEquals() {
-        UserProfilRequest requestEquals = new UserProfilRequest("This is a token test");
+        AccountTokenRequest requestEquals = new AccountTokenRequest("This is a token test");
 
         assertThat(request).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        UserProfilRequest requestNotEquals = new UserProfilRequest("This is a token test false");
+        AccountTokenRequest requestNotEquals = new AccountTokenRequest("This is a token test false");
 
         assertThat(request).isNotEqualTo(requestNotEquals);
     }
@@ -55,7 +55,7 @@ public class UserProfilRequestTest {
     public void testDeserialize() throws Exception {
         String json = "{\"token\":\"This is a token test\"}";
 
-        UserProfilRequest requestMapped = mapper.readValue(json, UserProfilRequest.class);
+        AccountTokenRequest requestMapped = mapper.readValue(json, AccountTokenRequest.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(request);
     }

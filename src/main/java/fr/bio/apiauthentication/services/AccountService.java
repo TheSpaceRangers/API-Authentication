@@ -1,8 +1,9 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.account.UserProfilRequest;
+import fr.bio.apiauthentication.dto.account.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
@@ -29,7 +30,7 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(
-            UserProfilRequest request
+            AccountTokenRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());
 
@@ -52,7 +53,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<UserProfilResponse> updateUserProfile(
+    public ResponseEntity<MessageResponse> updateUserProfile(
             UpdateUserProfilRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());
@@ -73,21 +74,14 @@ public class AccountService implements IAccountService {
 
         return ResponseEntity.ok()
                 .headers(getHeaders(request.token()))
-                .body(UserProfilResponse.builder()
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .email(user.getEmail())
-                        .roles(user.getRoles()
-                                .stream()
-                                .map(Role::getRoleName)
-                                .collect(Collectors.toList())
-                        )
+                .body(MessageResponse.builder()
+                        .message("User account has been updated")
                         .build()
                 );
     }
 
     @Override
-    public ResponseEntity<UserProfilResponse> updatePassword(
+    public ResponseEntity<MessageResponse> updatePassword(
             UpdatePasswordRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());
@@ -103,15 +97,8 @@ public class AccountService implements IAccountService {
 
         return ResponseEntity.ok()
                 .headers(getHeaders(request.token()))
-                .body(UserProfilResponse.builder()
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .email(user.getEmail())
-                        .roles(user.getRoles()
-                                .stream()
-                                .map(Role::getRoleName)
-                                .collect(Collectors.toList())
-                        )
+                .body(MessageResponse.builder()
+                        .message("User password has been changed")
                         .build()
                 );
     }
