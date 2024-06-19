@@ -1,9 +1,9 @@
-package fr.bio.apiauthentication.dto.account;
+package fr.bio.apiauthentication.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record UserProfilRequest(
+public record AccountTokenRequest(
         @NotNull @NotBlank String token
 ) {
 }
