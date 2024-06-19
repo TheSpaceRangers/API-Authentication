@@ -154,7 +154,7 @@ public class AuthenticationServiceTest {
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.login(authenticationRequest);
 
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer jwt-token");
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com est connecté !");
