@@ -2,11 +2,17 @@ package fr.bio.apiauthentication.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.bio.apiauthentication.components.JwtTokenFilter;
 import fr.bio.apiauthentication.config.SecurityConfiguration;
+import fr.bio.apiauthentication.dto.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.CreateUserRequest;
+import fr.bio.apiauthentication.entities.Role;
+import fr.bio.apiauthentication.repositories.RoleRepository;
+import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.services.IAuthenticationService;
 
+import fr.bio.apiauthentication.services.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +25,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,34 +48,79 @@ public class AuthenticationControllerTest {
     @MockBean
     private IAuthenticationService authenticationService;
 
-    private CreateUserRequest request;
-    private AuthenticationResponse response;
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private JwtTokenFilter jwtTokenFilter;
+
+    @MockBean
+    private RoleRepository roleRepository;
+
+    @MockBean
+    private TokenRepository tokenRepository;
+
+    @MockBean
+    private AuthenticationProvider authenticationProvider;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
+    private CreateUserRequest requestRegister;
+    private AuthenticationRequest resquestLogin;
+    private AuthenticationResponse responseRegister, responseLogin;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        request = new CreateUserRequest(
+        Role role = Role.builder()
+                .roleName("USER")
+                .build();
+        roleRepository.save(role);
+
+        requestRegister = new CreateUserRequest(
                 "John",
                 "Doe",
                 "john.doe@example.com",
                 "password"
         );
 
-        response = new AuthenticationResponse(
+        responseRegister = new AuthenticationResponse(
                 "L'utilisateur john.doe@example.com a bien été créé !"
+        );
+
+        resquestLogin = new AuthenticationRequest(
+                "john.doe@example.com",
+                "password"
+        );
+
+        responseLogin = new AuthenticationResponse(
+                "L'utilisateur john.doe@example.com est connecté !"
         );
     }
 
     @Test
     public void testRegister() throws Exception {
-        when(authenticationService.register(any(CreateUserRequest.class))).thenReturn(ResponseEntity.ok(response));
+        when(authenticationService.register(any(CreateUserRequest.class))).thenReturn(ResponseEntity.ok(responseRegister));
 
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
+                        .content(objectMapper.writeValueAsString(requestRegister))
                 ).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect(content().json(objectMapper.writeValueAsString(responseRegister)));
+    }
+
+    @Test
+    public void testLogin() throws Exception {
+        when(authenticationService.login(any(AuthenticationRequest.class))).thenReturn(ResponseEntity.ok(responseLogin));
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(resquestLogin))
+                ).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(responseLogin)));
     }
 }
