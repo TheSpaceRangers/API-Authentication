@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 public interface IAccountService {
     ResponseEntity<UserProfilResponse> getUserProfile(AccountTokenRequest request);
 
-    ResponseEntity<MessageResponse> updateUserProfile(UpdateUserProfilRequest request);
+    ResponseEntity<MessageResponse> updateProfile(UpdateUserProfilRequest request);
+
+    ResponseEntity<MessageResponse> updateEmail(AccountTokenRequest request);
 
     ResponseEntity<MessageResponse> updatePassword(UpdatePasswordRequest request);
 

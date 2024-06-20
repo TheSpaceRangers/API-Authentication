@@ -53,7 +53,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateUserProfile(
+    public ResponseEntity<MessageResponse> updateProfile(
             UpdateUserProfilRequest request
     ) {
         final String email = jwtService.getUsernameFromToken(request.token());
@@ -78,6 +78,11 @@ public class AccountService implements IAccountService {
                         .message("User account has been updated")
                         .build()
                 );
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> updateEmail(AccountTokenRequest request) {
+        return null;
     }
 
     @Override
