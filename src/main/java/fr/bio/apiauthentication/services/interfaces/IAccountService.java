@@ -12,7 +12,7 @@ public interface IAccountService {
 
     ResponseEntity<MessageResponse> updateProfile(UpdateUserProfilRequest request);
 
-    ResponseEntity<MessageResponse> updateEmail(AccountTokenRequest request);
+    ResponseEntity<MessageResponse> updateEmail(String request);
 
     ResponseEntity<MessageResponse> updatePassword(UpdatePasswordRequest request);
 
