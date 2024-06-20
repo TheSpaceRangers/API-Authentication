@@ -18,7 +18,7 @@ jobs:
 
       - name: Start OWASP ZAP
         run: |
-          docker run -d --name zap -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0
+          docker run -d --name zap -p 8080:8080 -i zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0
 
       - name: Check ZAP logs
         run: docker logs $(docker ps -q --filter "ancestor=owasp/zap2docker-stable")
