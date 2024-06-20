@@ -30,7 +30,7 @@ public class AccountController {
     public ResponseEntity<MessageResponse> updateProfile(
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
-        return accountService.updateUserProfile(request);
+        return accountService.updateProfile(request);
     }
 
     @PutMapping(value = "/password")
