@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Start OWASP ZAP
         run: |
@@ -25,7 +25,7 @@ jobs:
           docker exec zap zap-baseline.py -t http://example.com -r zap_report.html
 
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ZAP Report
           path: zap_report.html
