@@ -23,6 +23,8 @@ jobs:
       - name: Run ZAP baseline scan
         run: |
           docker exec zap zap-baseline.py -t http://example.com -r zap_report.html
+        env:
+          ZAP_API_KEY: ${{ secrest.ZAP_API_KEY }}
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v3
