@@ -20,17 +20,11 @@ jobs:
         run: |
           docker run -d --name zap -p 8080:8080 -v $(pwd):/zap/wrk:rw -i zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0
 
-      - name: Verify Permissions
-        run: docker exec zap ls -l /zap /zap/wrk
-
       - name: Run ZAP baseline scan
         run: |
-          docker exec zap zap-baseline.py -t http://example.com -r /tmp/zap_report.html
+          docker exec zap zap-baseline.py -t http://example.com -r /zap_report.html
         env:
           ZAP_API_KEY: ${{ secrets.ZAP_API_KEY }}
-
-      - name: Copy report from Docker container
-        run: docker cp zap:/tmp/zap_report.html .
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v3
