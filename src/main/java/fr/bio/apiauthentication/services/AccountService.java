@@ -81,7 +81,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateEmail(AccountTokenRequest request) {
+    public ResponseEntity<MessageResponse> updateEmail(String request) {
         return null;
     }
 

@@ -19,14 +19,14 @@ public class AccountController {
 
     // TODO Front Token delete BEARER
 
-    @PostMapping(value = "/profil")
+    @PostMapping(value = "/profile")
     public ResponseEntity<UserProfilResponse> login(
             @Validated @RequestBody AccountTokenRequest request
     ) {
         return accountService.getUserProfile(request);
     }
 
-    @PutMapping(value = "/profil")
+    @PutMapping(value = "/profile")
     public ResponseEntity<MessageResponse> updateProfile(
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
