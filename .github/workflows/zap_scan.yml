@@ -12,6 +12,9 @@ jobs:
   zap_scan:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # donne l'autorisation d'écrire dans le dépôt
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
