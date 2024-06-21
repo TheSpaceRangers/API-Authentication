@@ -26,6 +26,7 @@ jobs:
         env:
           ZAP_API_KEY: ${{ secrets.ZAP_API_KEY }}
 
+
       - name: Upload ZAP report
         uses: actions/upload-artifact@v3
         with:
