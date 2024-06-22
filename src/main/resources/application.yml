@@ -2,14 +2,14 @@ spring:
   application:
     name: API - Authentication
 
-# Configuration de la source de données MySQL
+  # Configuration de la source de données MySQL
   datasource:
     url: jdbc:mysql://34.248.75.185:3306/IT-Budget-DB
     username: Charles
     password: 78jXKyE65VtovYxNk5SoWdn3sV58qz
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-# Configuration de JPA (Java Persistence API)
+  # Configuration de JPA (Java Persistence API)
   jpa:
     hibernate.ddl-auto: update
     show-sql: true
@@ -17,7 +17,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
-# Email Configuration
+  # Email Configuration
   mail:
     host: smtp.gmail.com
     port: 587
@@ -27,7 +27,7 @@ spring:
       mail:
         smtp:
           auth: true
-          starttl:
+          starttls:
             enable: true
 
 # JWT Token Configuration

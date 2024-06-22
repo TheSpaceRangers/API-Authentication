@@ -18,6 +18,19 @@ spring:
       hibernate:
         format_sql: true
 
+  # Email Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: charles.tronel@gmail.com
+    password: 3m^DjmeO3hcTJh]LibBkfQ5.,?i^b0
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 # JWT Token Configuration
 application:
   security:
