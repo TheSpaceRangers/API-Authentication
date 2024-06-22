@@ -29,6 +29,7 @@ jobs:
           chmod +x gradlew
           ./gradlew testCoverage
 
+
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
