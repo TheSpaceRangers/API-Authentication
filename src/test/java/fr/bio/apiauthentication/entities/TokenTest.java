@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.entities;
 
+import fr.bio.apiauthentication.enums.TokenType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ public class TokenTest {
 
         token = Token.builder()
                 .token("This is a test.properties")
+                .type(TokenType.BEARER)
                 .user(user)
                 .build();
     }
@@ -57,6 +59,8 @@ public class TokenTest {
         Token savedToken = entityManager.persistAndFlush(token);
 
         savedToken.setToken("This is a second test.properties");
+        savedToken.setType(TokenType.BEARER);
+        savedToken.setUser(user);
         savedToken.setExpired(true);
         savedToken.setRevoked(true);
 
