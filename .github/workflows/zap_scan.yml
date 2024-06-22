@@ -23,12 +23,6 @@ jobs:
         run: |
           docker run -d --name zap -p 8080:8080 -v $(pwd):/zap/wrk:rw -i zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0
 
-      - name: Change permissions for /zap/wrk
-        run: |
-          docker exec zap mkdir -p /zap/wrk
-          docker exec zap chmod 777 /zap/wrk
-        shell: /usr/bin/bash -e {0}
-
       - name: Run ZAP baseline scan
         run: |
           docker exec zap zap-baseline.py -t http://example.com -r /zap_report.html
