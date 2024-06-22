@@ -6,6 +6,7 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -166,10 +167,7 @@ public class AccountServiceTest {
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(false);
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(token, request);
-
-        assertThat(responseEntity).isNotNull();
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThrows(InvalidPasswordException.class, () -> accountService.updatePassword(token, request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
