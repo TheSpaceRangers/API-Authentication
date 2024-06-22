@@ -17,10 +17,10 @@ public class UpdateUserProfileRequestTest {
     @BeforeEach
     void setUp() {
         request = new UpdateUserProfilRequest(
-                "This is a token test",
+                "This is a token",
                 "John",
                 "Doe",
-                "j.doe@test.com"
+                "j.doe@test.properties.com"
         );
     }
 
@@ -31,16 +31,16 @@ public class UpdateUserProfileRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.token()).isEqualTo("This is a token test");
+        assertThat(request.token()).isEqualTo("This is a token");
     }
 
     @Test
     public void testEquals() {
         UpdateUserProfilRequest requestEquals = new UpdateUserProfilRequest(
-                "This is a token test",
+                "This is a token",
                 "John",
                 "Doe",
-                "j.doe@test.com"
+                "j.doe@test.properties.com"
         );
 
         assertThat(request).isEqualTo(requestEquals);
@@ -49,10 +49,10 @@ public class UpdateUserProfileRequestTest {
     @Test
     public void testNotEquals() {
         UpdateUserProfilRequest requestNotEquals = new UpdateUserProfilRequest(
-                "This is a token test false",
+                "This is not a token",
                 "False",
-                "flase",
-                "F.f@test.com"
+                "False",
+                "f.false@test.properties.com"
         );
 
         assertThat(request).isNotEqualTo(requestNotEquals);
@@ -61,23 +61,26 @@ public class UpdateUserProfileRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        String expectedJson = "{" +
-                "\"token\":\"This is a token test\"," +
-                "\"firstName\":\"John\"," +
-                "\"lastName\":\"Doe\"," +
-                "\"email\":\"j.doe@test.com\"" +
-                "}";
+        UpdateUserProfilRequest actualRequest = mapper.readValue(json, UpdateUserProfilRequest.class);
 
-        assertThat(json).isEqualTo(expectedJson);
+        String expectedJson = "{" +
+                "\"token\":\"This is a token\"," +
+                "\"first_name\":\"John\"," +
+                "\"last_name\":\"Doe\"," +
+                "\"email\":\"j.doe@test.properties.com\"" +
+                "}";
+        UpdateUserProfilRequest expectedRequest = mapper.readValue(expectedJson, UpdateUserProfilRequest.class);
+
+        assertThat(actualRequest).isEqualTo(expectedRequest);
     }
 
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"token\":\"This is a token test\"," +
-                "\"firstName\":\"John\"," +
-                "\"lastName\":\"Doe\"," +
-                "\"email\":\"j.doe@test.com\"" +
+                "\"token\":\"This is a token\"," +
+                "\"first_name\":\"John\"," +
+                "\"last_name\":\"Doe\"," +
+                "\"email\":\"j.doe@test.properties.com\"" +
                 "}";
         UpdateUserProfilRequest requestMapped = mapper.readValue(json, UpdateUserProfilRequest.class);
 

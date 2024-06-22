@@ -1,5 +1,5 @@
 spring:
-  # Configuration de la source de données MySQL
+  # Configuration de la source de donnÃ©es MySQL
   datasource:
     url: jdbc:mysql://34.248.75.185:3306/IT-Budget-DB
     username: Charles
