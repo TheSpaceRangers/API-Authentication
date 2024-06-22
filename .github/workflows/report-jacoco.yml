@@ -24,19 +24,24 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run Coverage
-        run: |
-          chmod +x gradlew
-          ./gradlew testCoverage
+      - name: Build with Maven
+        run: mvn clean install
 
+      - name: Run tests and generate JaCoCo report
+        run: mvn test jacoco:report
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: target/site/jacoco
 
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         with:
           paths: |
-            ${{ github.workspace }}/**/build/reports/jacoco/prodNormalDebugCoverage/prodNormalDebugCoverage.xml,
-            ${{ github.workspace }}/**/build/reports/jacoco/**/debugCoverage.xml
+            ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 60
