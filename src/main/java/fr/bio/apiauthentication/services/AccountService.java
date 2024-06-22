@@ -81,11 +81,6 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateEmail(String request) {
-        return null;
-    }
-
-    @Override
     public ResponseEntity<MessageResponse> updatePassword(
             UpdatePasswordRequest request
     ) {

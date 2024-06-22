@@ -12,8 +12,6 @@ public interface IAccountService {
 
     ResponseEntity<MessageResponse> updateProfile(UpdateUserProfilRequest request);
 
-    ResponseEntity<MessageResponse> updateEmail(String request);
-
     ResponseEntity<MessageResponse> updatePassword(UpdatePasswordRequest request);
 
     ResponseEntity<MessageResponse> deactivateAccount(AccountTokenRequest request);
