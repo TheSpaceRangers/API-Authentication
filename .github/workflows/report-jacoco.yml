@@ -18,7 +18,7 @@ jobs:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}  # Utilisation du secret configuré
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -31,14 +31,14 @@ jobs:
         run: mvn test jacoco:report
 
       - name: Upload JaCoCo report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco
 
       - name: Add coverage to PR
         id: jacoco
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.7.0
         with:
           paths: |
             ${{ github.workspace }}/target/site/jacoco/jacoco.xml
