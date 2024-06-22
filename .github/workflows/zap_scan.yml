@@ -25,13 +25,12 @@ jobs:
 
       - name: Run ZAP baseline scan
         run: |
-          docker exec zap zap-baseline.py -t http://example.com -r /zap_report.html
+          docker exec zap zap-baseline.py -t http://example.com -r /zap/wrk/zap_report.html
         env:
           ZAP_API_KEY: ${{ secrets.ZAP_API_KEY }}
 
-
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # Mise à jour à v4 pour Node.js 20
         with:
           name: ZAP Report
           path: zap_report.html
