@@ -191,7 +191,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Test desactivate account")
+    @DisplayName("Test deactivate account")
     public void testDeactivateAccount_Success() {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
@@ -209,7 +209,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("Test desactivate account but user not found")
+    @DisplayName("Test deactivate account but user not found")
     public void testDeactivateAccount_UserNotFound() {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
