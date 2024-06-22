@@ -38,13 +38,15 @@ public class LoginHistoryRepositoryTest {
         loginHistoryRepository.deleteAll();
     }
 
+    private final LocalDateTime NOW = LocalDateTime.now();
+
     @Test
     @DisplayName("Test save login history")
     public void testSaveRole() {
         LoginHistory loginHistory = LoginHistory.builder()
                 .user(null)
                 .ipAddress("This is IP Address")
-                .dateLogin(LocalDateTime.now())
+                .dateLogin(NOW)
                 .build();
         LoginHistory savedLoginHistory = loginHistoryRepository.save(loginHistory);
 
@@ -71,7 +73,7 @@ public class LoginHistoryRepositoryTest {
         LoginHistory loginHistory = LoginHistory.builder()
                 .user(user)
                 .ipAddress("This is IP Address")
-                .dateLogin(LocalDateTime.now())
+                .dateLogin(NOW)
                 .build();
         LoginHistory savedLoginHistory = loginHistoryRepository.save(loginHistory);
 
