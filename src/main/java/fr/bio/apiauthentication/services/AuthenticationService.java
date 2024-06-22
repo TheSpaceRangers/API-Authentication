@@ -78,7 +78,7 @@ public class AuthenticationService implements IAuthenticationService {
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (AuthenticationException e) {
+        } catch (InvalidCredentialsException e) {
             throw new InvalidCredentialsException("Email et/ou mot de passe incorecte");
         }
 
