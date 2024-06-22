@@ -6,11 +6,11 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,7 +91,7 @@ public class AccountService implements IAccountService {
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         if (!passwordEncoder.matches(request.oldPassword(), user.getPassword()))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(getHeaders(token)).body(null);
+            throw new InvalidPasswordException("Invalid old password provided");
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
