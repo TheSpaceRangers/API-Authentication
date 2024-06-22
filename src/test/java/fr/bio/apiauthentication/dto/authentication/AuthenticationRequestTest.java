@@ -17,7 +17,7 @@ public class AuthenticationRequestTest {
     @BeforeEach
     void setUp() {
         request = new AuthenticationRequest(
-                "username@test.com",
+                "username@test.properties.com",
                 "password"
         );
     }
@@ -29,14 +29,14 @@ public class AuthenticationRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.email()).isEqualTo("username@test.com");
+        assertThat(request.email()).isEqualTo("username@test.properties.com");
         assertThat(request.password()).isEqualTo("password");
     }
 
     @Test
     public void testEquals() {
         AuthenticationRequest requestEquals = new AuthenticationRequest(
-                "username@test.com",
+                "username@test.properties.com",
                 "password"
         );
 
@@ -46,7 +46,7 @@ public class AuthenticationRequestTest {
     @Test
     public void testNotEquals() {
         AuthenticationRequest requestEquals = new AuthenticationRequest(
-                "username@test.com",
+                "username@test.properties.com",
                 "password not equals"
         );
 
@@ -56,18 +56,21 @@ public class AuthenticationRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
+        AuthenticationRequest actualRequest = mapper.readValue(json, AuthenticationRequest.class);
+
         String expectedJson = "{" +
-                "\"email\":\"username@test.com\"," +
+                "\"email\":\"username@test.properties.com\"," +
                 "\"password\":\"password\"" +
                 "}";
+        AuthenticationRequest expectedRequest = mapper.readValue(expectedJson, AuthenticationRequest.class);
 
-        assertThat(json).isEqualTo(expectedJson);
+        assertThat(actualRequest).isEqualTo(expectedRequest);
     }
 
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"email\":\"username@test.com\"," +
+                "\"email\":\"username@test.properties.com\"," +
                 "\"password\":\"password\"" +
                 "}";
 

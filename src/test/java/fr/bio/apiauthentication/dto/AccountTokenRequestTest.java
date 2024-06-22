@@ -1,7 +1,6 @@
-package fr.bio.apiauthentication.dto.account;
+package fr.bio.apiauthentication.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +16,7 @@ public class AccountTokenRequestTest {
 
     @BeforeEach
     void setUp() {
-        request = new AccountTokenRequest("This is a token test");
+        request = new AccountTokenRequest("This is a token test.properties");
     }
 
     @AfterEach
@@ -27,19 +26,19 @@ public class AccountTokenRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.token()).isEqualTo("This is a token test");
+        assertThat(request.token()).isEqualTo("This is a token test.properties");
     }
 
     @Test
     public void testEquals() {
-        AccountTokenRequest requestEquals = new AccountTokenRequest("This is a token test");
+        AccountTokenRequest requestEquals = new AccountTokenRequest("This is a token test.properties");
 
         assertThat(request).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        AccountTokenRequest requestNotEquals = new AccountTokenRequest("This is a token test false");
+        AccountTokenRequest requestNotEquals = new AccountTokenRequest("This is a token test.properties false");
 
         assertThat(request).isNotEqualTo(requestNotEquals);
     }
@@ -47,14 +46,17 @@ public class AccountTokenRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        String expectedJson = "{\"token\":\"This is a token test\"}";
+        AccountTokenRequest actualRequest = mapper.readValue(json, AccountTokenRequest.class);
 
-        assertThat(json).isEqualTo(expectedJson);
+        String expectedJson = "{\"token\":\"This is a token test.properties\"}";
+        AccountTokenRequest expectedRequest = mapper.readValue(expectedJson, AccountTokenRequest.class);
+
+        assertThat(expectedRequest).isEqualTo(actualRequest);
     }
 
     @Test
     public void testDeserialize() throws Exception {
-        String json = "{\"token\":\"This is a token test\"}";
+        String json = "{\"token\":\"This is a token test.properties\"}";
 
         AccountTokenRequest requestMapped = mapper.readValue(json, AccountTokenRequest.class);
 

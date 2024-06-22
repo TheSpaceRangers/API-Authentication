@@ -19,7 +19,7 @@ public class CreateUserRequestTest {
         request = new CreateUserRequest(
                 "Charles",
                 "Tronel",
-                "c.tronel@test.com",
+                "c.tronel@test.properties.com",
                 "12345678"
         );
     }
@@ -33,7 +33,7 @@ public class CreateUserRequestTest {
     public void testRecordFields() {
         assertThat(request.firstName()).isEqualTo("Charles");
         assertThat(request.lastName()).isEqualTo("Tronel");
-        assertThat(request.email()).isEqualTo("c.tronel@test.com");
+        assertThat(request.email()).isEqualTo("c.tronel@test.properties.com");
         assertThat(request.password()).isEqualTo("12345678");
     }
 
@@ -42,7 +42,7 @@ public class CreateUserRequestTest {
         CreateUserRequest requestEquals = new CreateUserRequest(
                 "Charles",
                 "Tronel",
-                "c.tronel@test.com",
+                "c.tronel@test.properties.com",
                 "12345678"
         );
 
@@ -64,14 +64,17 @@ public class CreateUserRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
+        CreateUserRequest actualRequest = mapper.readValue(json, CreateUserRequest.class);
+
         String expectedJson = "{" +
                 "\"firstName\":\"Charles\"," +
                 "\"lastName\":\"Tronel\"," +
-                "\"email\":\"c.tronel@test.com\"," +
+                "\"email\":\"c.tronel@test.properties.com\"," +
                 "\"password\":\"12345678\"" +
                 "}";
+        CreateUserRequest expectedRequest = mapper.readValue(expectedJson, CreateUserRequest.class);
 
-        assertThat(expectedJson).isEqualTo(json);
+        assertThat(expectedRequest).isEqualTo(actualRequest);
     }
 
     @Test
@@ -79,7 +82,7 @@ public class CreateUserRequestTest {
         String json = "{" +
                 "\"firstName\":\"Charles\"," +
                 "\"lastName\":\"Tronel\"," +
-                "\"email\":\"c.tronel@test.com\"," +
+                "\"email\":\"c.tronel@test.properties.com\"," +
                 "\"password\":\"12345678\"" +
                 "}";
 
