@@ -123,7 +123,7 @@ public class LoginHistoryTest {
         LoginHistory sameFields = LoginHistory.builder()
                 .user(user)
                 .ipAddress("This is IP Address")
-                .dateLogin(LocalDateTime.now())
+                .dateLogin(NOW)
                 .build();
 
         assertThat(loginHistory.hashCode()).isEqualTo(sameFields.hashCode());
