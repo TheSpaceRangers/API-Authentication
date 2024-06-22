@@ -40,7 +40,7 @@ public class AccountController {
         return accountService.updatePassword(token.substring(7), request);
     }
 
-    @PutMapping(value = "/desactivate")
+    @PutMapping(value = "/deactivate")
     public ResponseEntity<MessageResponse> desactivate(
             @RequestHeader("Authorization") String token
     ) {
