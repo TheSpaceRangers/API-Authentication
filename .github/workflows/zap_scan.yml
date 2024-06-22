@@ -19,9 +19,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set permissions for working directory
+        run: sudo chmod -R 777 $(pwd)
+
       - name: Start OWASP ZAP
         run: |
-          docker run -d --name zap -p 8080:8080 -v $(pwd):/zap/wrk:rw -i zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0
+          docker run -d --name zap -p 8080:8080 -v $(pwd):/zap/wrk:rw -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -i zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0
 
       - name: Run ZAP baseline scan
         run: |
@@ -30,7 +33,7 @@ jobs:
           ZAP_API_KEY: ${{ secrets.ZAP_API_KEY }}
 
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v4  # Mise à jour à v4 pour Node.js 20
+        uses: actions/upload-artifact@v4
         with:
           name: ZAP Report
           path: zap_report.html
