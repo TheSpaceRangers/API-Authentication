@@ -1,5 +1,7 @@
 package fr.bio.apiauthentication.components;
 
+import fr.bio.apiauthentication.entities.LoginHistory;
+import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.services.JwtService;
 import jakarta.servlet.FilterChain;
@@ -24,6 +26,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     @Override
     protected void doFilterInternal(
@@ -31,7 +34,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/v1/auth")) {
+        if (request.getServletPath().equals("/api/v1/auth/login")) {
+
             filterChain.doFilter(request, response);
             return;
         }
