@@ -1,7 +1,5 @@
 package fr.bio.apiauthentication.components;
 
-import fr.bio.apiauthentication.entities.LoginHistory;
-import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.services.JwtService;
 import jakarta.servlet.FilterChain;
@@ -26,7 +24,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
-    private final LoginHistoryRepository loginHistoryRepository;
 
     @Override
     protected void doFilterInternal(
@@ -34,8 +31,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getServletPath().equals("/api/v1/auth/login")) {
-
+        if (request.getServletPath().contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,6 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String userEmail = jwtService.getUsernameFromToken(token);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
             boolean isTokenValid = tokenRepository.findByToken(token)
                     .map(t -> !t.isExpired() && !t.isRevoked())
                     .orElse(false);
@@ -61,6 +58,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
