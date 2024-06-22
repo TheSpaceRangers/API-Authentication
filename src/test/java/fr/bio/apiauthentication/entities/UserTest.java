@@ -138,6 +138,10 @@ public class UserTest {
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
+                .createdAt(LocalDate.now())
+                .createdBy("System")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
                 .enabled(true)
                 .build();
 
@@ -152,6 +156,10 @@ public class UserTest {
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
+                .createdAt(LocalDate.now())
+                .createdBy("System")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
                 .enabled(true)
                 .build();
 

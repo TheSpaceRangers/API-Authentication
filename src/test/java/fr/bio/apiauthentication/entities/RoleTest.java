@@ -109,6 +109,7 @@ public class RoleTest {
     public void testEquals_SameFields() {
         Role sameFields = Role.builder()
                 .roleName("USER")
+                .users(Collections.singleton(user))
                 .build();
 
         assertThat(role).isEqualTo(sameFields);
@@ -119,6 +120,7 @@ public class RoleTest {
     public void testHashCode_SameFields() {
         Role sameFields = Role.builder()
                 .roleName("USER")
+                .users(Collections.singleton(user))
                 .build();
 
         assertThat(role.hashCode()).isEqualTo(sameFields.hashCode());
