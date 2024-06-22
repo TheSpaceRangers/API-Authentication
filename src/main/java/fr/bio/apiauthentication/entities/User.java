@@ -2,10 +2,7 @@ package fr.bio.apiauthentication.entities;
 
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -23,6 +20,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "roles")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
@@ -72,7 +70,6 @@ public class User implements UserDetails {
             )
     )
     private Collection<Role> roles;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

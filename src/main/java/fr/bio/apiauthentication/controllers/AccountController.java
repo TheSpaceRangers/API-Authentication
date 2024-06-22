@@ -6,6 +6,7 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.services.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService accountService;
 
-    // TODO Front Token delete BEARER
-
     @PostMapping(value = "/profile")
     public ResponseEntity<UserProfilResponse> login(
             @RequestHeader("Authorization") String token
     ) {
-        return accountService.getUserProfile(token);
+        return accountService.getUserProfile(token.substring(7));
     }
 
     @PutMapping(value = "/profile")
@@ -30,7 +29,7 @@ public class AccountController {
             @RequestHeader("Authorization") String token,
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
-        return accountService.updateProfile(token, request);
+        return accountService.updateProfile(token.substring(7), request);
     }
 
     @PutMapping(value = "/password")
@@ -38,13 +37,13 @@ public class AccountController {
             @RequestHeader("Authorization") String token,
             @Validated @RequestBody UpdatePasswordRequest request
     ) {
-        return accountService.updatePassword(token, request);
+        return accountService.updatePassword(token.substring(7), request);
     }
 
     @PutMapping(value = "/desactivate")
     public ResponseEntity<MessageResponse> desactivate(
             @RequestHeader("Authorization") String token
     ) {
-        return accountService.deactivateAccount(token);
+        return accountService.deactivateAccount(token.substring(7));
     }
 }

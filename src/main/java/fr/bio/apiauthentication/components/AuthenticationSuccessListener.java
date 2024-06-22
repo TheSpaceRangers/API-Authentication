@@ -4,7 +4,6 @@ import fr.bio.apiauthentication.entities.LoginHistory;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.tomcat.util.net.IPv6Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
@@ -12,8 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 
 @Component
@@ -42,5 +39,6 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
                 .dateLogin(LocalDateTime.now())
                 .ipAddress(ipAddress)
                 .build();
+        loginHistoryRepository.save(loginHistory);
     }
 }
