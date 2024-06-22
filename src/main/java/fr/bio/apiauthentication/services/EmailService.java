@@ -1,15 +1,17 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.services.interfaces.IEmailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService implements IEmailService {
 
-    private final JavaMailSender javaMailSender = new JavaMailSenderImpl();
+    private JavaMailSender javaMailSender;
 
     @Override
     public void sendEmail(String to, String subject, String body) {
