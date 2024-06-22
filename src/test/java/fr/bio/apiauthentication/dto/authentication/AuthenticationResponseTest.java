@@ -52,9 +52,12 @@ public class AuthenticationResponseTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(response);
-        String expectedJson = "{\"message\":\"Response message\"}";
+        AuthenticationResponse actualResponse = mapper.readValue(json, AuthenticationResponse.class);
 
-        assertThat(json).isEqualTo(expectedJson);
+        String expectedJson = "{\"message\":\"Response message\"}";
+        AuthenticationResponse expectedResponse = mapper.readValue(expectedJson, AuthenticationResponse.class);
+
+        assertThat(actualResponse).isEqualTo(expectedResponse);
     }
 
     @Test
