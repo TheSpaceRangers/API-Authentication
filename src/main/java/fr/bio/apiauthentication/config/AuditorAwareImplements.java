@@ -12,8 +12,7 @@ public class AuditorAwareImplements implements AuditorAware<String> {
     public Optional<String> getCurrentAuditor() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(authentication -> {
-                    if (authentication.getPrincipal() instanceof UserDetails) {
-                        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                    if (authentication.getPrincipal() instanceof UserDetails userDetails) {
                         User user = (User) userDetails;
                         return user.getFirstName().charAt(0) + "." + user.getLastName();
                     }
