@@ -25,7 +25,7 @@ public class UserTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
@@ -50,7 +50,7 @@ public class UserTest {
         //user.setIdUser(12345);
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setEmail("j.doe@test.com");
+        user.setEmail("j.doe@test.properties.com");
         user.setPassword("password 3");
         user.setEnabled(false);
 
@@ -79,7 +79,7 @@ public class UserTest {
     @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         User differentFields = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("Charles")
                 .lastName("TRONEL")
@@ -93,7 +93,7 @@ public class UserTest {
     @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         User sameFields = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
@@ -107,7 +107,7 @@ public class UserTest {
     @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
         User sameFields = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")

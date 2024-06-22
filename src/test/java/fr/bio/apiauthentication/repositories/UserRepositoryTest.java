@@ -39,7 +39,7 @@ public class    UserRepositoryTest {
         role = roleRepository.save(role);
 
         user = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")

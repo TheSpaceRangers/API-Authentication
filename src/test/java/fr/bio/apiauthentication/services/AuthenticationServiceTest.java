@@ -80,23 +80,23 @@ public class AuthenticationServiceTest {
         request = new CreateUserRequest(
                 "Charles",
                 "TRONEL",
-                "c.tronel@test.com",
+                "c.tronel@test.properties.com",
                 "1234567890"
         );
 
         authenticationRequest = new AuthenticationRequest(
-                "c.tronel@test.com",
+                "c.tronel@test.properties.com",
                 "1234567890"
         );
 
         user = User.builder()
                 .firstName("Charles")
                 .lastName("Tronel")
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("1234567890")
                 .build();
 
-        userDetails = org.springframework.security.core.userdetails.User.withUsername("c.tronel@test.com")
+        userDetails = org.springframework.security.core.userdetails.User.withUsername("c.tronel@test.properties.com")
                 .password("1234567890")
                 .authorities(Collections.emptyList())
                 .build();
@@ -117,7 +117,7 @@ public class AuthenticationServiceTest {
         ResponseEntity<AuthenticationResponse> response = authenticationService.register(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com a bien été créé !");
+        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.properties.com a bien été créé !");
 
         verify(passwordEncoder, times(1)).encode("1234567890");
         verify(userRepository, times(1)).save(any(User.class));
@@ -157,7 +157,7 @@ public class AuthenticationServiceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer jwt-token");
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com est connecté !");
+        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.properties.com est connecté !");
 
         verify(tokenRepository, times(1)).save(any(Token.class));
         verify(tokenRepository, times(1)).findAllValidTokenByUser(anyLong());
