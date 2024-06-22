@@ -3,7 +3,6 @@ package fr.bio.apiauthentication.controllers;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.services.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -21,29 +20,31 @@ public class AccountController {
 
     @PostMapping(value = "/profile")
     public ResponseEntity<UserProfilResponse> login(
-            @Validated @RequestBody AccountTokenRequest request
+            @RequestHeader("Authorization") String token
     ) {
-        return accountService.getUserProfile(request);
+        return accountService.getUserProfile(token);
     }
 
     @PutMapping(value = "/profile")
     public ResponseEntity<MessageResponse> updateProfile(
+            @RequestHeader("Authorization") String token,
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
-        return accountService.updateProfile(request);
+        return accountService.updateProfile(token, request);
     }
 
     @PutMapping(value = "/password")
     public ResponseEntity<MessageResponse> updatePassword(
+            @RequestHeader("Authorization") String token,
             @Validated @RequestBody UpdatePasswordRequest request
     ) {
-        return accountService.updatePassword(request);
+        return accountService.updatePassword(token, request);
     }
 
     @PutMapping(value = "/desactivate")
     public ResponseEntity<MessageResponse> desactivate(
-            @Validated @RequestBody AccountTokenRequest request
+            @RequestHeader("Authorization") String token
     ) {
-        return accountService.deactivateAccount(request);
+        return accountService.deactivateAccount(token);
     }
 }

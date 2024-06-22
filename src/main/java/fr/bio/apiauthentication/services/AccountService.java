@@ -3,7 +3,6 @@ package fr.bio.apiauthentication.services;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
@@ -30,15 +29,15 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(
-            AccountTokenRequest request
+            String token
     ) {
-        final String email = jwtService.getUsernameFromToken(request.token());
+        final String email = jwtService.getUsernameFromToken(token);
 
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         return ResponseEntity.ok()
-                .headers(getHeaders(request.token()))
+                .headers(getHeaders(token))
                 .body(UserProfilResponse.builder()
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
@@ -54,9 +53,10 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<MessageResponse> updateProfile(
+            String token,
             UpdateUserProfilRequest request
     ) {
-        final String email = jwtService.getUsernameFromToken(request.token());
+        final String email = jwtService.getUsernameFromToken(token);
 
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
@@ -73,7 +73,7 @@ public class AccountService implements IAccountService {
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(request.token()))
+                .headers(getHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User account has been updated")
                         .build()
@@ -82,21 +82,22 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<MessageResponse> updatePassword(
+            String token,
             UpdatePasswordRequest request
     ) {
-        final String email = jwtService.getUsernameFromToken(request.token());
+        final String email = jwtService.getUsernameFromToken(token);
 
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         if (!passwordEncoder.matches(request.oldPassword(), user.getPassword()))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(getHeaders(request.token())).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(getHeaders(token)).body(null);
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(request.token()))
+                .headers(getHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User password has been changed")
                         .build()
@@ -105,9 +106,9 @@ public class AccountService implements IAccountService {
 
     @Override
     public ResponseEntity<MessageResponse> deactivateAccount(
-            AccountTokenRequest request
+            String token
     ) {
-        final String email = jwtService.getUsernameFromToken(request.token());
+        final String email = jwtService.getUsernameFromToken(token);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
@@ -116,7 +117,7 @@ public class AccountService implements IAccountService {
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(request.token()))
+                .headers(getHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User account has been deactivated")
                         .build()

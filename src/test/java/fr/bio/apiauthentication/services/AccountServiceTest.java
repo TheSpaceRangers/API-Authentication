@@ -3,7 +3,6 @@ package fr.bio.apiauthentication.services;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.AccountTokenRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
@@ -71,12 +70,10 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test get user profile")
     public void testGetUserProfile_Success() {
-        AccountTokenRequest request = new AccountTokenRequest(token);
-
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
 
-        ResponseEntity<UserProfilResponse> responseEntity = accountService.getUserProfile(request  );
+        ResponseEntity<UserProfilResponse> responseEntity = accountService.getUserProfile(token);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -94,12 +91,10 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test get user profile but user not found")
     void testGetUserProfil_UserNotFound() {
-        AccountTokenRequest request = new AccountTokenRequest(token);
-
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.getUserProfile(request));
+        assertThrows(UsernameNotFoundException.class, () -> accountService.getUserProfile(token));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
@@ -108,12 +103,12 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test update user profile")
     public void testUpdateProfile_Success() {
-        UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.properties.com");
+        UpdateUserProfilRequest request = new UpdateUserProfilRequest("John", "Doe", "j.doe@test.properties.com");
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.updateProfile(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updateProfile(token, request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -129,12 +124,12 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test update user profile but user not found")
     public void testUpdateUserProfile_NotFound() {
-        UpdateUserProfilRequest request = new UpdateUserProfilRequest(token, "John", "Doe", "j.doe@test.properties.com");
+        UpdateUserProfilRequest request = new UpdateUserProfilRequest("John", "Doe", "j.doe@test.properties.com");
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.updateProfile(request));
+        assertThrows(UsernameNotFoundException.class, () -> accountService.updateProfile(token, request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
@@ -143,7 +138,7 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test update password")
     public void testUpdatePassword_Success() {
-        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "1234567890", "newPassword");
+        UpdatePasswordRequest request = new UpdatePasswordRequest("1234567890", "newPassword");
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
@@ -151,7 +146,7 @@ public class AccountServiceTest {
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("newPassword");
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(token, request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -165,13 +160,13 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test update password but old password is invalid")
     public void testUpdatePassword_OldPasswordIsInvalid() {
-        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "invalidOldPassword", "newPassword");
+        UpdatePasswordRequest request = new UpdatePasswordRequest("invalidOldPassword", "newPassword");
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(false);
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(token, request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -184,12 +179,12 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test update password but user not found")
     public void testUpdatePassword_UserNotFound() {
-        UpdatePasswordRequest request = new UpdatePasswordRequest(token, "oldPassword", "newPassword");
+        UpdatePasswordRequest request = new UpdatePasswordRequest("oldPassword", "newPassword");
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.updatePassword(request));
+        assertThrows(UsernameNotFoundException.class, () -> accountService.updatePassword(token, request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
@@ -198,12 +193,10 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test desactivate account")
     public void testDeactivateAccount_Success() {
-        AccountTokenRequest request = new AccountTokenRequest(token);
-
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.deactivateAccount(request);
+        ResponseEntity<MessageResponse> responseEntity = accountService.deactivateAccount(token);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -218,12 +211,10 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Test desactivate account but user not found")
     public void testDeactivateAccount_UserNotFound() {
-        AccountTokenRequest request = new AccountTokenRequest(token);
-
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.deactivateAccount(request));
+        assertThrows(UsernameNotFoundException.class, () -> accountService.deactivateAccount(token));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
