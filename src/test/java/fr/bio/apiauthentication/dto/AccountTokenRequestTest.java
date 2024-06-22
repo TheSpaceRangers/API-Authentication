@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@DisplayName("Test get user profile DTO Request")
+@DisplayName("Test account token DTO Request")
 public class AccountTokenRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
