@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 
 import jakarta.annotation.PostConstruct;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
+@Data
 public class JwtService implements IJwtService {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
