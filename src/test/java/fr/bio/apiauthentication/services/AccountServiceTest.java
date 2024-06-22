@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -190,6 +191,40 @@ public class AccountServiceTest {
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> accountService.updatePassword(request));
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
+    }
+
+    @Test
+    @DisplayName("Test desactivate account")
+    public void testDeactivateAccount_Success() {
+        AccountTokenRequest request = new AccountTokenRequest(token);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
+        when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
+
+        ResponseEntity<MessageResponse> responseEntity = accountService.deactivateAccount(request);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+        assertThat(responseEntity.getBody().getMessage()).isEqualTo("User account has been deactivated");
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
+        verify(userRepository, times(2)).save(user);
+    }
+
+    @Test
+    @DisplayName("Test desactivate account but user not found")
+    public void testDeactivateAccount_UserNotFound() {
+        AccountTokenRequest request = new AccountTokenRequest(token);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
+        when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.deactivateAccount(request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
         verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
