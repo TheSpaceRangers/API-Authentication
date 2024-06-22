@@ -22,7 +22,7 @@ public class TokenTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-                .email("c.tronel@test.com")
+                .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
@@ -31,7 +31,7 @@ public class TokenTest {
         entityManager.persist(user);
 
         token = Token.builder()
-                .token("This is a test")
+                .token("This is a test.properties")
                 .user(user)
                 .build();
     }
@@ -56,7 +56,7 @@ public class TokenTest {
     public void testUpdateToken() {
         Token savedToken = entityManager.persistAndFlush(token);
 
-        savedToken.setToken("This is a second test");
+        savedToken.setToken("This is a second test.properties");
         savedToken.setExpired(true);
         savedToken.setRevoked(true);
 
@@ -88,7 +88,7 @@ public class TokenTest {
     @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         Token differentFields = Token.builder()
-                .token("This is a test with different fields")
+                .token("This is a test.properties with different fields")
                 .user(null)
                 .revoked(true)
                 .expired(true)
@@ -101,7 +101,7 @@ public class TokenTest {
     @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         Token sameFields = Token.builder()
-                .token("This is a test")
+                .token("This is a test.properties")
                 .user(user)
                 .build();
 
@@ -112,7 +112,7 @@ public class TokenTest {
     @DisplayName("Test same fields hashcode")
     public void testHashCode_SameFields() {
         Token sameFields = Token.builder()
-                .token("This is a test")
+                .token("This is a test.properties")
                 .user(user)
                 .build();
 

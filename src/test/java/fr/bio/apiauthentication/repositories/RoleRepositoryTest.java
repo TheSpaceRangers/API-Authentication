@@ -20,24 +20,22 @@ public class RoleRepositoryTest {
     @Autowired
     private RoleRepository roleRepository;
 
-    private Role role;
-
     @BeforeEach
     void setUp() {
-        role = Role.builder()
-                .roleName("USER")
-                .build();
+        roleRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
         roleRepository.deleteAll();
-        role = null;
     }
 
     @Test
     @DisplayName("Test save role")
     public void testSaveRole() {
+        Role role = Role.builder()
+                .roleName("ROLE_SAVE")
+                .build();
         Role savedRole = roleRepository.save(role);
 
         assertThat(savedRole).isNotNull();
@@ -47,6 +45,9 @@ public class RoleRepositoryTest {
     @Test
     @DisplayName("Test find role by role name")
     public void testFindByRoleName() {
+        Role role = Role.builder()
+                .roleName("ROLE_FIND")
+                .build();
         Role savedRole = roleRepository.save(role);
 
         Optional<Role> foundRole = roleRepository.findByRoleName(savedRole.getRoleName());
@@ -57,6 +58,9 @@ public class RoleRepositoryTest {
     @Test
     @DisplayName("Test delete role")
     public void testDeleteRole() {
+        Role role = Role.builder()
+                .roleName("ROLE_DELETE")
+                .build();
         Role savedRole = roleRepository.save(role);
 
         roleRepository.deleteById(savedRole.getIdRole());
