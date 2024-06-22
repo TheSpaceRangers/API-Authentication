@@ -27,6 +27,8 @@ public class LoginHistoryTest {
     private User user;
     private LoginHistory loginHistory;
 
+    private final LocalDateTime NOW = LocalDateTime.now();
+
     @BeforeEach
     void setUp() {
         user = User.builder()
@@ -45,7 +47,7 @@ public class LoginHistoryTest {
         loginHistory = LoginHistory.builder()
                 .user(user)
                 .ipAddress("This is IP Address")
-                .dateLogin(LocalDateTime.now())
+                .dateLogin(NOW)
                 .build();
     }
 
@@ -109,7 +111,7 @@ public class LoginHistoryTest {
         LoginHistory sameFields = LoginHistory.builder()
                 .user(user)
                 .ipAddress("This is IP Address")
-                .dateLogin(LocalDateTime.now())
+                .dateLogin(NOW)
                 .build();
 
         assertThat(loginHistory).isEqualTo(sameFields);
