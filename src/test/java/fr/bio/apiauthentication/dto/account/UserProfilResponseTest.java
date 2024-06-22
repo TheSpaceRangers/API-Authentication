@@ -58,14 +58,17 @@ public class UserProfilResponseTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(response);
+        UserProfilResponse actualResponse = mapper.readValue(json, UserProfilResponse.class);
+
         String expectedJson = "{" +
                 "\"first_name\":\"firstName\"," +
                 "\"last_name\":\"lastName\"," +
                 "\"email\":\"email\"," +
                 "\"roles\":[\"USER\"]" +
                 "}";
+        UserProfilResponse expectedResponse = mapper.readValue(expectedJson, UserProfilResponse.class);
 
-        assertThat(json).isEqualTo(expectedJson);
+        assertThat(actualResponse).isEqualTo(expectedResponse);
     }
 
     @Test
