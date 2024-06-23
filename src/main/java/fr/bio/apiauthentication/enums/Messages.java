@@ -5,6 +5,8 @@ public enum Messages {
     USER_NOT_FOUND("User %s not found"),
     USER_CREATED("User with email %s has been created successfully"),
     USER_ALREADY_EXISTS("User already exists for email %s"),
+    USER_UPDATED("User %s has been updated"),
+    USER_NO_MODIFIED("No modifications were made to the user %s"),
 
     // ROLE
     ROLE_NOT_FOUND("Role %s has been not found"),
