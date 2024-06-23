@@ -13,16 +13,4 @@ public class ApiAuthenticationApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApiAuthenticationApplication.class, args);
     }
-
-    @Bean
-    CommandLineRunner commandLineRunner(RoleRepository roleRepository) {
-        return args -> {
-            if (roleRepository.findAll().isEmpty()) {
-                Role role = Role.builder()
-                        .roleName("USER")
-                        .build();
-                roleRepository.save(role);
-            }
-        };
-    }
 }
