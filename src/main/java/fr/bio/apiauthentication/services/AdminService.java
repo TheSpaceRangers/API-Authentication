@@ -4,6 +4,7 @@ import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
 import fr.bio.apiauthentication.entities.Role;
+import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.services.interfaces.IAdminService;
@@ -26,7 +27,7 @@ public class AdminService implements IAdminService {
             RoleModificationRequest request
     ) {
         Role role = roleRepository.findByAuthority(request.authority())
-                .orElseThrow(() -> new RoleNotFoundException("Role " + request.authority() + " not found"));
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
 
         boolean isModified = false;
 
@@ -46,24 +47,24 @@ public class AdminService implements IAdminService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(isModified
-                        ? new MessageResponse("Role " + request.authority() + " has been updated")
-                        : new MessageResponse("No modifications were made to the role " + request.authority())
+                        ? new MessageResponse(Messages.ROLE_UPDATED.formatMessage(request.authority()))
+                        : new MessageResponse(Messages.ROLE_NO_MODIFIED.formatMessage(request.authority()))
                 );
     }
 
     @Override
-    public ResponseEntity<MessageResponse> deactivateRole(
-            String token,
-            RoleModificationRequest request
-    ) {
+    public ResponseEntity<MessageResponse> updateRoleStatus(String token, RoleModificationRequest request, boolean status) {
         Role role = roleRepository.findByAuthority(request.authority())
-                .orElseThrow(() -> new RoleNotFoundException("Role " + request.authority() + " not found"));
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
 
-        role.setEnabled(false);
+        role.setEnabled(status);
         roleRepository.save(role);
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse("Role " + request.authority() + " has been deactivated"));
+                .body(status
+                        ? new MessageResponse(Messages.ROLE_ACTIVATED.formatMessage(request.authority()))
+                        : new MessageResponse(Messages.ROLE_DEACTIVATED.formatMessage(request.authority()))
+                );
     }
 }

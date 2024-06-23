@@ -27,6 +27,14 @@ public class AdminController {
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody RoleModificationRequest request
     ) {
-        return adminService.deactivateRole(token, request);
+        return adminService.updateRoleStatus(token, request, false);
+    }
+
+    @PutMapping(value = "/role/activate")
+    public ResponseEntity<MessageResponse> activateRole(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody RoleModificationRequest request
+    ) {
+        return adminService.updateRoleStatus(token, request, true);
     }
 }

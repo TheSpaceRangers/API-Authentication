@@ -7,5 +7,5 @@ import org.springframework.http.ResponseEntity;
 public interface IAdminService {
     ResponseEntity<MessageResponse> updateRole(String token, RoleModificationRequest request);
 
-    ResponseEntity<MessageResponse> deactivateRole(String token, RoleModificationRequest request);
+    ResponseEntity<MessageResponse> updateRoleStatus(String token, RoleModificationRequest request, boolean status);
 }
