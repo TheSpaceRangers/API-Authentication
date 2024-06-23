@@ -6,7 +6,7 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import org.springframework.http.ResponseEntity;
 
-public interface IAccountService {
+public interface IAccountRoleService {
     ResponseEntity<UserProfilResponse> getUserProfile(String token);
 
     ResponseEntity<MessageResponse> updateProfile(String token, UpdateUserProfilRequest request);

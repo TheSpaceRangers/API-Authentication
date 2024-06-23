@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Test Account Service")
-public class AccountServiceTest {
+public class AccountRoleServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -47,7 +47,7 @@ public class AccountServiceTest {
     private HttpHeadersUtil httpHeadersUtil;
 
     @InjectMocks
-    private AccountService accountService;
+    private AccountRoleService accountService;
 
     private User user;
     private String token;

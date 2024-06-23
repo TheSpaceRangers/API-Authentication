@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-public class AdminController {
+public class AdminRoleController {
     private final AdminService adminService;
 
     @GetMapping(value = "/roles")
@@ -23,12 +23,14 @@ public class AdminController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "status", required = false) String status
     ) {
-        return adminService.getAllRolesByStatus(
-                token,
-                status == null ? null : status.equalsIgnoreCase("active")
-                        ? true : status.equalsIgnoreCase("inactive")
-                        ? false : null
-        );
+        Boolean isActive = null;
+
+        if (status.equalsIgnoreCase("active"))
+            isActive = true;
+        else if (status.equalsIgnoreCase("inactive"))
+            isActive = false;
+
+        return adminService.getAllRolesByStatus(token, isActive);
     }
 
     @PostMapping(value = "/role/new")
