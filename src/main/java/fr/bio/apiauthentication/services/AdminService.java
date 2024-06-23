@@ -3,8 +3,10 @@ package fr.bio.apiauthentication.services;
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
+import fr.bio.apiauthentication.dto.admin.RoleStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.enums.Messages;
+import fr.bio.apiauthentication.exceptions.RoleAlreadyExistsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.services.interfaces.IAdminService;
@@ -13,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -20,6 +25,47 @@ public class AdminService implements IAdminService {
     private final RoleRepository roleRepository;
 
     private final HttpHeadersUtil httpHeadersUtil;
+
+    @Override
+    public ResponseEntity<List<RoleStructureResponse>> getRoles(
+            String token
+    ) {
+        List<Role> roles = roleRepository.findAllByEnabled(true);
+
+        List<RoleStructureResponse> responses = roles != null
+                ? roles.stream()
+                    .map(RoleStructureResponse::fromRole)
+                    .toList()
+                : List.of();
+
+        return ResponseEntity.ok()
+                .headers(httpHeadersUtil.createHeaders(token))
+                .body(responses);
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> createRole(
+            String token,
+            RoleModificationRequest request
+    ) {
+        Role role = roleRepository.findByAuthority(request.authority())
+                .orElse(null);
+
+        if (role != null)
+            throw new RoleAlreadyExistsException(Messages.ROLE_ALREADY_EXISTS.formatMessage(request.authority()));
+
+        role = Role.builder()
+                .authority(request.authority())
+                .displayName(request.displayName())
+                .description(request.description())
+                .build();
+
+        roleRepository.save(role);
+
+        return ResponseEntity.ok()
+                .headers(httpHeadersUtil.createHeaders(token))
+                .body(new MessageResponse(Messages.ROLE_CREATED.formatMessage(request.authority())));
+    }
 
     @Override
     public ResponseEntity<MessageResponse> updateRole(
