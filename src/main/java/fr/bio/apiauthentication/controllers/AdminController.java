@@ -21,7 +21,7 @@ public class AdminController {
     public ResponseEntity<List<RoleStructureResponse>> getRoles(
             @RequestHeader("Authorization") String token
     ) {
-        return adminService.getRoles(token);
+        return adminService.getAllActiveRoles(token);
     }
 
     @PostMapping(value = "/role/new")

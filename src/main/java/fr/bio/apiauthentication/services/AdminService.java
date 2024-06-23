@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +26,7 @@ public class AdminService implements IAdminService {
     private final HttpHeadersUtil httpHeadersUtil;
 
     @Override
-    public ResponseEntity<List<RoleStructureResponse>> getRoles(
+    public ResponseEntity<List<RoleStructureResponse>> getAllActiveRoles(
             String token
     ) {
         List<Role> roles = roleRepository.findAllByEnabled(true);

@@ -20,7 +20,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +45,7 @@ public class AdminServiceTest {
 
     @Test
     @DisplayName("Test get roles")
-    void testGetRoles() {
+    void testGetAllActiveRoles() {
         String token = "token";
 
         Role role = Role.builder()
@@ -63,7 +62,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(role));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getRoles(token);
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllActiveRoles(token);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -73,7 +72,7 @@ public class AdminServiceTest {
 
     @Test
     @DisplayName("Test get roles but no role")
-    void testGetRoles_NoRole() {
+    void testGetAllActiveRoles_NoRole() {
         String token = "token";
 
         List<RoleStructureResponse> actualResponse = List.of();
@@ -81,7 +80,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of());
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getRoles(token);
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllActiveRoles(token);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
