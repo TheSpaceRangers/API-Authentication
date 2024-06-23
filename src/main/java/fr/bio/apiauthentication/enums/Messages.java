@@ -2,6 +2,7 @@ package fr.bio.apiauthentication.enums;
 
 public enum Messages {
     // USER
+    USER_NOT_FOUND("User %s not found"),
     USER_CREATED("User with email %s has been created successfully"),
     USER_ALREADY_EXISTS("User already exists for email %s"),
 
