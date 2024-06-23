@@ -48,6 +48,32 @@ public class RoleRepositoryTest {
     }
 
     @Test
+    @DisplayName("Test find all roles")
+    public void testFindAll() {
+        Role role_1 = Role.builder()
+                .authority("ROLE_FIND_1")
+                .displayName("ROLE_FIND_1")
+                .description("ROLE_FIND_1")
+                .enabled(true)
+                .users(null)
+                .build();
+        roleRepository.save(role_1);
+        Role role_2 = Role.builder()
+                .authority("ROLE_FIND_2")
+                .displayName("ROLE_FIND_2")
+                .description("ROLE_FIND_2")
+                .enabled(false)
+                .users(null)
+                .build();
+        roleRepository.save(role_2);
+
+        List<Role> expectedRoles = List.of(role_1, role_2);
+        List<Role> foundRoles = roleRepository.findAll();
+
+        assertThat(foundRoles).isEqualTo(expectedRoles);
+    }
+
+    @Test
     @DisplayName("Test find role by role name")
     public void testFindByRoleName() {
         Role role = Role.builder()
