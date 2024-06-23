@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
@@ -15,17 +16,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor()
+@RequiredArgsConstructor
+@Transactional
 public class AccountService implements IAccountService {
     private final UserRepository userRepository;
 
     private final JwtService jwtService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final HttpHeadersUtil httpHeadersUtil;
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(
@@ -37,7 +42,7 @@ public class AccountService implements IAccountService {
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         return ResponseEntity.ok()
-                .headers(getHeaders(token))
+                .headers(httpHeadersUtil.createHeaders(token))
                 .body(UserProfilResponse.builder()
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
@@ -73,7 +78,7 @@ public class AccountService implements IAccountService {
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(token))
+                .headers(httpHeadersUtil.createHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User account has been updated")
                         .build()
@@ -97,7 +102,7 @@ public class AccountService implements IAccountService {
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(token))
+                .headers(httpHeadersUtil.createHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User password has been changed")
                         .build()
@@ -117,18 +122,10 @@ public class AccountService implements IAccountService {
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                .headers(getHeaders(token))
+                .headers(httpHeadersUtil.createHeaders(token))
                 .body(MessageResponse.builder()
                         .message("User account has been deactivated")
                         .build()
                 );
-    }
-
-    private HttpHeaders getHeaders(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        headers.add("Authorization", "Bearer " + token);
-
-        return headers;
     }
 }

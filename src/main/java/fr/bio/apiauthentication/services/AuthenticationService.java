@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
@@ -12,6 +13,7 @@ import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +32,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthenticationService implements IAuthenticationService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TokenRepository tokenRepository;
 
     private final AuthenticationManager authenticationManager;
+    private final HttpHeadersUtil httpHeadersUtil;
     private final PasswordEncoder passwordEncoder;
 
     private final UserDetailsService userDetailsService;
@@ -87,12 +91,8 @@ public class AuthenticationService implements IAuthenticationService {
         revokeAllUserTokens(userDetails);
         saveUserToken(userDetails, token);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        headers.add("Authorization", "Bearer " + token);
-
         return ResponseEntity.ok()
-                .headers(headers)
+                .headers(httpHeadersUtil.createHeaders(token))
                 .body(AuthenticationResponse.builder()
                         .message("L'utilisateur " + request.email() + " est connecté !")
                         .build()
