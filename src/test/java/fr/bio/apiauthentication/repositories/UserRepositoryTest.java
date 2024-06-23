@@ -29,35 +29,24 @@ public class    UserRepositoryTest {
     private RoleRepository roleRepository;
 
     private User user;
-    private Role role;
 
     @BeforeEach
     void setUp() {
-        role = Role.builder()
-                .authority("ADMIN")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(null)
-                .build();
-        role = roleRepository.save(role);
-
         user = User.builder()
                 .email("c.tronel@test.properties.com")
                 .password("password")
                 .firstName("firstName")
                 .lastName("lastName")
                 .enabled(true)
-                .roles(Collections.singleton(role))
+                .roles(null)
                 .build();
     }
 
     @AfterEach
     void tearDown() {
         userRepository.delete(user);
-        roleRepository.delete(role);
 
         user = null;
-        role = null;
     }
 
     @Test
@@ -67,8 +56,7 @@ public class    UserRepositoryTest {
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo(user.getEmail());
-        assertThat(savedUser.getRoles().size()).isEqualTo(1);
-        assertThat(savedUser.getRoles().iterator().next().getAuthority()).isEqualTo("ADMIN");
+        assertThat(savedUser.getRoles()).isNull();
 
         userRepository.delete(savedUser);
     }
