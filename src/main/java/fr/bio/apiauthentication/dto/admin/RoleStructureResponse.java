@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Builder
@@ -54,9 +55,11 @@ public class RoleStructureResponse {
                 .modifiedAt(role.getModifiedAt())
                 .modifiedBy(role.getModifiedBy())
                 .enabled(role.isEnabled())
-                .users(role.getUsers().stream()
-                        .map(user -> user.getFirstName() + " " + user.getLastName())
-                        .toList()
+                .users(role.getUsers() != null
+                        ? role.getUsers().stream()
+                            .map(user -> user.getFirstName() + " " + user.getLastName())
+                            .toList()
+                        : List.of()
                 ).build();
     }
 }
