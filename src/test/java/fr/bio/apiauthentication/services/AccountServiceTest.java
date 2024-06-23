@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,6 +42,9 @@ public class AccountServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private HttpHeadersUtil httpHeadersUtil;
 
     @InjectMocks
     private AccountService accountService;
@@ -76,6 +81,7 @@ public class AccountServiceTest {
     public void testGetUserProfile_Success() {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<UserProfilResponse> responseEntity = accountService.getUserProfile(token);
 
@@ -111,6 +117,7 @@ public class AccountServiceTest {
 
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<MessageResponse> responseEntity = accountService.updateProfile(token, request);
 
@@ -149,6 +156,7 @@ public class AccountServiceTest {
         when(userRepository.save(user)).thenReturn(user);
         when(passwordEncoder.matches(request.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("newPassword");
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<MessageResponse> responseEntity = accountService.updatePassword(token, request);
 
@@ -196,6 +204,7 @@ public class AccountServiceTest {
     public void testDeactivateAccount_Success() {
         when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
         when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.of(user));
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<MessageResponse> responseEntity = accountService.deactivateAccount(token);
 

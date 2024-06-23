@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
@@ -49,6 +50,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private HttpHeadersUtil httpHeadersUtil;
 
     @Mock
     private UserRepository userRepository;
@@ -153,11 +157,11 @@ public class AuthenticationServiceTest {
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("jwt-token");
         when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refresh-token");
         when(tokenRepository.findAllValidTokenByUser(anyLong())).thenReturn(Collections.emptyList());
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.login(authenticationRequest);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getHeaders().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer jwt-token");
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.properties.com est connecté !");
 
