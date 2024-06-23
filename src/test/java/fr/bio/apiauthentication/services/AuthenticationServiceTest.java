@@ -101,7 +101,10 @@ public class AuthenticationServiceTest {
                 .build();
 
         role = Role.builder()
-                .roleName("USER")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         roleRepository.save(role);
     }
@@ -111,7 +114,7 @@ public class AuthenticationServiceTest {
     public void testRegisterUser_Success() {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.of(role));
+        when(roleRepository.findByAuthority("USER")).thenReturn(Optional.of(role));
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.register(request);
 
@@ -120,13 +123,13 @@ public class AuthenticationServiceTest {
 
         verify(passwordEncoder, times(1)).encode("1234567890");
         verify(userRepository, times(1)).save(any(User.class));
-        verify(roleRepository, times(1)).findByRoleName("USER");
+        verify(roleRepository, times(1)).findByAuthority("USER");
     }
 
     @Test
     @DisplayName("Test register user but role not found")
     public void testRegisterUser_RoleNotFound() {
-        when(roleRepository.findByRoleName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByAuthority("USER")).thenReturn(Optional.empty());
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
@@ -135,7 +138,7 @@ public class AuthenticationServiceTest {
 
         assertThat(exception.getMessage()).isEqualTo("Role 'USER' not found");
 
-        verify(roleRepository, times(1)).findByRoleName("USER");
+        verify(roleRepository, times(1)).findByAuthority("USER");
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(User.class));
     }

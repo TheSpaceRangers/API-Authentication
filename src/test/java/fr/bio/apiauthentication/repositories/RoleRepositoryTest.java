@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -34,7 +35,10 @@ public class RoleRepositoryTest {
     @DisplayName("Test save role")
     public void testSaveRole() {
         Role role = Role.builder()
-                .roleName("ROLE_SAVE")
+                .authority("ROLE_SAVE")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         Role savedRole = roleRepository.save(role);
 
@@ -46,11 +50,14 @@ public class RoleRepositoryTest {
     @DisplayName("Test find role by role name")
     public void testFindByRoleName() {
         Role role = Role.builder()
-                .roleName("ROLE_FIND")
+                .authority("ROLE_FIND")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         Role savedRole = roleRepository.save(role);
 
-        Optional<Role> foundRole = roleRepository.findByRoleName(savedRole.getAuthority());
+        Optional<Role> foundRole = roleRepository.findByAuthority(savedRole.getAuthority());
 
         assertThat(foundRole.isPresent()).isTrue();
     }
@@ -59,7 +66,10 @@ public class RoleRepositoryTest {
     @DisplayName("Test delete role")
     public void testDeleteRole() {
         Role role = Role.builder()
-                .roleName("ROLE_DELETE")
+                .authority("ROLE_DELETE")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         Role savedRole = roleRepository.save(role);
 

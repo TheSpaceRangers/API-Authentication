@@ -57,7 +57,10 @@ public class UserTest {
     @DisplayName("Test update user")
     public void testUpdateUser() {
         Role role = Role.builder()
-                .roleName("UPDATE_USER")
+                .authority("UPDATE_USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(Collections.singleton(user))
                 .build();
         entityManager.persist(role);
 
@@ -80,7 +83,10 @@ public class UserTest {
     @DisplayName("Test user details")
     public void testUserDetails() {
         Role role = Role.builder()
-                .roleName("USER_DETAILS")
+                .authority("USER_DETAILS")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(Collections.singleton(user))
                 .build();
         entityManager.persist(role);
 

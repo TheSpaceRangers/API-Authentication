@@ -34,7 +34,10 @@ public class    UserRepositoryTest {
     @BeforeEach
     void setUp() {
         role = Role.builder()
-                .roleName("ADMIN")
+                .authority("ADMIN")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         role = roleRepository.save(role);
 

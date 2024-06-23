@@ -39,7 +39,9 @@ public class RoleTest {
                 .build();
 
         role = Role.builder()
-                .roleName("USER")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
                 .users(Collections.singleton(user))
                 .build();
     }
@@ -54,7 +56,10 @@ public class RoleTest {
     @DisplayName("Test create role")
     public void testCreateRole() {
         Role role = Role.builder()
-                .roleName("ROLE_CREATE")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(Collections.singleton(user))
                 .build();
         Role persistedRole = entityManager.persist(role);
 
@@ -97,8 +102,10 @@ public class RoleTest {
     @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         Role differentFields = Role.builder()
-                .roleName("ADMIN")
-                .enabled(false)
+                .authority("ADMIN")
+                .displayName("Administrateur")
+                .description("Administrateur")
+                .users(Collections.singleton(user))
                 .build();
 
         assertThat(role).isNotEqualTo(differentFields);
@@ -108,7 +115,9 @@ public class RoleTest {
     @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         Role sameFields = Role.builder()
-                .roleName("USER")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
                 .users(Collections.singleton(user))
                 .build();
 
@@ -119,7 +128,9 @@ public class RoleTest {
     @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
         Role sameFields = Role.builder()
-                .roleName("USER")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
                 .users(Collections.singleton(user))
                 .build();
 

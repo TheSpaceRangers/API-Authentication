@@ -52,7 +52,10 @@ public class AccountServiceTest {
         MockitoAnnotations.openMocks(this);
 
         Role role = Role.builder()
-                .roleName("USER")
+                .authority("USER")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .users(null)
                 .build();
         roleRepository.save(role);
 

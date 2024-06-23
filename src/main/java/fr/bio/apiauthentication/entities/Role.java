@@ -2,7 +2,12 @@ package fr.bio.apiauthentication.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 @Data
@@ -23,6 +28,17 @@ public class Role {
 
     @Column(name = "display_name")
     private String displayName;
+
+    @Column(name = "description")
+    private String description;
+
+    @LastModifiedDate
+    @Column(name = "modified_at")
+    private LocalDate modifiedAt;
+
+    @LastModifiedBy
+    @Column(name = "modified_by")
+    private String modifiedBy;
 
     @Builder.Default
     private boolean enabled = true;
