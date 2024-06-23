@@ -1,7 +1,6 @@
 package fr.bio.apiauthentication.dto.admin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,7 +47,7 @@ public class UserStructureResponse {
     @JsonProperty("roles")
     private Collection<String> roles;
 
-    public static UserStructureResponse fromRole(User user) {
+    public static UserStructureResponse fromUser(User user) {
         return UserStructureResponse.builder()
                 .idUser(user.getIdUser())
                 .email(user.getEmail())
