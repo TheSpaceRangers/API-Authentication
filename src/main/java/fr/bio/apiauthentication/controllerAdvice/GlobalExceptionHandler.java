@@ -3,6 +3,7 @@ package fr.bio.apiauthentication.controllerAdvice;
 import fr.bio.apiauthentication.dto.ExceptionResponse;
 import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
+import fr.bio.apiauthentication.exceptions.RoleAlreadyExistsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,18 @@ public class GlobalExceptionHandler {
                         .timeStamp(LocalDate.now())
                         .errorMessage(exception.getMessage())
                         .errorCode(HttpStatus.NOT_FOUND.value())
+                        .errorDetails(request.getDescription(false))
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(RoleAlreadyExistsException.class)
+    public ResponseEntity<?> roleAlreadyExists(RoleAlreadyExistsException exception, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse.builder()
+                        .timeStamp(LocalDate.now())
+                        .errorMessage(exception.getMessage())
+                        .errorCode(HttpStatus.CONFLICT.value())
                         .errorDetails(request.getDescription(false))
                         .build()
                 );
