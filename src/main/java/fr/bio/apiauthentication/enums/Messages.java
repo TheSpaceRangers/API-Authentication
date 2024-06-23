@@ -19,7 +19,7 @@ public enum Messages {
         this.message = message;
     }
 
-    public String formatMessage(String... args) {
-        return String.format(this.message, (Object) args);
+    public String formatMessage(Object... args) {
+        return String.format(this.message, args);
     }
 }
