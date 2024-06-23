@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -60,6 +61,33 @@ public class RoleRepositoryTest {
         Optional<Role> foundRole = roleRepository.findByAuthority(savedRole.getAuthority());
 
         assertThat(foundRole.isPresent()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Test find all role by is enable")
+    public void testFindAllByIsEnable() {
+        Role roleEnable = Role.builder()
+                .authority("ROLE_ENABLE")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .enabled(true)
+                .users(null)
+                .build();
+        roleRepository.save(roleEnable);
+
+        Role roleDesable = Role.builder()
+                .authority("ROLE_DISABLE")
+                .displayName("Utilisateur")
+                .description("Utilisateur")
+                .enabled(false)
+                .users(null)
+                .build();
+        roleRepository.save(roleDesable);
+
+        List<Role> actualRoles = List.of(roleEnable);
+        List<Role> foundRoles = roleRepository.findAllByEnabled(true);
+
+        assertThat(foundRoles).isEqualTo(actualRoles);
     }
 
     @Test
