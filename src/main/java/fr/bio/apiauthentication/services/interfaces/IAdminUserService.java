@@ -13,4 +13,6 @@ public interface IAdminUserService {
     ResponseEntity<MessageResponse> createUser(String token, UserModificationRequest request);
 
     ResponseEntity<MessageResponse> updateUser(String token, UserModificationRequest request);
+
+    ResponseEntity<MessageResponse> updateUserStatus(String token, UserModificationRequest request, boolean status);
 }

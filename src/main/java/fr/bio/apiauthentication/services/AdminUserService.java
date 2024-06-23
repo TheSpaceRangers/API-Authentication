@@ -24,6 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class AdminUserService implements IAdminUserService {
+    private static final String USER = "User";
+    private static final String ROLE = "Role";
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -53,12 +56,12 @@ public class AdminUserService implements IAdminUserService {
                 .orElse(null);
 
         if (existingUser != null)
-            throw new UserAlreadyExistsException(Messages.USER_ALREADY_EXISTS.formatMessage(request.email()));
+            throw new UserAlreadyExistsException(Messages.ENTITY_ALREADY_EXISTS.formatMessage(USER, request.email()));
 
         List<Role> roles = request.roles() != null
                 ? request.roles().stream()
                     .map(role -> roleRepository.findByAuthority(role)
-                            .orElseThrow(() -> new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(role))))
+                            .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, role))))
                     .toList()
                 : List.of();
 
@@ -72,7 +75,7 @@ public class AdminUserService implements IAdminUserService {
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.USER_CREATED.formatMessage(request.email())));
+                .body(new MessageResponse(Messages.ENTITY_CREATED.formatMessage(USER, request.email())));
     }
 
     @Override
@@ -81,7 +84,7 @@ public class AdminUserService implements IAdminUserService {
             UserModificationRequest request
     ) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND.formatMessage(request.email())));
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
 
         boolean isModified = false;
 
@@ -101,8 +104,28 @@ public class AdminUserService implements IAdminUserService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(isModified
-                        ? new MessageResponse(Messages.USER_UPDATED.formatMessage(request.email()))
-                        : new MessageResponse(Messages.USER_NO_MODIFIED.formatMessage(request.email()))
+                        ? new MessageResponse(Messages.ENTITY_UPDATED.formatMessage(USER, request.email()))
+                        : new MessageResponse(Messages.ENTITY_NO_MODIFIED.formatMessage(USER, request.email()))
+                );
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> updateUserStatus(
+            String token,
+            UserModificationRequest request,
+            boolean status
+    ) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
+
+        user.setEnabled(status);
+        userRepository.save(user);
+
+        return ResponseEntity.ok()
+                .headers(httpHeadersUtil.createHeaders(token))
+                .body(status
+                        ? new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(USER, request.email()))
+                        : new MessageResponse(Messages.ENTITY_DEACTIVATED.formatMessage(USER, request.email()))
                 );
     }
 }

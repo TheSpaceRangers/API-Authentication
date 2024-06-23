@@ -2,13 +2,11 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
-import fr.bio.apiauthentication.exceptions.RoleAlreadyExistsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.exceptions.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
@@ -34,6 +32,8 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("Test user admin service")
 public class AdminUserServiceTest {
+    private static final String USER = "User";
+
     @Mock
     private UserRepository userRepository;
 
@@ -122,7 +122,7 @@ public class AdminUserServiceTest {
         verify(userRepository).save(roleCaptor.capture());
         User savedUser = roleCaptor.getValue();
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.USER_CREATED.formatMessage(request.email()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_CREATED.formatMessage(USER, request.email()));
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo(request.email());
@@ -196,7 +196,7 @@ public class AdminUserServiceTest {
         User savedUser = userRepository.findByEmail(request.email())
                 .orElse(null);
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.USER_UPDATED.formatMessage(request.email()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_UPDATED.formatMessage(USER, request.email()));
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getFirstName()).isEqualTo(request.firstName());
