@@ -27,7 +27,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@DisplayName("Test admin service")
+@DisplayName("Test role admin service")
 public class AdminRoleServiceTest {
     @Mock
     private RoleRepository roleRepository;
@@ -36,7 +36,7 @@ public class AdminRoleServiceTest {
     private HttpHeadersUtil httpHeadersUtil;
 
     @InjectMocks
-    private AdminRoleRoleService adminRoleService;
+    private AdminRoleService adminRoleService;
 
     @BeforeEach
     void setUp() {

@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AdminRoleRoleService implements IAdminRoleService {
+public class AdminRoleService implements IAdminRoleService {
     private final RoleRepository roleRepository;
 
     private final HttpHeadersUtil httpHeadersUtil;
