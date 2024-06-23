@@ -36,11 +36,10 @@ public class EmailConfiguration {
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", auth);
-        props.put("mail.smtp.starttls.enable", starttls);
+        Properties properties = mailSender.getJavaMailProperties();
+        properties.put("mail.smtp.auth", auth);
+        properties.put("mail.smtp.starttls.enable", starttls);
 
         return mailSender;
     }
-
 }
