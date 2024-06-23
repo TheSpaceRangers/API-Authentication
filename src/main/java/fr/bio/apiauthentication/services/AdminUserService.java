@@ -14,6 +14,7 @@ import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,5 +73,36 @@ public class AdminUserService implements IAdminUserService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(new MessageResponse(Messages.USER_CREATED.formatMessage(request.email())));
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> updateUser(
+            String token,
+            UserModificationRequest request
+    ) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND.formatMessage(request.email())));
+
+        boolean isModified = false;
+
+        if (request.firstName() != null && !request.firstName().isBlank() && !user.getFirstName().equals(request.firstName())) {
+            user.setFirstName(request.firstName());
+            isModified = true;
+        }
+
+        if (request.lastName() != null && !request.lastName().isBlank() && !user.getLastName().equals(request.lastName())) {
+            user.setLastName(request.lastName());
+            isModified = true;
+        }
+
+        if (isModified)
+            userRepository.save(user);
+
+        return ResponseEntity.ok()
+                .headers(httpHeadersUtil.createHeaders(token))
+                .body(isModified
+                        ? new MessageResponse(Messages.USER_UPDATED.formatMessage(request.email()))
+                        : new MessageResponse(Messages.USER_NO_MODIFIED.formatMessage(request.email()))
+                );
     }
 }

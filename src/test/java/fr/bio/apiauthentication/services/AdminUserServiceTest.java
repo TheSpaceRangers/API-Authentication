@@ -2,6 +2,7 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
+import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -162,17 +164,7 @@ public class AdminUserServiceTest {
     public void testCreateUser_RoleNotFount() {
         String token = "This is a token";
 
-        Role role = Role.builder()
-                .authority("ROLE_TEST")
-                .build();
-
-        User user_1 = User.builder()
-                .email("user_1@test.com")
-                .firstName("user_1")
-                .lastName("user_1")
-                .roles(List.of(role))
-                .build();
-        UserModificationRequest request = new UserModificationRequest("user_1@test.com", "user_1", "user_1", List.of(role.getAuthority()));
+        UserModificationRequest request = new UserModificationRequest("user_1@test.com", "user_1", "user_1", List.of("ROLE NOT EXISTS"));
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(roleRepository.findByAuthority(anyString())).thenReturn(Optional.empty());
@@ -181,5 +173,50 @@ public class AdminUserServiceTest {
 
         verify(userRepository, times(1)).findByEmail(request.email());
         verify(roleRepository, times(1)).findByAuthority(anyString());
+    }
+
+    @Test
+    @DisplayName("Test update user")
+    void testUpdateUser_Success() {
+        String token = "token";
+        UserModificationRequest request = new UserModificationRequest("user_1@test.com", "user_1_update", "user_1_update", List.of());
+
+        User user_1 = User.builder()
+                .email("user_1@test.com")
+                .firstName("user_1")
+                .lastName("user_1")
+                .roles(List.of())
+                .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user_1));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
+
+        ResponseEntity<MessageResponse> response = adminUserService.updateUser(token, request);
+
+        User savedUser = userRepository.findByEmail(request.email())
+                .orElse(null);
+
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.USER_UPDATED.formatMessage(request.email()));
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getFirstName()).isEqualTo(request.firstName());
+        assertThat(savedUser.getLastName()).isEqualTo(request.lastName());
+
+        verify(userRepository, times(1)).save(user_1);
+        verify(httpHeadersUtil).createHeaders(token);
+    }
+
+    @Test
+    @DisplayName("Test update user but user not found")
+    void testUpdateUser_UserNotFound() {
+        String token = "token";
+        UserModificationRequest request = new UserModificationRequest("user_1@test.com", "user_1_update", "user_1_update", List.of());
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> adminUserService.updateUser(token, request));
+
+        verify(userRepository, times(1)).findByEmail(request.email());
+        verify(userRepository, never()).save(any(User.class));
     }
 }

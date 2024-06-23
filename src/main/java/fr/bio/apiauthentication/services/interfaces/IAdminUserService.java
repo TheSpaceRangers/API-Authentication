@@ -11,4 +11,6 @@ public interface IAdminUserService {
     ResponseEntity<List<UserStructureResponse>> getAllUsers(String token);
 
     ResponseEntity<MessageResponse> createUser(String token, UserModificationRequest request);
+
+    ResponseEntity<MessageResponse> updateUser(String token, UserModificationRequest request);
 }

@@ -31,4 +31,12 @@ public class AdminUserController {
     ) {
         return adminUserService.createUser(token, request);
     }
+
+    @PutMapping(value = "/user/update")
+    public ResponseEntity<MessageResponse> updateUser (
+            @RequestHeader("Authorization") String token,
+            @Validated @RequestBody UserModificationRequest request
+    ) {
+        return adminUserService.updateUser(token, request);
+    }
 }
