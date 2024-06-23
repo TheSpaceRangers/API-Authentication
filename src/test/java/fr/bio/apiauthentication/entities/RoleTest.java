@@ -24,6 +24,8 @@ public class RoleTest {
     private Role role;
     private User user;
 
+    private final LocalDate NOW = LocalDate.now();
+
     @BeforeEach
     void setUp() {
         user = User.builder()
@@ -42,6 +44,8 @@ public class RoleTest {
                 .authority("USER")
                 .displayName("Utilisateur")
                 .description("Utilisateur")
+                .modifiedAt(NOW)
+                .modifiedBy("System")
                 .users(Collections.singleton(user))
                 .build();
     }
@@ -56,7 +60,7 @@ public class RoleTest {
     @DisplayName("Test create role")
     public void testCreateRole() {
         Role role = Role.builder()
-                .authority("USER")
+                .authority("CREATE_USER")
                 .displayName("Utilisateur")
                 .description("Utilisateur")
                 .users(Collections.singleton(user))
@@ -71,7 +75,11 @@ public class RoleTest {
     public void testUpdateRole() {
         Role newRole = role;
 
-        newRole.setAuthority("ADMIN");
+        newRole.setAuthority("CREATE ADMIN");
+        newRole.setDisplayName("Administrateur");
+        newRole.setDescription("Administrateur");
+        newRole.setModifiedAt(NOW);
+        newRole.setModifiedBy("System");
         newRole.setUsers(Collections.singleton(user));
         newRole.setEnabled(false);
 
@@ -105,6 +113,8 @@ public class RoleTest {
                 .authority("ADMIN")
                 .displayName("Administrateur")
                 .description("Administrateur")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
                 .users(Collections.singleton(user))
                 .build();
 
@@ -118,6 +128,8 @@ public class RoleTest {
                 .authority("USER")
                 .displayName("Utilisateur")
                 .description("Utilisateur")
+                .modifiedAt(NOW)
+                .modifiedBy("System")
                 .users(Collections.singleton(user))
                 .build();
 
@@ -131,6 +143,8 @@ public class RoleTest {
                 .authority("USER")
                 .displayName("Utilisateur")
                 .description("Utilisateur")
+                .modifiedAt(NOW)
+                .modifiedBy("System")
                 .users(Collections.singleton(user))
                 .build();
 
