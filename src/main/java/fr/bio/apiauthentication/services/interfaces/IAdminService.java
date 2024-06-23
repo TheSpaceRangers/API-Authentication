@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface IAdminService {
-    ResponseEntity<List<RoleStructureResponse>> getAllActiveRoles(String token);
+    ResponseEntity<List<RoleStructureResponse>> getAllRolesByStatus(String token, Boolean isActive);
 
     ResponseEntity<MessageResponse> createRole(String token, RoleModificationRequest request);
 

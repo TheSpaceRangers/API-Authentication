@@ -45,24 +45,71 @@ public class AdminServiceTest {
 
     @Test
     @DisplayName("Test get roles")
-    void testGetAllActiveRoles() {
+    void testGetAllRolesByStatus() {
         String token = "token";
 
-        Role role = Role.builder()
+        Role roleActive = Role.builder()
                 .authority("ADMIN")
-                .displayName("Administrateur")
-                .description("Administrateur")
+                .displayName("ADMIN")
+                .description("ADMIN")
                 .modifiedAt(LocalDate.now())
                 .modifiedBy("System")
                 .enabled(true)
                 .users(null)
                 .build();
-        List<RoleStructureResponse> actualResponse = List.of(RoleStructureResponse.fromRole(role));
 
-        when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(role));
+        Role roleInactive = Role.builder()
+                .authority("USER")
+                .displayName("USER")
+                .description("USER")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
+                .enabled(false)
+                .users(null)
+                .build();
+        List<RoleStructureResponse> actualResponse = List.of(RoleStructureResponse.fromRole(roleActive), RoleStructureResponse.fromRole(roleInactive));
+
+        when(roleRepository.findAll()).thenReturn(List.of(roleActive, roleInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllActiveRoles(token);
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, null);
+
+        assertThat(response.getBody()).isEqualTo(actualResponse);
+
+        verify(roleRepository, times(1)).findAll();
+        verify(httpHeadersUtil).createHeaders(token);
+    }
+
+    @Test
+    @DisplayName("Test get roles with active status")
+    void testGetAllRolesByStatus_Active() {
+        String token = "token";
+
+        Role roleActive = Role.builder()
+                .authority("ADMIN")
+                .displayName("ADMIN")
+                .description("ADMIN")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
+                .enabled(true)
+                .users(null)
+                .build();
+
+        Role roleInactive = Role.builder()
+                .authority("USER")
+                .displayName("USER")
+                .description("USER")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
+                .enabled(false)
+                .users(null)
+                .build();
+        List<RoleStructureResponse> actualResponse = List.of(RoleStructureResponse.fromRole(roleActive));
+
+        when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(roleActive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
+
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -71,8 +118,45 @@ public class AdminServiceTest {
     }
 
     @Test
+    @DisplayName("Test get roles with inactive status")
+    void testGetAllRolesByStatus_Inactive() {
+        String token = "token";
+
+        Role roleActive = Role.builder()
+                .authority("ADMIN")
+                .displayName("ADMIN")
+                .description("ADMIN")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
+                .enabled(true)
+                .users(null)
+                .build();
+
+        Role roleInactive = Role.builder()
+                .authority("USER")
+                .displayName("USER")
+                .description("USER")
+                .modifiedAt(LocalDate.now())
+                .modifiedBy("System")
+                .enabled(false)
+                .users(null)
+                .build();
+        List<RoleStructureResponse> actualResponse = List.of(RoleStructureResponse.fromRole(roleInactive));
+
+        when(roleRepository.findAllByEnabled(false)).thenReturn(List.of(roleInactive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
+
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, false);
+
+        assertThat(response.getBody()).isEqualTo(actualResponse);
+
+        verify(roleRepository, times(1)).findAllByEnabled(false);
+        verify(httpHeadersUtil).createHeaders(token);
+    }
+
+    @Test
     @DisplayName("Test get roles but no role")
-    void testGetAllActiveRoles_NoRole() {
+    void testGetAllRoles_ByStatus_NoRole() {
         String token = "token";
 
         List<RoleStructureResponse> actualResponse = List.of();
@@ -80,7 +164,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of());
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllActiveRoles(token);
+        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 

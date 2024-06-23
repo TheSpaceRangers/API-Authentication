@@ -26,10 +26,15 @@ public class AdminService implements IAdminService {
     private final HttpHeadersUtil httpHeadersUtil;
 
     @Override
-    public ResponseEntity<List<RoleStructureResponse>> getAllActiveRoles(
-            String token
+    public ResponseEntity<List<RoleStructureResponse>> getAllRolesByStatus(
+            String token,
+            Boolean isActive
     ) {
-        List<Role> roles = roleRepository.findAllByEnabled(true);
+        List<Role> roles = isActive == null
+                ? roleRepository.findAll()
+                : roleRepository.findAllByEnabled(isActive);
+
+        System.out.println("Roles : " + roles);
 
         List<RoleStructureResponse> responses = roles != null
                 ? roles.stream()
