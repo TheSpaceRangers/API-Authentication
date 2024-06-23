@@ -21,6 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class AdminRoleService implements IAdminRoleService {
+    private static final String ROLE = "Role";
+
     private final RoleRepository roleRepository;
 
     private final HttpHeadersUtil httpHeadersUtil;
@@ -56,7 +58,7 @@ public class AdminRoleService implements IAdminRoleService {
                 .orElse(null);
 
         if (role != null)
-            throw new RoleAlreadyExistsException(Messages.ROLE_ALREADY_EXISTS.formatMessage(request.authority()));
+            throw new RoleAlreadyExistsException(Messages.ENTITY_ALREADY_EXISTS.formatMessage(ROLE, request.authority()));
 
         role = Role.builder()
                 .authority(request.authority())
@@ -68,7 +70,7 @@ public class AdminRoleService implements IAdminRoleService {
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.ROLE_CREATED.formatMessage(request.authority())));
+                .body(new MessageResponse(Messages.ENTITY_CREATED.formatMessage(ROLE, request.authority())));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class AdminRoleService implements IAdminRoleService {
             RoleModificationRequest request
     ) {
         Role role = roleRepository.findByAuthority(request.authority())
-                .orElseThrow(() -> new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         boolean isModified = false;
 
@@ -97,15 +99,19 @@ public class AdminRoleService implements IAdminRoleService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(isModified
-                        ? new MessageResponse(Messages.ROLE_UPDATED.formatMessage(request.authority()))
-                        : new MessageResponse(Messages.ROLE_NO_MODIFIED.formatMessage(request.authority()))
+                        ? new MessageResponse(Messages.ENTITY_UPDATED.formatMessage(ROLE, request.authority()))
+                        : new MessageResponse(Messages.ENTITY_NO_MODIFIED.formatMessage(ROLE, request.authority()))
                 );
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateRoleStatus(String token, RoleModificationRequest request, boolean status) {
+    public ResponseEntity<MessageResponse> updateRoleStatus(
+            String token,
+            RoleModificationRequest request,
+            boolean status
+    ) {
         Role role = roleRepository.findByAuthority(request.authority())
-                .orElseThrow(() -> new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         role.setEnabled(status);
         roleRepository.save(role);
@@ -113,8 +119,8 @@ public class AdminRoleService implements IAdminRoleService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(status
-                        ? new MessageResponse(Messages.ROLE_ACTIVATED.formatMessage(request.authority()))
-                        : new MessageResponse(Messages.ROLE_DEACTIVATED.formatMessage(request.authority()))
+                        ? new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(ROLE, request.authority()))
+                        : new MessageResponse(Messages.ENTITY_DEACTIVATED.formatMessage(ROLE, request.authority()))
                 );
     }
 }

@@ -29,6 +29,8 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("Test role admin service")
 public class AdminRoleServiceTest {
+    private static final String ROLE = "Role";
+
     @Mock
     private RoleRepository roleRepository;
 
@@ -198,7 +200,7 @@ public class AdminRoleServiceTest {
         verify(roleRepository).save(roleCaptor.capture());
         Role savedRole = roleCaptor.getValue();
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ROLE_CREATED.formatMessage(request.authority()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_CREATED.formatMessage(ROLE, request.authority()));
 
         assertThat(savedRole).isNotNull();
         assertThat(savedRole.getAuthority()).isEqualTo(request.authority());
@@ -253,7 +255,7 @@ public class AdminRoleServiceTest {
         Role savedRole = roleRepository.findByAuthority(request.authority())
                         .orElse(null);
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ROLE_UPDATED.formatMessage(request.authority()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_UPDATED.formatMessage(ROLE, request.authority()));
 
         assertThat(savedRole).isNotNull();
         assertThat(savedRole.getDisplayName()).isEqualTo(request.displayName());
@@ -297,7 +299,7 @@ public class AdminRoleServiceTest {
         Role savedRole = roleRepository.findByAuthority(request.authority())
                 .orElse(null);
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ROLE_DEACTIVATED.formatMessage(request.authority()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_DEACTIVATED.formatMessage(ROLE, request.authority()));
         assertThat(savedRole).isNotNull();
         assertThat(savedRole.isEnabled()).isFalse();
 
@@ -312,7 +314,7 @@ public class AdminRoleServiceTest {
         String token = "token";
         RoleModificationRequest request = new RoleModificationRequest("ROLE_UNKNOWN", "Unknown", "");
 
-        when(roleRepository.findByAuthority(request.authority())).thenThrow(new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
+        when(roleRepository.findByAuthority(request.authority())).thenThrow(new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         assertThrows(RoleNotFoundException.class, () -> adminRoleService.updateRoleStatus(token, request, true));
 
