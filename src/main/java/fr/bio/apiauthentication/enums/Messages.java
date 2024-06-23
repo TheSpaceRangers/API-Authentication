@@ -5,6 +5,8 @@ public enum Messages {
 
     // ROLE
     ROLE_NOT_FOUND("Role %s has been not found"),
+    ROLE_UPDATED("Role %s has been updated"),
+    ROLE_NO_MODIFIED("No modifications were made to the role %s"),
     ROLE_ACTIVATED("Role %s has been activated"),
     ROLE_DEACTIVATED("Role %s has been deactivated");
 
