@@ -9,6 +9,7 @@ public enum Messages {
     ROLE_ALREADY_EXISTS("Role %s already exists"),
     ROLE_UPDATED("Role %s has been updated"),
     ROLE_NO_MODIFIED("No modifications were made to the role %s"),
+    ROLE_STATUS_PARAMETER_INVALID("Invalid action parameter. Use 'activate' or 'deactivate'."),
     ROLE_ACTIVATED("Role %s has been activated"),
     ROLE_DEACTIVATED("Role %s has been deactivated");
 
