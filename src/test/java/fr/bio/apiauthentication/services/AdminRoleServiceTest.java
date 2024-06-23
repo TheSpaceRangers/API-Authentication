@@ -96,16 +96,6 @@ public class AdminRoleServiceTest {
                 .enabled(true)
                 .users(null)
                 .build();
-
-        Role roleInactive = Role.builder()
-                .authority("USER")
-                .displayName("USER")
-                .description("USER")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(false)
-                .users(null)
-                .build();
         List<RoleStructureResponse> actualResponse = List.of(RoleStructureResponse.fromRole(roleActive));
 
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(roleActive));
@@ -123,16 +113,6 @@ public class AdminRoleServiceTest {
     @DisplayName("Test get roles with inactive status")
     void testGetAllRolesByStatus_Inactive() {
         String token = "token";
-
-        Role roleActive = Role.builder()
-                .authority("ADMIN")
-                .displayName("ADMIN")
-                .description("ADMIN")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(true)
-                .users(null)
-                .build();
 
         Role roleInactive = Role.builder()
                 .authority("USER")
@@ -302,7 +282,6 @@ public class AdminRoleServiceTest {
         assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_DEACTIVATED.formatMessage(ROLE, request.authority()));
         assertThat(savedRole).isNotNull();
         assertThat(savedRole.isEnabled()).isFalse();
-
 
         verify(roleRepository, times(1)).save(role);
         verify(httpHeadersUtil).createHeaders(token);
