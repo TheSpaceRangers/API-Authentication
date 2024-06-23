@@ -38,13 +38,5 @@ public class EmailConfigurationTest {
         // TODO Faire de vrai tests
 
         assertThat(mailSender).isNotNull();
-        //assertThat(mailSender.getHost()).isEqualTo("smtp.example.com");
-        //assertThat(mailSender.getPort()).isEqualTo(587);
-        //assertThat(mailSender.getUsername()).isEqualTo("test@example.com");
-        //assertThat(mailSender.getPassword()).isEqualTo("secret");
-
-        Properties properties = mailSender.getJavaMailProperties();
-        //assertThat(properties.getProperty("mail.smtp.auth")).isEqualTo("true");
-        //assertThat(properties.getProperty("mail.smtp.starttls.enable")).isEqualTo("true");
     }
 }
