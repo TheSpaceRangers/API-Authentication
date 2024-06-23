@@ -66,7 +66,7 @@ public class RoleTest {
     public void testUpdateRole() {
         Role newRole = role;
 
-        newRole.setRoleName("ADMIN");
+        newRole.setAuthority("ADMIN");
         newRole.setUsers(Collections.singleton(user));
         newRole.setEnabled(false);
 

@@ -18,8 +18,11 @@ public class Role {
     @Column(name = "id_role")
     private long idRole;
 
-    @Column(name = "role_name", unique = true, nullable = false)
-    private String roleName;
+    @Column(name = "authority", unique = true, nullable = false)
+    private String authority;
+
+    @Column(name = "display_name")
+    private String displayName;
 
     @Builder.Default
     private boolean enabled = true;

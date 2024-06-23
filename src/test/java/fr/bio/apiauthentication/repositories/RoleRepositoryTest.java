@@ -39,7 +39,7 @@ public class RoleRepositoryTest {
         Role savedRole = roleRepository.save(role);
 
         assertThat(savedRole).isNotNull();
-        assertThat(savedRole.getRoleName()).isEqualTo(role.getRoleName());
+        assertThat(savedRole.getAuthority()).isEqualTo(role.getAuthority());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class RoleRepositoryTest {
                 .build();
         Role savedRole = roleRepository.save(role);
 
-        Optional<Role> foundRole = roleRepository.findByRoleName(savedRole.getRoleName());
+        Optional<Role> foundRole = roleRepository.findByRoleName(savedRole.getAuthority());
 
         assertThat(foundRole.isPresent()).isTrue();
     }

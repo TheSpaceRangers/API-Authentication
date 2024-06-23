@@ -84,7 +84,7 @@ public class UserTest {
                 .build();
         entityManager.persist(role);
 
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getRoleName());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getAuthority());
 
         user.setRoles(Collections.singleton(role));
         User persitedUser = entityManager.persist(user);

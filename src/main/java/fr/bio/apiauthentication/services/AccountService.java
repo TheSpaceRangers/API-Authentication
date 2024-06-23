@@ -44,7 +44,7 @@ public class AccountService implements IAccountService {
                         .email(user.getEmail())
                         .roles(user.getRoles()
                                 .stream()
-                                .map(Role::getRoleName)
+                                .map(Role::getAuthority)
                                 .collect(Collectors.toList())
                         )
                         .build()

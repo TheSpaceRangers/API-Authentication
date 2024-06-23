@@ -65,7 +65,7 @@ public class    UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo(user.getEmail());
         assertThat(savedUser.getRoles().size()).isEqualTo(1);
-        assertThat(savedUser.getRoles().iterator().next().getRoleName()).isEqualTo("ADMIN");
+        assertThat(savedUser.getRoles().iterator().next().getAuthority()).isEqualTo("ADMIN");
 
         userRepository.delete(savedUser);
     }
