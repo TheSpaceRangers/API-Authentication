@@ -2,9 +2,8 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.UpdateRoleRequest;
+import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
 import fr.bio.apiauthentication.entities.Role;
-import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +41,7 @@ public class AdminServiceTest {
     @DisplayName("Test update role")
     void testUpdateRole() {
         String token = "token";
-        UpdateRoleRequest request = new UpdateRoleRequest("ROLE_USER", "Utilisateur", "");
+        RoleModificationRequest request = new RoleModificationRequest("ROLE_USER", "Utilisateur", "");
 
         Role role = Role.builder()
                 .authority("ROLE_USER")
@@ -65,7 +64,7 @@ public class AdminServiceTest {
     @DisplayName("Test update role but role not found")
     void testUpdateRole_RoleNotFound() {
         String token = "token";
-        UpdateRoleRequest request = new UpdateRoleRequest("ROLE_UNKNOWN", "Unknown", "");
+        RoleModificationRequest request = new RoleModificationRequest("ROLE_UNKNOWN", "Unknown", "");
 
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.empty());
 
