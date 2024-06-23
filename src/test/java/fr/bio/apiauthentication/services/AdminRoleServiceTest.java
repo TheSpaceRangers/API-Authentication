@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Test admin service")
-public class AdminServiceTest {
+public class AdminRoleServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
@@ -36,7 +36,7 @@ public class AdminServiceTest {
     private HttpHeadersUtil httpHeadersUtil;
 
     @InjectMocks
-    private AdminService adminService;
+    private AdminRoleRoleService adminRoleService;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +72,7 @@ public class AdminServiceTest {
         when(roleRepository.findAll()).thenReturn(List.of(roleActive, roleInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, null);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, null);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -109,7 +109,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(roleActive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, true);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -146,7 +146,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(false)).thenReturn(List.of(roleInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, false);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, false);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -164,7 +164,7 @@ public class AdminServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of());
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminService.getAllRolesByStatus(token, true);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -192,7 +192,7 @@ public class AdminServiceTest {
         when(roleRepository.save(any(Role.class))).thenReturn(role);
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminService.createRole(token, request);
+        ResponseEntity<MessageResponse> response = adminRoleService.createRole(token, request);
 
         ArgumentCaptor<Role> roleCaptor = ArgumentCaptor.forClass(Role.class);
         verify(roleRepository).save(roleCaptor.capture());
@@ -228,7 +228,7 @@ public class AdminServiceTest {
 
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
 
-        assertThrows(RoleAlreadyExistsException.class, () -> adminService.createRole(token, request));
+        assertThrows(RoleAlreadyExistsException.class, () -> adminRoleService.createRole(token, request));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
     }
@@ -248,7 +248,7 @@ public class AdminServiceTest {
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminService.updateRole(token, request);
+        ResponseEntity<MessageResponse> response = adminRoleService.updateRole(token, request);
 
         Role savedRole = roleRepository.findByAuthority(request.authority())
                         .orElse(null);
@@ -270,7 +270,7 @@ public class AdminServiceTest {
 
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.empty());
 
-        assertThrows(RoleNotFoundException.class, () -> adminService.updateRole(token, request));
+        assertThrows(RoleNotFoundException.class, () -> adminRoleService.updateRole(token, request));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
         verify(roleRepository, never()).save(any(Role.class));
@@ -292,7 +292,7 @@ public class AdminServiceTest {
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminService.updateRoleStatus(token, request, false);
+        ResponseEntity<MessageResponse> response = adminRoleService.updateRoleStatus(token, request, false);
 
         Role savedRole = roleRepository.findByAuthority(request.authority())
                 .orElse(null);
@@ -314,7 +314,7 @@ public class AdminServiceTest {
 
         when(roleRepository.findByAuthority(request.authority())).thenThrow(new RoleNotFoundException(Messages.ROLE_NOT_FOUND.formatMessage(request.authority())));
 
-        assertThrows(RoleNotFoundException.class, () -> adminService.updateRoleStatus(token, request, true));
+        assertThrows(RoleNotFoundException.class, () -> adminRoleService.updateRoleStatus(token, request, true));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
         verify(roleRepository, never()).save(any(Role.class));

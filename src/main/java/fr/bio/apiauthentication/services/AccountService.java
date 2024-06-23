@@ -9,7 +9,7 @@ import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
 import fr.bio.apiauthentication.repositories.UserRepository;
-import fr.bio.apiauthentication.services.interfaces.IAccountRoleService;
+import fr.bio.apiauthentication.services.interfaces.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AccountRoleService implements IAccountRoleService {
+public class AccountService implements IAccountService {
     private final UserRepository userRepository;
 
     private final JwtService jwtService;

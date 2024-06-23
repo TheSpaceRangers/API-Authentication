@@ -9,7 +9,7 @@ import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.exceptions.RoleAlreadyExistsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
-import fr.bio.apiauthentication.services.interfaces.IAdminService;
+import fr.bio.apiauthentication.services.interfaces.IAdminRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AdminService implements IAdminService {
+public class AdminRoleRoleService implements IAdminRoleService {
     private final RoleRepository roleRepository;
 
     private final HttpHeadersUtil httpHeadersUtil;

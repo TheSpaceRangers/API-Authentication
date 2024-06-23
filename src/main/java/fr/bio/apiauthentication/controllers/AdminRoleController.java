@@ -4,7 +4,7 @@ import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
 import fr.bio.apiauthentication.dto.admin.RoleStructureResponse;
 import fr.bio.apiauthentication.enums.Messages;
-import fr.bio.apiauthentication.services.AdminService;
+import fr.bio.apiauthentication.services.interfaces.IAdminRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
 public class AdminRoleController {
-    private final AdminService adminService;
+    private final IAdminRoleService adminRoleService;
 
     @GetMapping(value = "/roles")
     public ResponseEntity<List<RoleStructureResponse>> getRoles(
@@ -30,7 +30,7 @@ public class AdminRoleController {
         else if (status.equalsIgnoreCase("inactive"))
             isActive = false;
 
-        return adminService.getAllRolesByStatus(token, isActive);
+        return adminRoleService.getAllRolesByStatus(token, isActive);
     }
 
     @PostMapping(value = "/role/new")
@@ -38,7 +38,7 @@ public class AdminRoleController {
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody RoleModificationRequest request
     ) {
-        return adminService.createRole(token, request);
+        return adminRoleService.createRole(token, request);
     }
 
     @PutMapping(value = "/role/update")
@@ -46,7 +46,7 @@ public class AdminRoleController {
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody RoleModificationRequest request
     ) {
-        return adminService.updateRole(token, request);
+        return adminRoleService.updateRole(token, request);
     }
 
     @PutMapping(value = "/role/status")
@@ -64,6 +64,6 @@ public class AdminRoleController {
         else
             throw new IllegalArgumentException(Messages.ROLE_STATUS_PARAMETER_INVALID.formatMessage(""));
 
-        return adminService.updateRoleStatus(token, request, status);
+        return adminRoleService.updateRoleStatus(token, request, status);
     }
 }
