@@ -23,16 +23,17 @@ public class JwtTokenUtil {
 
     public void saveUserToken(
             UserDetails userDetails,
-            String strToken
+            String strToken,
+            TokenType type
     ) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
 
         Token token = Token.builder()
                 .token(strToken)
+                .type(type)
                 .user(user)
                 .build();
-
         tokenRepository.save(token);
     }
 
@@ -44,10 +45,12 @@ public class JwtTokenUtil {
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
 
         List<Token> tokens = tokenRepository.findByUserAndTypeAndExpiredFalseAndRevokedFalse(user, type);
+
         tokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
         });
+
         tokenRepository.saveAll(tokens);
     }
 }
