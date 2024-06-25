@@ -63,7 +63,9 @@ public class JwtService implements IJwtService {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(
+            String token
+    ) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
@@ -72,7 +74,9 @@ public class JwtService implements IJwtService {
     }
 
     @Override
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(
+            UserDetails userDetails
+    ) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("Authorities", userDetails.getAuthorities());
 
@@ -80,34 +84,48 @@ public class JwtService implements IJwtService {
     }
 
     @Override
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails
+    ) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
     @Override
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
     @Override
-    public String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(
+            String token
+    ) {
         return extractClaim(token, Claims::getSubject);
     }
 
     @Override
-    public Date getExpirationDateFromToken(String token) {
+    public Date getExpirationDateFromToken(
+            String token
+    ) {
         return extractClaim(token, Claims::getExpiration);
     }
 
     @Override
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(
+            String token,
+            UserDetails userDetails
+    ) {
         final String username = getUsernameFromToken(token);
 
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     @Override
-    public boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(
+            String token
+    ) {
         return getExpirationDateFromToken(token).before(new Date());
     }
 }
