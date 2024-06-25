@@ -58,4 +58,12 @@ public class AdminUserController {
 
         return adminUserService.updateUserStatus(token, request, status);
     }
+
+    @PostMapping("/user/send-reset-password-email")
+    public ResponseEntity<MessageResponse> sendPasswordResetEmail(
+            @RequestHeader("Authorization") String token,
+            @Validated @RequestBody UserModificationRequest request
+    ) {
+        return adminUserService.sendPasswordResetEmail(token, request);
+    }
 }

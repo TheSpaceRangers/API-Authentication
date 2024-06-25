@@ -86,7 +86,7 @@ public class AuthenticationService implements IAuthenticationService {
         final String token = jwtService.generateToken(userDetails);
 
         jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.BEARER);
-        jwtTokenUtil.saveUserToken(userDetails, token);
+        jwtTokenUtil.saveUserToken(userDetails, token, TokenType.BEARER);
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))

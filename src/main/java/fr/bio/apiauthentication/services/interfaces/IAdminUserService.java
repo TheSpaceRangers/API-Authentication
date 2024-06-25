@@ -15,4 +15,6 @@ public interface IAdminUserService {
     ResponseEntity<MessageResponse> updateUser(String token, UserModificationRequest request);
 
     ResponseEntity<MessageResponse> updateUserStatus(String token, UserModificationRequest request, boolean status);
+
+    ResponseEntity<MessageResponse> sendPasswordResetEmail(String token, UserModificationRequest request);
 }
