@@ -12,12 +12,11 @@ spring:
   # Configuration de JPA (Java Persistence API)
   jpa:
     hibernate.ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
-
 
   # Email Configuration
   mail:
@@ -40,11 +39,3 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-      springframework:
-        security: DEBUG
