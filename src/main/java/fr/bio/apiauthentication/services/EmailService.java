@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService implements IEmailService {
 
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Override
-    public void sendEmail(String to, String subject, String body) {
+    public void sendEmail(
+            String to,
+            String subject,
+            String body
+    ) {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(to);
