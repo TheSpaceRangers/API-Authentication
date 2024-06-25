@@ -1,16 +1,16 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
+import fr.bio.apiauthentication.components.JwtTokenUtil;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
-import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.TokenType;
 import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
-import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 import jakarta.transaction.Transactional;
@@ -22,12 +22,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +33,11 @@ import java.util.List;
 public class AuthenticationService implements IAuthenticationService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final TokenRepository tokenRepository;
 
     private final AuthenticationManager authenticationManager;
-    private final HttpHeadersUtil httpHeadersUtil;
     private final PasswordEncoder passwordEncoder;
+    private final HttpHeadersUtil httpHeadersUtil;
+    private final JwtTokenUtil jwtTokenUtil;
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
@@ -87,8 +85,8 @@ public class AuthenticationService implements IAuthenticationService {
 
         final String token = jwtService.generateToken(userDetails);
 
-        revokeAllUserTokens(userDetails);
-        saveUserToken(userDetails, token);
+        jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.BEARER);
+        jwtTokenUtil.saveUserToken(userDetails, token);
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
@@ -96,32 +94,5 @@ public class AuthenticationService implements IAuthenticationService {
                         .message("L'utilisateur " + request.email() + " est connecté !")
                         .build()
                 );
-    }
-
-    private void saveUserToken(
-            UserDetails userDetails,
-            String strToken
-    ) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        Token token = Token.builder()
-                .token(strToken)
-                .user(user)
-                .build();
-
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(UserDetails userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        List<Token> tokens = tokenRepository.findAllValidTokenByUser(user.getIdUser());
-        tokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(tokens);
     }
 }
