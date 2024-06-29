@@ -33,7 +33,7 @@ public class EmailService implements IEmailService {
             String token
     ) {
         final String subject = "Reset your password";
-        final String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        final String resetUrl = "http://localhost:8080/api/v1/reset/password?token=" + token;
         final String message = "To reset your password, click the link below:\n" + resetUrl;
 
         sendEmail(to, subject, message);
