@@ -60,7 +60,7 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean enabled = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(
@@ -70,6 +70,9 @@ public class User implements UserDetails {
             )
     )
     private Collection<Role> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Collection<LoginHistory> loginHistories;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
