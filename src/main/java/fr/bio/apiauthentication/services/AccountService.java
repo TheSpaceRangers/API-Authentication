@@ -7,7 +7,8 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
-import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
+import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAccountService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AccountService implements IAccountService {
     private final PasswordEncoder passwordEncoder;
 
     private final HttpHeadersUtil httpHeadersUtil;
+    private final TokenRepository tokenRepository;
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(

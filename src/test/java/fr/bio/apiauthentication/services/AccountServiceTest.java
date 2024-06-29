@@ -7,7 +7,7 @@ import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
 import fr.bio.apiauthentication.dto.account.UserProfilResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
-import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
