@@ -6,12 +6,10 @@ import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.admin.UserModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
-import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
-import fr.bio.apiauthentication.enums.TokenType;
-import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
-import fr.bio.apiauthentication.exceptions.UserAlreadyExistsException;
+import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
+import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAdminUserService;
@@ -19,7 +17,6 @@ import fr.bio.apiauthentication.services.interfaces.IEmailService;
 import fr.bio.apiauthentication.services.interfaces.IJwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -140,33 +137,5 @@ public class AdminUserService implements IAdminUserService {
                         ? new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(USER, request.email()))
                         : new MessageResponse(Messages.ENTITY_DEACTIVATED.formatMessage(USER, request.email()))
                 );
-    }
-
-    @Override
-    public ResponseEntity<MessageResponse> sendPasswordResetEmail(
-            String token,
-            UserModificationRequest request
-    ) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-
-        final String resetToken = jwtService.generateToken(userDetails);
-        jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.PASSWORD_RESET);
-        jwtTokenUtil.saveUserToken(userDetails, resetToken, TokenType.PASSWORD_RESET);
-
-        final String subject = "Reset your password";
-        final String resetUrl = "http://localhost:8080/reset-password?token=" + resetToken;
-        final String message = "To reset your password, click the link below:\n" + resetUrl;
-
-        emailService.sendEmail(
-                user.getEmail(),
-                subject,
-                message
-        );
-
-        return ResponseEntity.ok()
-                .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(USER, request.email())));
     }
 }
