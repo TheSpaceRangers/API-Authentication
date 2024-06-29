@@ -50,6 +50,28 @@ public class JwtServiceTest {
     }
 
     @Test
+    @DisplayName("Test generate token")
+    void testGenerateToken_Expiration() {
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userDetails.getAuthorities()).thenReturn(List.of());
+
+        String token = jwtService.generateToken(userDetails, 3600);
+
+        assertThat(token).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test generate token")
+    void testGenerateToken_Claims() {
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userDetails.getAuthorities()).thenReturn(List.of());
+
+        String token = jwtService.generateToken(new HashMap<>(), userDetails);
+
+        assertThat(token).isNotNull();
+    }
+
+    @Test
     @DisplayName("Test generate refresh token")
     void testGenerateRefreshToken() {
         when(userDetails.getUsername()).thenReturn("testUser");

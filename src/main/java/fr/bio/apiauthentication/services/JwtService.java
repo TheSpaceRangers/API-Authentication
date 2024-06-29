@@ -85,6 +85,17 @@ public class JwtService implements IJwtService {
 
     @Override
     public String generateToken(
+            UserDetails userDetails,
+            long expiration
+    ) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("Authorities", userDetails.getAuthorities());
+
+        return buildToken(claims, userDetails, expiration);
+    }
+
+    @Override
+    public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
