@@ -26,4 +26,16 @@ public class EmailService implements IEmailService {
 
         javaMailSender.send(message);
     }
+
+    @Override
+    public void sendPasswordResetEmail(
+            String to,
+            String token
+    ) {
+        final String subject = "Reset your password";
+        final String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        final String message = "To reset your password, click the link below:\n" + resetUrl;
+
+        sendEmail(to, subject, message);
+    }
 }
