@@ -10,6 +10,12 @@ public enum Messages {
     ENTITY_ACTIVATED("%s %s has been activated"),
     ENTITY_DEACTIVATED("%s %s has been deactivated"),
 
+    // Reset
+    SEND_RESET_MAIL("An email with reset instructions has been sent to %s"),
+    INVALID_TOKEN("The provided token is invalid"),
+    EXPIRED_TOKEN("The provided token has expired"),
+    PASSWORD_RESET("Your password has been successfully reset"),
+
     // Paremeters
     STATUS_PARAMETER_INVALID("Invalid action parameter. Use 'activate' or 'deactivate'.");
 
