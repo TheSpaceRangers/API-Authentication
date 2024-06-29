@@ -8,6 +8,8 @@ import java.util.Map;
 public interface IJwtService {
     String generateToken(UserDetails userDetails);
 
+    String generateToken(UserDetails userDetails, long expiration);
+
     String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
 
     String generateRefreshToken(UserDetails userDetails);
