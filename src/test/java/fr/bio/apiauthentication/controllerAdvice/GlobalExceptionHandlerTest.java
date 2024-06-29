@@ -1,9 +1,9 @@
 package fr.bio.apiauthentication.controllerAdvice;
 
 import fr.bio.apiauthentication.dto.ExceptionResponse;
-import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
-import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
-import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
+import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

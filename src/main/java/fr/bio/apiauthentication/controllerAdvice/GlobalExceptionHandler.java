@@ -1,10 +1,10 @@
 package fr.bio.apiauthentication.controllerAdvice;
 
 import fr.bio.apiauthentication.dto.ExceptionResponse;
-import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
-import fr.bio.apiauthentication.exceptions.InvalidPasswordException;
-import fr.bio.apiauthentication.exceptions.RoleAlreadyExistsException;
-import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
+import fr.bio.apiauthentication.exceptions.already_exists.RoleAlreadyExistsException;
+import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
