@@ -4,6 +4,7 @@ import fr.bio.apiauthentication.entities.LoginHistory;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
@@ -14,12 +15,11 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class AuthenticationSuccessListener implements ApplicationListener<AuthenticationSuccessEvent> {
-    @Autowired
-    private LoginHistoryRepository loginHistoryRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
 
-    @Autowired
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
 
     @Override
     public void onApplicationEvent(AuthenticationSuccessEvent event) {

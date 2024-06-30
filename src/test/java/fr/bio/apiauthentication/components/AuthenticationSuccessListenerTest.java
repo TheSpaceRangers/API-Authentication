@@ -46,8 +46,7 @@ public class AuthenticationSuccessListenerTest {
                 .build();
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null);
-        WebAuthenticationDetails webDetails = new WebAuthenticationDetails(request);
-        authentication.setDetails(webDetails);
+        authentication.setDetails(new WebAuthenticationDetails(request));
 
         AuthenticationSuccessEvent event = new AuthenticationSuccessEvent(authentication);
 
