@@ -1,7 +1,6 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
-import fr.bio.apiauthentication.components.JwtTokenUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.reset.ResetPasswordRequest;
 import fr.bio.apiauthentication.dto.reset.SendResetEmailRequest;
@@ -35,7 +34,6 @@ public class ResetService implements IResetService {
     private final IJwtService jwtService;
     private final IEmailService emailService;
 
-    private final JwtTokenUtil jwtTokenUtil;
     private final HttpHeadersUtil httpHeadersUtil;
 
     private final UserDetailsService userDetailsService;
@@ -51,8 +49,8 @@ public class ResetService implements IResetService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
         final String resetToken = jwtService.generateToken(userDetails);
-        jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.PASSWORD_RESET);
-        jwtTokenUtil.saveUserToken(userDetails, resetToken, TokenType.PASSWORD_RESET);
+        jwtService.revokeAllUserTokens(userDetails, TokenType.PASSWORD_RESET);
+        jwtService.saveUserToken(userDetails, resetToken, TokenType.PASSWORD_RESET);
 
         emailService.sendPasswordResetEmail(
                 user.getEmail(),

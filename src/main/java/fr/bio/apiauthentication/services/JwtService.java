@@ -1,5 +1,11 @@
 package fr.bio.apiauthentication.services;
 
+import fr.bio.apiauthentication.entities.Token;
+import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.Messages;
+import fr.bio.apiauthentication.enums.TokenType;
+import fr.bio.apiauthentication.repositories.TokenRepository;
+import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IJwtService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -8,22 +14,31 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-@Slf4j
 @Data
+@RequiredArgsConstructor
+@Slf4j
 public class JwtService implements IJwtService {
+    private static final String USER = "User";
+
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
+
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -85,17 +100,6 @@ public class JwtService implements IJwtService {
 
     @Override
     public String generateToken(
-            UserDetails userDetails,
-            long expiration
-    ) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("Authorities", userDetails.getAuthorities());
-
-        return buildToken(claims, userDetails, expiration);
-    }
-
-    @Override
-    public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
@@ -138,5 +142,40 @@ public class JwtService implements IJwtService {
             String token
     ) {
         return getExpirationDateFromToken(token).before(new Date());
+    }
+
+    @Override
+    public void saveUserToken(
+            UserDetails userDetails,
+            String strToken,
+            TokenType type
+    ) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
+
+        Token token = Token.builder()
+                .token(strToken)
+                .type(type)
+                .user(user)
+                .build();
+        tokenRepository.save(token);
+    }
+
+    @Override
+    public void revokeAllUserTokens(
+            UserDetails userDetails,
+            TokenType type
+    ) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
+
+        List<Token> tokens = tokenRepository.findByUserAndTypeAndExpiredFalseAndRevokedFalse(user, type);
+
+        tokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+
+        tokenRepository.saveAll(tokens);
     }
 }

@@ -5,8 +5,9 @@ import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
-import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.Messages;
+import fr.bio.apiauthentication.enums.TokenType;
 import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
@@ -83,23 +84,23 @@ public class AuthenticationServiceTest {
         request = new CreateUserRequest(
                 "Charles",
                 "TRONEL",
-                "c.tronel@test.properties.com",
+                "c.tronel@test.com",
                 "1234567890"
         );
 
         authenticationRequest = new AuthenticationRequest(
-                "c.tronel@test.properties.com",
+                "c.tronel@test.com",
                 "1234567890"
         );
 
         user = User.builder()
                 .firstName("Charles")
                 .lastName("Tronel")
-                .email("c.tronel@test.properties.com")
+                .email("c.tronel@test.com")
                 .password("1234567890")
                 .build();
 
-        userDetails = org.springframework.security.core.userdetails.User.withUsername("c.tronel@test.properties.com")
+        userDetails = org.springframework.security.core.userdetails.User.withUsername("c.tronel@test.com")
                 .password("1234567890")
                 .authorities(Collections.emptyList())
                 .build();
@@ -123,7 +124,7 @@ public class AuthenticationServiceTest {
         ResponseEntity<AuthenticationResponse> response = authenticationService.register(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.properties.com a bien été créé !");
+        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com a bien été créé !");
 
         verify(passwordEncoder, times(1)).encode("1234567890");
         verify(userRepository, times(1)).save(any(User.class));
@@ -151,22 +152,25 @@ public class AuthenticationServiceTest {
     @DisplayName("Test login user")
     public void testLogin_Success() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(mock(Authentication.class));
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
+
         when(userDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
+
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("jwt-token");
-        when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refresh-token");
+
         when(tokenRepository.findAllValidTokenByUser(anyLong())).thenReturn(Collections.emptyList());
+
         when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
         ResponseEntity<AuthenticationResponse> response = authenticationService.login(authenticationRequest);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.properties.com est connecté !");
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.USER_CONNECTED.formatMessage(request.email()));
 
-        verify(tokenRepository, times(1)).save(any(Token.class));
-        verify(tokenRepository, times(1)).findAllValidTokenByUser(anyLong());
+        verify(jwtService, times(1)).revokeAllUserTokens(userDetails, TokenType.BEARER);
+        verify(jwtService, times(1)).saveUserToken(userDetails, "jwt-token", TokenType.BEARER);
     }
 
     @Test

@@ -55,7 +55,7 @@ public class JwtServiceTest {
         when(userDetails.getUsername()).thenReturn("testUser");
         when(userDetails.getAuthorities()).thenReturn(List.of());
 
-        String token = jwtService.generateToken(userDetails, 3600);
+        String token = jwtService.generateToken(userDetails);
 
         assertThat(token).isNotNull();
     }

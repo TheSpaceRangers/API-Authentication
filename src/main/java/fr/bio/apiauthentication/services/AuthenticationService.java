@@ -1,7 +1,6 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
-import fr.bio.apiauthentication.components.JwtTokenUtil;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
 import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
@@ -40,7 +39,6 @@ public class AuthenticationService implements IAuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final HttpHeadersUtil httpHeadersUtil;
-    private final JwtTokenUtil jwtTokenUtil;
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
@@ -90,13 +88,13 @@ public class AuthenticationService implements IAuthenticationService {
 
             final String token = jwtService.generateToken(userDetails);
 
-            jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.BEARER);
-            jwtTokenUtil.saveUserToken(userDetails, token, TokenType.BEARER);
+            jwtService.revokeAllUserTokens(userDetails, TokenType.BEARER);
+            jwtService.saveUserToken(userDetails, token, TokenType.BEARER);
 
             return ResponseEntity.ok()
                     .headers(httpHeadersUtil.createHeaders(token))
                     .body(AuthenticationResponse.builder()
-                            .message(Messages.USER_CONNECTED.formatMessage(userDetails.getUsername()))
+                            .message(Messages.USER_CONNECTED.formatMessage(request.email()))
                             .build()
                     );
         } catch (BadCredentialsException e) {

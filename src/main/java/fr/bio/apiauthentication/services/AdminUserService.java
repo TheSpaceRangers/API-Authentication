@@ -1,7 +1,6 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
-import fr.bio.apiauthentication.components.JwtTokenUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
 import fr.bio.apiauthentication.dto.admin.UserModificationRequest;
 import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
@@ -13,11 +12,8 @@ import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsExcep
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAdminUserService;
-import fr.bio.apiauthentication.services.interfaces.IEmailService;
-import fr.bio.apiauthentication.services.interfaces.IJwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
