@@ -7,16 +7,18 @@ import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
 import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.enums.TokenType;
 import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -41,6 +44,8 @@ public class AuthenticationService implements IAuthenticationService {
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
+
+    private final EntityManager entityManager;
 
     @Override
     public ResponseEntity<AuthenticationResponse> register(CreateUserRequest request) {
@@ -65,9 +70,11 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public ResponseEntity<AuthenticationResponse> login(AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> login(
+            AuthenticationRequest request
+    ) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new InvalidCredentialsException("Incorrect email and/or password"));
+                .orElseThrow(() -> new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage()));;
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -76,23 +83,24 @@ public class AuthenticationService implements IAuthenticationService {
                             request.password()
                     )
             );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (InvalidCredentialsException e) {
-            throw new InvalidCredentialsException("Incorrect email and/or password");
+
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
+
+            final String token = jwtService.generateToken(userDetails);
+
+            jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.BEARER);
+            jwtTokenUtil.saveUserToken(userDetails, token, TokenType.BEARER);
+
+            return ResponseEntity.ok()
+                    .headers(httpHeadersUtil.createHeaders(token))
+                    .body(AuthenticationResponse.builder()
+                            .message(Messages.USER_CONNECTED.formatMessage(userDetails.getUsername()))
+                            .build()
+                    );
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage());
         }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-
-        final String token = jwtService.generateToken(userDetails);
-
-        jwtTokenUtil.revokeAllUserTokens(userDetails, TokenType.BEARER);
-        jwtTokenUtil.saveUserToken(userDetails, token, TokenType.BEARER);
-
-        return ResponseEntity.ok()
-                .headers(httpHeadersUtil.createHeaders(token))
-                .body(AuthenticationResponse.builder()
-                        .message("L'utilisateur " + request.email() + " est connecté !")
-                        .build()
-                );
     }
 }

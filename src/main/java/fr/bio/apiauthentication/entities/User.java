@@ -71,9 +71,6 @@ public class User implements UserDetails {
     )
     private Collection<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private Collection<LoginHistory> loginHistories;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
