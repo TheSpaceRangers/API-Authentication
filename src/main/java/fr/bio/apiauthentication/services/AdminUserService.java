@@ -34,13 +34,7 @@ public class AdminUserService implements IAdminUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    private final IJwtService jwtService;
-    private final IEmailService emailService;
-
     private final HttpHeadersUtil httpHeadersUtil;
-    private final JwtTokenUtil jwtTokenUtil;
-
-    private final UserDetailsService userDetailsService;
 
     @Override
     public ResponseEntity<List<UserStructureResponse>> getAllUsers(

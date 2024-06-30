@@ -25,7 +25,7 @@ public class ResetController {
 
     @PutMapping(value = "/password")
     public ResponseEntity<MessageResponse> resetPassword(
-            @RequestParam(value = "token", required = true) String token,
+            @RequestParam(value = "token") String token,
             @Validated @RequestBody ResetPasswordRequest request
     ) {
         return resetService.resetPassword(token, request);

@@ -1,6 +1,5 @@
 package fr.bio.apiauthentication.config;
 
-import fr.bio.apiauthentication.components.AuthenticationSuccessListener;
 import fr.bio.apiauthentication.components.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

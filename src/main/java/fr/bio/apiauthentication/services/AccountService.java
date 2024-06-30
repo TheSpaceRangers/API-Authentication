@@ -31,7 +31,6 @@ public class AccountService implements IAccountService {
     private final PasswordEncoder passwordEncoder;
 
     private final HttpHeadersUtil httpHeadersUtil;
-    private final TokenRepository tokenRepository;
 
     @Override
     public ResponseEntity<UserProfilResponse> getUserProfile(

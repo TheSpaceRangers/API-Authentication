@@ -44,7 +44,7 @@ public class AdminUserController {
     @PutMapping(value = "/user/status")
     public ResponseEntity<MessageResponse> updateUserStatus (
             @RequestHeader("Authorization") String token,
-            @RequestParam(value = "action", required = true) String action,
+            @RequestParam(value = "action") String action,
             @Validated @RequestBody UserModificationRequest request
     ) {
         boolean status;
