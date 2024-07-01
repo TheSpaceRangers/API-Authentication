@@ -2,7 +2,7 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
+import fr.bio.apiauthentication.dto.admin.RoleRequest;
 import fr.bio.apiauthentication.dto.admin.RoleStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.enums.Messages;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class AdminRoleService implements IAdminRoleService {
     private final HttpHeadersUtil httpHeadersUtil;
 
     @Override
-    public ResponseEntity<List<RoleStructureResponse>> getAllRolesByStatus(
+    public ResponseEntity<List<RoleStructureResponse>> getAllByStatus(
             String token,
             Boolean isActive
     ) {
@@ -36,23 +37,15 @@ public class AdminRoleService implements IAdminRoleService {
                 ? roleRepository.findAll()
                 : roleRepository.findAllByEnabled(isActive);
 
-        System.out.println("Roles : " + roles);
-
-        List<RoleStructureResponse> responses = roles != null
-                ? roles.stream()
-                    .map(RoleStructureResponse::fromRole)
-                    .toList()
-                : List.of();
-
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(responses);
+                .body(RoleStructureResponse.fromRoles(roles));
     }
 
     @Override
-    public ResponseEntity<MessageResponse> createRole(
+    public ResponseEntity<MessageResponse> newRole(
             String token,
-            RoleModificationRequest request
+            RoleRequest request
     ) {
         Role role = roleRepository.findByAuthority(request.authority())
                 .orElse(null);
@@ -65,33 +58,38 @@ public class AdminRoleService implements IAdminRoleService {
                 .displayName(request.displayName())
                 .description(request.description())
                 .build();
-
         roleRepository.save(role);
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.ENTITY_CREATED.formatMessage(ROLE, request.authority())));
+                .body(MessageResponse.fromMessage(Messages.ENTITY_CREATED.formatMessage(ROLE, request.authority())));
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateRole(
+    public ResponseEntity<MessageResponse> modify(
             String token,
-            RoleModificationRequest request
+            RoleRequest request
     ) {
         Role role = roleRepository.findByAuthority(request.authority())
                 .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         boolean isModified = false;
 
-        if (request.displayName() != null && !request.displayName().isBlank() && !role.getDisplayName().equals(request.displayName())) {
-            role.setDisplayName(request.displayName());
-            isModified = true;
-        }
+        isModified |= Optional.ofNullable(request.displayName())
+                .filter(displayName -> !displayName.isBlank() && !displayName.equals(role.getDisplayName()))
+                .map(displayName -> {
+                    role.setDisplayName(displayName);
+                    return true;
+                })
+                .orElse(false);
 
-        if (request.description() != null && !request.description().isBlank() && !role.getDescription().equals(request.description())) {
-            role.setDescription(request.description());
-            isModified = true;
-        }
+        isModified |= Optional.ofNullable(request.description())
+                .filter(description -> !description.isBlank() && !description.equals(role.getDescription()))
+                .map(description -> {
+                    role.setDescription(description);
+                    return true;
+                })
+                .orElse(false);
 
         if (isModified)
             roleRepository.save(role);
@@ -105,9 +103,9 @@ public class AdminRoleService implements IAdminRoleService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateRoleStatus(
+    public ResponseEntity<MessageResponse> modifyStatus(
             String token,
-            RoleModificationRequest request,
+            RoleRequest request,
             boolean status
     ) {
         Role role = roleRepository.findByAuthority(request.authority())

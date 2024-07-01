@@ -2,7 +2,7 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
+import fr.bio.apiauthentication.dto.admin.RoleRequest;
 import fr.bio.apiauthentication.dto.admin.RoleStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.enums.Messages;
@@ -47,7 +47,7 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test get roles")
-    void testGetAllRolesByStatus() {
+    void testGetAllByStatus() {
         String token = "token";
 
         Role roleActive = Role.builder()
@@ -74,7 +74,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findAll()).thenReturn(List.of(roleActive, roleInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, null);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllByStatus(token, null);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -84,7 +84,7 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test get roles with active status")
-    void testGetAllRolesByStatus_Active() {
+    void testGetAllByStatus_Active() {
         String token = "token";
 
         Role roleActive = Role.builder()
@@ -101,7 +101,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(roleActive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, true);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -111,7 +111,7 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test get roles with inactive status")
-    void testGetAllRolesByStatus_Inactive() {
+    void testGetAllByStatus_Inactive() {
         String token = "token";
 
         Role roleInactive = Role.builder()
@@ -128,7 +128,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findAllByEnabled(false)).thenReturn(List.of(roleInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, false);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllByStatus(token, false);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -146,7 +146,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of());
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllRolesByStatus(token, true);
+        ResponseEntity<List<RoleStructureResponse>> response = adminRoleService.getAllByStatus(token, true);
 
         assertThat(response.getBody()).isEqualTo(actualResponse);
 
@@ -156,10 +156,10 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test create role")
-    void testCreateRole_Success() {
+    void testNewRole_Success() {
         String token = "token";
 
-        RoleModificationRequest request = new RoleModificationRequest("NEW_ROLE", "NEW_ROLE", "NEW_ROLE");
+        RoleRequest request = new RoleRequest("NEW_ROLE", "NEW_ROLE", "NEW_ROLE");
 
         Role role = Role.builder()
                 .authority("NEW_ROLE")
@@ -174,7 +174,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.save(any(Role.class))).thenReturn(role);
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminRoleService.createRole(token, request);
+        ResponseEntity<MessageResponse> response = adminRoleService.newRole(token, request);
 
         ArgumentCaptor<Role> roleCaptor = ArgumentCaptor.forClass(Role.class);
         verify(roleRepository).save(roleCaptor.capture());
@@ -194,10 +194,10 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test create role but role existing")
-    void testCreateRole_RoleExist() {
+    void testNewRole_RoleExist() {
         String token = "token";
 
-        RoleModificationRequest request = new RoleModificationRequest("NEW_ROLE", "NEW_ROLE", "NEW_ROLE");
+        RoleRequest request = new RoleRequest("NEW_ROLE", "NEW_ROLE", "NEW_ROLE");
 
         Role role = Role.builder()
                 .authority("NEW_ROLE")
@@ -210,16 +210,16 @@ public class AdminRoleServiceTest {
 
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
 
-        assertThrows(RoleAlreadyExistsException.class, () -> adminRoleService.createRole(token, request));
+        assertThrows(RoleAlreadyExistsException.class, () -> adminRoleService.newRole(token, request));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
     }
 
     @Test
     @DisplayName("Test update role")
-    void testUpdateRole_Success() {
+    void testModify_Success() {
         String token = "token";
-        RoleModificationRequest request = new RoleModificationRequest("ROLE_USER", "Utilisateur", "");
+        RoleRequest request = new RoleRequest("ROLE_USER", "Utilisateur", "");
 
         Role role = Role.builder()
                 .authority("ROLE_USER")
@@ -230,7 +230,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminRoleService.updateRole(token, request);
+        ResponseEntity<MessageResponse> response = adminRoleService.modify(token, request);
 
         Role savedRole = roleRepository.findByAuthority(request.authority())
                         .orElse(null);
@@ -246,13 +246,13 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test update role but role not found")
-    void testUpdateRole_RoleNotFound() {
+    void testModifyRole_NotFound() {
         String token = "token";
-        RoleModificationRequest request = new RoleModificationRequest("ROLE_UNKNOWN", "Unknown", "");
+        RoleRequest request = new RoleRequest("ROLE_UNKNOWN", "Unknown", "");
 
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.empty());
 
-        assertThrows(RoleNotFoundException.class, () -> adminRoleService.updateRole(token, request));
+        assertThrows(RoleNotFoundException.class, () -> adminRoleService.modify(token, request));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
         verify(roleRepository, never()).save(any(Role.class));
@@ -260,9 +260,9 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test update role status")
-    void testUpdateRoleStatus_Success() {
+    void testModifyStatus_Success() {
         String token = "token";
-        RoleModificationRequest request = new RoleModificationRequest("ROLE_USER", "", "");
+        RoleRequest request = new RoleRequest("ROLE_USER", "", "");
 
         Role role = Role.builder()
                 .authority("ROLE_USER")
@@ -274,7 +274,7 @@ public class AdminRoleServiceTest {
         when(roleRepository.findByAuthority(request.authority())).thenReturn(Optional.of(role));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
 
-        ResponseEntity<MessageResponse> response = adminRoleService.updateRoleStatus(token, request, false);
+        ResponseEntity<MessageResponse> response = adminRoleService.modifyStatus(token, request, false);
 
         Role savedRole = roleRepository.findByAuthority(request.authority())
                 .orElse(null);
@@ -289,13 +289,13 @@ public class AdminRoleServiceTest {
 
     @Test
     @DisplayName("Test update role status but role not found")
-    void testUpdateRoleStatus_RoleNotFound() {
+    void testModifyRoleStatus_NotFound() {
         String token = "token";
-        RoleModificationRequest request = new RoleModificationRequest("ROLE_UNKNOWN", "Unknown", "");
+        RoleRequest request = new RoleRequest("ROLE_UNKNOWN", "Unknown", "");
 
         when(roleRepository.findByAuthority(request.authority())).thenThrow(new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
-        assertThrows(RoleNotFoundException.class, () -> adminRoleService.updateRoleStatus(token, request, true));
+        assertThrows(RoleNotFoundException.class, () -> adminRoleService.modifyStatus(token, request, true));
 
         verify(roleRepository, times(1)).findByAuthority(request.authority());
         verify(roleRepository, never()).save(any(Role.class));

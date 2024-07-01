@@ -1,13 +1,13 @@
 package fr.bio.apiauthentication.controllers;
 
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.RoleModificationRequest;
+import fr.bio.apiauthentication.dto.admin.RoleRequest;
 import fr.bio.apiauthentication.dto.admin.RoleStructureResponse;
 import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.services.interfaces.IAdminRoleService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class AdminRoleController {
     private final IAdminRoleService adminRoleService;
 
     @GetMapping(value = "/roles")
-    public ResponseEntity<List<RoleStructureResponse>> getRoles(
+    public ResponseEntity<List<RoleStructureResponse>> getAllByStatus(
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "status", required = false) String status
     ) {
@@ -30,30 +30,30 @@ public class AdminRoleController {
         else if (status.equalsIgnoreCase("inactive"))
             isActive = false;
 
-        return adminRoleService.getAllRolesByStatus(token, isActive);
+        return adminRoleService.getAllByStatus(token, isActive);
     }
 
     @PostMapping(value = "/role/new")
-    public ResponseEntity<MessageResponse> createRole(
+    public ResponseEntity<MessageResponse> newRole(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody RoleModificationRequest request
+            @Validated @RequestBody RoleRequest request
     ) {
-        return adminRoleService.createRole(token, request);
+        return adminRoleService.newRole(token, request);
     }
 
     @PutMapping(value = "/role/update")
-    public ResponseEntity<MessageResponse> updateRole(
+    public ResponseEntity<MessageResponse> modify(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody RoleModificationRequest request
+            @Validated @RequestBody RoleRequest request
     ) {
-        return adminRoleService.updateRole(token, request);
+        return adminRoleService.modify(token, request);
     }
 
     @PutMapping(value = "/role/status")
-    public ResponseEntity<MessageResponse> deactivateRole(
+    public ResponseEntity<MessageResponse> modifyStatus(
             @RequestHeader("Authorization") String token,
-            @RequestParam(value = "action", required = true) String action,
-            @Valid @RequestBody RoleModificationRequest request
+            @RequestParam(value = "action") String action,
+            @Validated @RequestBody RoleRequest request
     ) {
         boolean status;
 
@@ -62,8 +62,8 @@ public class AdminRoleController {
         else if (action.equalsIgnoreCase("deactivate"))
             status = false;
         else
-            throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage(""));
+            throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage());
 
-        return adminRoleService.updateRoleStatus(token, request, status);
+        return adminRoleService.modifyStatus(token, request, status);
     }
 }

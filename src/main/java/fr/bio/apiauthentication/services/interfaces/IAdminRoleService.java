@@ -8,11 +8,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface IAdminRoleService {
-    ResponseEntity<List<RoleStructureResponse>> getAllRolesByStatus(String token, Boolean isActive);
+    ResponseEntity<List<RoleStructureResponse>> getAllByStatus(String token, Boolean isActive);
 
     ResponseEntity<MessageResponse> newRole(String token, RoleRequest request);
 
-    ResponseEntity<MessageResponse> modifyRole(String token, RoleRequest request);
+    ResponseEntity<MessageResponse> modify(String token, RoleRequest request);
 
-    ResponseEntity<MessageResponse> updateRoleStatus(String token, RoleRequest request, boolean status);
+    ResponseEntity<MessageResponse> modifyStatus(String token, RoleRequest request, boolean status);
 }
