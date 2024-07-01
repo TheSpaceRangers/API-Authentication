@@ -45,9 +45,6 @@ public class JwtService implements IJwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
-
     private SecretKey key;
 
     @PostConstruct
@@ -107,10 +104,13 @@ public class JwtService implements IJwtService {
     }
 
     @Override
-    public String generateRefreshToken(
+    public boolean validateToken(
+            String token,
             UserDetails userDetails
     ) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        final String username = getUsernameFromToken(token);
+
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     @Override
@@ -125,16 +125,6 @@ public class JwtService implements IJwtService {
             String token
     ) {
         return extractClaim(token, Claims::getExpiration);
-    }
-
-    @Override
-    public boolean validateToken(
-            String token,
-            UserDetails userDetails
-    ) {
-        final String username = getUsernameFromToken(token);
-
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     @Override

@@ -11,13 +11,11 @@ public interface IJwtService {
 
     String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
 
-    String generateRefreshToken(UserDetails userDetails);
+    boolean validateToken(String token, UserDetails userDetails);
 
     String getUsernameFromToken(String token);
 
     Date getExpirationDateFromToken(String token);
-
-    boolean validateToken(String token, UserDetails userDetails);
 
     boolean isTokenExpired(String token);
 
