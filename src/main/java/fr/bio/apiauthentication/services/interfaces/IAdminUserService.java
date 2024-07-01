@@ -10,9 +10,9 @@ import java.util.List;
 public interface IAdminUserService {
     ResponseEntity<List<UserStructureResponse>> getAllUsers(String token);
 
-    ResponseEntity<MessageResponse> createUser(String token, UserRequest request);
+    ResponseEntity<MessageResponse> newUser(String token, UserRequest request);
 
-    ResponseEntity<MessageResponse> updateUser(String token, UserRequest request);
+    ResponseEntity<MessageResponse> modify(String token, UserRequest request);
 
-    ResponseEntity<MessageResponse> updateUserStatus(String token, UserRequest request, boolean status);
+    ResponseEntity<MessageResponse> modifyStatus(String token, UserRequest request, boolean status);
 }

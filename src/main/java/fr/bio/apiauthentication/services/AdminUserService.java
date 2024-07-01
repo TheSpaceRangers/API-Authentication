@@ -2,7 +2,7 @@ package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.admin.UserModificationRequest;
+import fr.bio.apiauthentication.dto.admin.UserRequest;
 import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,26 +37,20 @@ public class AdminUserService implements IAdminUserService {
     public ResponseEntity<List<UserStructureResponse>> getAllUsers(
             String token
     ) {
-        List<User> users = userRepository.findAll();
-
-        List<UserStructureResponse> userStructures = users.stream()
-                .map(UserStructureResponse::fromUser)
-                .toList();
-
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(userStructures);
+                .body(UserStructureResponse.fromUsers(userRepository.findAll()));
     }
 
     @Override
-    public ResponseEntity<MessageResponse> createUser(
+    public ResponseEntity<MessageResponse> newUser(
             String token,
-            UserModificationRequest request
+            UserRequest request
     ) {
-        User existingUser = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email())
                 .orElse(null);
 
-        if (existingUser != null)
+        if (user != null)
             throw new UserAlreadyExistsException(Messages.ENTITY_ALREADY_EXISTS.formatMessage(USER, request.email()));
 
         List<Role> roles = request.roles() != null
@@ -65,7 +60,7 @@ public class AdminUserService implements IAdminUserService {
                     .toList()
                 : List.of();
 
-        User user = User.builder()
+        user = User.builder()
                 .email(request.email())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
@@ -75,28 +70,34 @@ public class AdminUserService implements IAdminUserService {
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.ENTITY_CREATED.formatMessage(USER, request.email())));
+                .body(MessageResponse.fromMessage(Messages.ENTITY_CREATED.formatMessage(USER, request.email())));
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateUser(
+    public ResponseEntity<MessageResponse> modify(
             String token,
-            UserModificationRequest request
+            UserRequest request
     ) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
 
         boolean isModified = false;
 
-        if (request.firstName() != null && !request.firstName().isBlank() && !user.getFirstName().equals(request.firstName())) {
-            user.setFirstName(request.firstName());
-            isModified = true;
-        }
+        isModified |= Optional.ofNullable(request.firstName())
+                .filter(firstname -> !firstname.isBlank() && !firstname.equals(user.getFirstName()))
+                .map(firstname -> {
+                    user.setFirstName(firstname);
+                    return true;
+                })
+                .orElse(false);
 
-        if (request.lastName() != null && !request.lastName().isBlank() && !user.getLastName().equals(request.lastName())) {
-            user.setLastName(request.lastName());
-            isModified = true;
-        }
+        isModified |= Optional.ofNullable(request.lastName())
+                .filter(lastname -> !lastname.isBlank() && !lastname.equals(user.getLastName()))
+                .map(lastname -> {
+                    user.setLastName(lastname);
+                    return true;
+                })
+                .orElse(false);
 
         if (isModified)
             userRepository.save(user);
@@ -104,15 +105,15 @@ public class AdminUserService implements IAdminUserService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(isModified
-                        ? new MessageResponse(Messages.ENTITY_UPDATED.formatMessage(USER, request.email()))
-                        : new MessageResponse(Messages.ENTITY_NO_MODIFIED.formatMessage(USER, request.email()))
+                        ? MessageResponse.fromMessage(Messages.ENTITY_UPDATED.formatMessage(USER, request.email()))
+                        : MessageResponse.fromMessage(Messages.ENTITY_NO_MODIFIED.formatMessage(USER, request.email()))
                 );
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateUserStatus(
+    public ResponseEntity<MessageResponse> modifyStatus(
             String token,
-            UserModificationRequest request,
+            UserRequest request,
             boolean status
     ) {
         User user = userRepository.findByEmail(request.email())
@@ -124,8 +125,8 @@ public class AdminUserService implements IAdminUserService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(status
-                        ? new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(USER, request.email()))
-                        : new MessageResponse(Messages.ENTITY_DEACTIVATED.formatMessage(USER, request.email()))
+                        ? MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, request.email()))
+                        : MessageResponse.fromMessage(Messages.ENTITY_DEACTIVATED.formatMessage(USER, request.email()))
                 );
     }
 }

@@ -26,23 +26,23 @@ public class AdminUserController {
     }
 
     @PostMapping(value = "/user/new")
-    public ResponseEntity<MessageResponse> createUser (
+    public ResponseEntity<MessageResponse> newUser (
             @RequestHeader("Authorization") String token,
             @Validated @RequestBody UserRequest request
     ) {
-        return adminUserService.createUser(token, request);
+        return adminUserService.newUser(token, request);
     }
 
     @PutMapping(value = "/user/update")
-    public ResponseEntity<MessageResponse> updateUser (
+    public ResponseEntity<MessageResponse> modify (
             @RequestHeader("Authorization") String token,
             @Validated @RequestBody UserRequest request
     ) {
-        return adminUserService.updateUser(token, request);
+        return adminUserService.modify(token, request);
     }
 
     @PutMapping(value = "/user/status")
-    public ResponseEntity<MessageResponse> updateUserStatus (
+    public ResponseEntity<MessageResponse> modifyStatus (
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "action") String action,
             @Validated @RequestBody UserRequest request
@@ -56,6 +56,6 @@ public class AdminUserController {
         else
             throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage());
 
-        return adminUserService.updateUserStatus(token, request, status);
+        return adminUserService.modifyStatus(token, request, status);
     }
 }
