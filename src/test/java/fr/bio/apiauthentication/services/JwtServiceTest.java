@@ -34,7 +34,6 @@ public class JwtServiceTest {
 
         jwtService.setSecretKey("sMcZfQWkvZ7cjmvdxERDyxElXP+LBE0NfQD4V1eyJuQrJ4DsUJLsJXXHis+spgyNV3+gkLT0o8SS3HU3rDucbFeH1BB10jzqlj1jmYiwNEgpnmV/YYsm8rbRYRB+VJ6tL/01M2UhrHqQCiGmQzSbLUKiXpDiFk6G0ihCL0cCsTme82k59n2nR/95rBKnDtcur");
         jwtService.setJwtExpiration(1000 * 60 * 60);
-        jwtService.setRefreshExpiration(1000 * 60 * 60 * 24 * 7);
         jwtService.init();
     }
 
@@ -69,16 +68,6 @@ public class JwtServiceTest {
         String token = jwtService.generateToken(new HashMap<>(), userDetails);
 
         assertThat(token).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Test generate refresh token")
-    void testGenerateRefreshToken() {
-        when(userDetails.getUsername()).thenReturn("testUser");
-
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
-
-        assertThat(refreshToken).isNotNull();
     }
 
     @Test
