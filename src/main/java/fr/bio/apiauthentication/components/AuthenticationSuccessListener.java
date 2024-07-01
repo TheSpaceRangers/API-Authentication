@@ -5,7 +5,6 @@ import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
@@ -27,11 +26,8 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
         User user = (User) authentication.getPrincipal();
 
         String ipAddress = request.getRemoteAddr();
-        if (authentication.getDetails() instanceof WebAuthenticationDetails) {
-            WebAuthenticationDetails webDetails = (WebAuthenticationDetails) authentication.getDetails();
-            if (webDetails != null) {
-                ipAddress = webDetails.getRemoteAddress();
-            }
+        if (authentication.getDetails() instanceof WebAuthenticationDetails webDetails) {
+            ipAddress = webDetails.getRemoteAddress();
         }
 
         LoginHistory loginHistory = LoginHistory.builder()
