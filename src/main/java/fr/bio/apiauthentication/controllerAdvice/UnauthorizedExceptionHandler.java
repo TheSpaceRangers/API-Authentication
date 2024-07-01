@@ -2,7 +2,6 @@ package fr.bio.apiauthentication.controllerAdvice;
 
 import fr.bio.apiauthentication.dto.ExceptionResponse;
 import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
-import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
