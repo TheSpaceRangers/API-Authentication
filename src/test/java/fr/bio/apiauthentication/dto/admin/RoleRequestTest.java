@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@DisplayName("Test update role DTO")
-public class RoleModificationRequestTest {
+@DisplayName("Test role request DTO")
+public class RoleRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private RoleModificationRequest request;
+    private RoleRequest request;
 
     @BeforeEach
     void setUp() {
-        request = new RoleModificationRequest("USER", "USER", "" );
+        request = new RoleRequest("USER", "USER", "" );
     }
 
     @AfterEach
@@ -31,14 +31,14 @@ public class RoleModificationRequestTest {
 
     @Test
     public void testEquals() {
-        RoleModificationRequest requestEquals = new RoleModificationRequest("USER", "USER", "" );
+        RoleRequest requestEquals = new RoleRequest("USER", "USER", "" );
 
         assertThat(request).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        RoleModificationRequest requestNotEquals = new RoleModificationRequest("ADMIN", "USER", "" );
+        RoleRequest requestNotEquals = new RoleRequest("ADMIN", "USER", "" );
 
         assertThat(request).isNotEqualTo(requestNotEquals);
     }
@@ -46,14 +46,14 @@ public class RoleModificationRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        RoleModificationRequest actualRequest = mapper.readValue(json, RoleModificationRequest.class);
+        RoleRequest actualRequest = mapper.readValue(json, RoleRequest.class);
 
         String expectedJson = "{" +
                 "\"authority\":\"USER\"," +
                 "\"display_name\":\"USER\"," +
                 "\"description\":\"\"" +
                 "}";
-        RoleModificationRequest expectedRequest = mapper.readValue(expectedJson, RoleModificationRequest.class);
+        RoleRequest expectedRequest = mapper.readValue(expectedJson, RoleRequest.class);
 
         assertThat(actualRequest).isEqualTo(expectedRequest);
     }
@@ -65,7 +65,7 @@ public class RoleModificationRequestTest {
                 "\"display_name\":\"USER\"," +
                 "\"description\":\"\"" +
                 "}";
-        RoleModificationRequest requestMapped = mapper.readValue(json, RoleModificationRequest.class);
+        RoleRequest requestMapped = mapper.readValue(json, RoleRequest.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(request);
     }
