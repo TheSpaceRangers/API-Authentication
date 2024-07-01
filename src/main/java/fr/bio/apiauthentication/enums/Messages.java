@@ -17,7 +17,8 @@ public enum Messages {
     PASSWORD_RESET("Your password has been successfully reset."),
 
     // Account
-    USER_CONNECTED("User %s is connected."),
+    ACCOUNT_CONNECTED("Account %s is connected."),
+    ACCOUNT_UPDATED("Account %s has been updated."),
     INVALID_CREDENTIALS("Incorrect email and/or password."),
 
     // Paremeters

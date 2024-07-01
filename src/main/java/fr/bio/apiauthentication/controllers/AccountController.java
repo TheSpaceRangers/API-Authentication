@@ -1,9 +1,9 @@
 package fr.bio.apiauthentication.controllers;
 
 import fr.bio.apiauthentication.dto.MessageResponse;
-import fr.bio.apiauthentication.dto.account.UpdatePasswordRequest;
 import fr.bio.apiauthentication.dto.account.UpdateUserProfilRequest;
-import fr.bio.apiauthentication.dto.account.UserProfilResponse;
+import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
+import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.services.interfaces.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class AccountController {
     private final IAccountService accountService;
 
     @PostMapping(value = "/profile")
-    public ResponseEntity<UserProfilResponse> login(
+    public ResponseEntity<UserStructureResponse> login(
             @RequestHeader("Authorization") String token
     ) {
         return accountService.getUserProfile(token.substring(7));
@@ -31,18 +31,20 @@ public class AccountController {
         return accountService.updateProfile(token.substring(7), request);
     }
 
-    @PutMapping(value = "/password")
-    public ResponseEntity<MessageResponse> updatePassword(
-            @RequestHeader("Authorization") String token,
-            @Validated @RequestBody UpdatePasswordRequest request
-    ) {
-        return accountService.updatePassword(token.substring(7), request);
-    }
-
-    @PutMapping(value = "/deactivate")
+    @PutMapping(value = "/status")
     public ResponseEntity<MessageResponse> desactivate(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "action") String action
     ) {
-        return accountService.deactivateAccount(token.substring(7));
+        boolean status;
+
+        if (action.equalsIgnoreCase("activate"))
+            status = true;
+        else if (action.equalsIgnoreCase("deactivate"))
+            status = false;
+        else
+            throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage(Messages.STATUS_PARAMETER_INVALID.formatMessage()));
+
+        return accountService.statusAccount(token, status);
     }
 }

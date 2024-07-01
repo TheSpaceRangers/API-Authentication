@@ -167,7 +167,7 @@ public class AuthenticationServiceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.USER_CONNECTED.formatMessage(request.email()));
+        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ACCOUNT_CONNECTED.formatMessage(request.email()));
 
         verify(jwtService, times(1)).revokeAllUserTokens(userDetails, TokenType.BEARER);
         verify(jwtService, times(1)).saveUserToken(userDetails, "jwt-token", TokenType.BEARER);

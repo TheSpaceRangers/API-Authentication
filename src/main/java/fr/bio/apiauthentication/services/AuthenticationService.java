@@ -94,7 +94,7 @@ public class AuthenticationService implements IAuthenticationService {
             return ResponseEntity.ok()
                     .headers(httpHeadersUtil.createHeaders(token))
                     .body(AuthenticationResponse.builder()
-                            .message(Messages.USER_CONNECTED.formatMessage(request.email()))
+                            .message(Messages.ACCOUNT_CONNECTED.formatMessage(request.email()))
                             .build()
                     );
         } catch (BadCredentialsException e) {
