@@ -3,7 +3,6 @@ package fr.bio.apiauthentication.controllerAdvice;
 import fr.bio.apiauthentication.dto.ExceptionResponse;
 import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
-import fr.bio.apiauthentication.exceptions.invalid.InvalidPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
