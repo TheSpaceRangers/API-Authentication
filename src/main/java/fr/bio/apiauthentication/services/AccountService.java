@@ -69,10 +69,7 @@ public class AccountService implements IAccountService {
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(MessageResponse.builder()
-                        .message(Messages.ACCOUNT_UPDATED.formatMessage(email))
-                        .build()
-                );
+                .body(MessageResponse.fromMessage(Messages.ACCOUNT_UPDATED.formatMessage(email)));
     }
 
     @Override
@@ -91,8 +88,8 @@ public class AccountService implements IAccountService {
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
                 .body(status
-                        ? new MessageResponse(Messages.ENTITY_ACTIVATED.formatMessage(USER, email))
-                        : new MessageResponse(Messages.ENTITY_DEACTIVATED.formatMessage(USER, email))
+                        ? MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, email))
+                        : MessageResponse.fromMessage(Messages.ENTITY_DEACTIVATED.formatMessage(USER, email))
                 );
     }
 }
