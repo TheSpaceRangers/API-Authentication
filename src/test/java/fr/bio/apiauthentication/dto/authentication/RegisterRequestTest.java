@@ -12,11 +12,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class RegisterRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private CreateUserRequest request;
+    private RegisterRequest request;
 
     @BeforeEach
     void setUp() {
-        request = new CreateUserRequest(
+        request = new RegisterRequest(
                 "Charles",
                 "Tronel",
                 "c.tronel@test.properties.com",
@@ -39,7 +39,7 @@ public class RegisterRequestTest {
 
     @Test
     public void testEquals() {
-        CreateUserRequest requestEquals = new CreateUserRequest(
+        RegisterRequest requestEquals = new RegisterRequest(
                 "Charles",
                 "Tronel",
                 "c.tronel@test.properties.com",
@@ -51,7 +51,7 @@ public class RegisterRequestTest {
 
     @Test
     public void testNotEquals() {
-        CreateUserRequest requestNotEquals = new CreateUserRequest(
+        RegisterRequest requestNotEquals = new RegisterRequest(
                 "John",
                 "Doe",
                 "john.doe@example.com",
@@ -64,7 +64,7 @@ public class RegisterRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        CreateUserRequest actualRequest = mapper.readValue(json, CreateUserRequest.class);
+        RegisterRequest actualRequest = mapper.readValue(json, RegisterRequest.class);
 
         String expectedJson = "{" +
                 "\"firstName\":\"Charles\"," +
@@ -72,7 +72,7 @@ public class RegisterRequestTest {
                 "\"email\":\"c.tronel@test.properties.com\"," +
                 "\"password\":\"12345678\"" +
                 "}";
-        CreateUserRequest expectedRequest = mapper.readValue(expectedJson, CreateUserRequest.class);
+        RegisterRequest expectedRequest = mapper.readValue(expectedJson, RegisterRequest.class);
 
         assertThat(expectedRequest).isEqualTo(actualRequest);
     }
@@ -86,7 +86,7 @@ public class RegisterRequestTest {
                 "\"password\":\"12345678\"" +
                 "}";
 
-        CreateUserRequest request = mapper.readValue(json, CreateUserRequest.class);
+        RegisterRequest request = mapper.readValue(json, RegisterRequest.class);
 
         assertThat(request).usingRecursiveComparison().isEqualTo(request);
     }
