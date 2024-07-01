@@ -32,9 +32,8 @@ public class EmailService implements IEmailService {
             String to,
             String token
     ) {
-        final String subject = "Reset your password";
-        final String resetUrl = "http://localhost:8080/api/v1/reset/password?token=" + token;
-        final String message = "To reset your password, click the link below:\n" + resetUrl;
+        final String subject = "Reset your password - ITBudget";
+        final String message = "To reset your password, click the link below:\n" + "http://localhost:8080/api/v1/reset/password?token=" + token;
 
         sendEmail(to, subject, message);
     }
