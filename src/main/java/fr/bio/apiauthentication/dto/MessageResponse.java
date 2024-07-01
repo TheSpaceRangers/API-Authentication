@@ -13,4 +13,10 @@ import lombok.NoArgsConstructor;
 public class MessageResponse {
     @JsonProperty("message")
     private String message;
+
+    public static MessageResponse fromMessage(String message) {
+        return MessageResponse.builder()
+                .message(message)
+                .build();
+    }
 }
