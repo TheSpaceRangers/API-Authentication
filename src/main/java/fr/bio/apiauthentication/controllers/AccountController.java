@@ -43,7 +43,7 @@ public class AccountController {
         else if (action.equalsIgnoreCase("deactivate"))
             status = false;
         else
-            throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage(Messages.STATUS_PARAMETER_INVALID.formatMessage()));
+            throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage());
 
         return accountService.statusAccount(token, status);
     }

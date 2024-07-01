@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record UserModificationRequest(
+public record UserRequest(
         @NotNull @NotBlank @Email String email,
         @JsonProperty("first_name") String firstName,
         @JsonProperty("last_name") String lastName,
