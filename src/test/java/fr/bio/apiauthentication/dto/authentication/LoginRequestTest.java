@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test Authentication DTO Request")
-public class AuthenticationRequestTest {
+public class LoginRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private AuthenticationRequest request;
+    private LoginRequest request;
 
     @BeforeEach
     void setUp() {
-        request = new AuthenticationRequest(
+        request = new LoginRequest(
                 "username@test.properties.com",
                 "password"
         );
@@ -35,7 +35,7 @@ public class AuthenticationRequestTest {
 
     @Test
     public void testEquals() {
-        AuthenticationRequest requestEquals = new AuthenticationRequest(
+        LoginRequest requestEquals = new LoginRequest(
                 "username@test.properties.com",
                 "password"
         );
@@ -45,7 +45,7 @@ public class AuthenticationRequestTest {
 
     @Test
     public void testNotEquals() {
-        AuthenticationRequest requestEquals = new AuthenticationRequest(
+        LoginRequest requestEquals = new LoginRequest(
                 "username@test.properties.com",
                 "password not equals"
         );
@@ -56,13 +56,13 @@ public class AuthenticationRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        AuthenticationRequest actualRequest = mapper.readValue(json, AuthenticationRequest.class);
+        LoginRequest actualRequest = mapper.readValue(json, LoginRequest.class);
 
         String expectedJson = "{" +
                 "\"email\":\"username@test.properties.com\"," +
                 "\"password\":\"password\"" +
                 "}";
-        AuthenticationRequest expectedRequest = mapper.readValue(expectedJson, AuthenticationRequest.class);
+        LoginRequest expectedRequest = mapper.readValue(expectedJson, LoginRequest.class);
 
         assertThat(actualRequest).isEqualTo(expectedRequest);
     }
@@ -74,7 +74,7 @@ public class AuthenticationRequestTest {
                 "\"password\":\"password\"" +
                 "}";
 
-        AuthenticationRequest requestMapped = mapper.readValue(json, AuthenticationRequest.class);
+        LoginRequest requestMapped = mapper.readValue(json, LoginRequest.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(request);
     }

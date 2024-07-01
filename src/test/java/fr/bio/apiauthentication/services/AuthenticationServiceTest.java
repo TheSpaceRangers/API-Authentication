@@ -1,9 +1,9 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
-import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
-import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
-import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
+import fr.bio.apiauthentication.dto.MessageResponse;
+import fr.bio.apiauthentication.dto.authentication.LoginRequest;
+import fr.bio.apiauthentication.dto.authentication.RegisterRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
@@ -70,8 +70,8 @@ public class AuthenticationServiceTest {
     @InjectMocks
     private AuthenticationService authenticationService;
 
-    private CreateUserRequest request;
-    private AuthenticationRequest authenticationRequest;
+    private RegisterRequest request;
+    private LoginRequest loginRequest;
 
     private UserDetails userDetails;
     private User user;
@@ -81,14 +81,14 @@ public class AuthenticationServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        request = new CreateUserRequest(
+        request = new RegisterRequest(
                 "Charles",
                 "TRONEL",
                 "c.tronel@test.com",
                 "1234567890"
         );
 
-        authenticationRequest = new AuthenticationRequest(
+        loginRequest = new LoginRequest(
                 "c.tronel@test.com",
                 "1234567890"
         );
@@ -121,7 +121,7 @@ public class AuthenticationServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(roleRepository.findByAuthority("USER")).thenReturn(Optional.of(role));
 
-        ResponseEntity<AuthenticationResponse> response = authenticationService.register(request);
+        ResponseEntity<MessageResponse> response = authenticationService.register(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().getMessage()).isEqualTo("L'utilisateur c.tronel@test.com a bien été créé !");
@@ -163,7 +163,7 @@ public class AuthenticationServiceTest {
 
         when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
 
-        ResponseEntity<AuthenticationResponse> response = authenticationService.login(authenticationRequest);
+        ResponseEntity<MessageResponse> response = authenticationService.login(loginRequest);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -178,7 +178,7 @@ public class AuthenticationServiceTest {
     public void testLogin_UserNotFound() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidCredentialsException.class, () -> authenticationService.login(authenticationRequest));
+        assertThrows(InvalidCredentialsException.class, () -> authenticationService.login(loginRequest));
 
         verify(authenticationManager, never()).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtService, never()).generateToken(any(UserDetails.class));
@@ -191,7 +191,7 @@ public class AuthenticationServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new InvalidCredentialsException("Email et/ou mot de passe incorrecte"));
 
-        assertThrows(InvalidCredentialsException.class, () -> authenticationService.login(authenticationRequest));
+        assertThrows(InvalidCredentialsException.class, () -> authenticationService.login(loginRequest));
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtService, never()).generateToken(any(UserDetails.class));

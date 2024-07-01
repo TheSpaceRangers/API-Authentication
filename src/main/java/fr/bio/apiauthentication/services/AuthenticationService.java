@@ -1,9 +1,9 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.components.HttpHeadersUtil;
-import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
-import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
-import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
+import fr.bio.apiauthentication.dto.MessageResponse;
+import fr.bio.apiauthentication.dto.authentication.LoginRequest;
+import fr.bio.apiauthentication.dto.authentication.RegisterRequest;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
@@ -13,7 +13,6 @@ import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +32,8 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Transactional
 public class AuthenticationService implements IAuthenticationService {
+    private static final String ROLE = "Role";
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -43,12 +44,10 @@ public class AuthenticationService implements IAuthenticationService {
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-    private final EntityManager entityManager;
-
     @Override
-    public ResponseEntity<AuthenticationResponse> register(CreateUserRequest request) {
+    public ResponseEntity<MessageResponse> register(RegisterRequest request) {
         Role role = roleRepository.findByAuthority("USER")
-                .orElseThrow(() -> new RoleNotFoundException("Role 'USER' not found"));
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, "USER")));
 
         User user = User.builder()
                 .firstName(request.firstName())
@@ -60,19 +59,16 @@ public class AuthenticationService implements IAuthenticationService {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok().body(
-                AuthenticationResponse.builder()
-                        .message("L'utilisateur " + user.getEmail() + " a bien été créé !")
-                        .build()
-        );
+        return ResponseEntity.ok()
+                .body(MessageResponse.fromMessage(Messages.ACCOUNT_CREATED.formatMessage(user.getEmail())));
     }
 
     @Override
-    public ResponseEntity<AuthenticationResponse> login(
-            AuthenticationRequest request
+    public ResponseEntity<MessageResponse> login(
+            LoginRequest request
     ) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage()));;
+        final User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage()));
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -84,7 +80,7 @@ public class AuthenticationService implements IAuthenticationService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
             final String token = jwtService.generateToken(userDetails);
 
@@ -93,10 +89,7 @@ public class AuthenticationService implements IAuthenticationService {
 
             return ResponseEntity.ok()
                     .headers(httpHeadersUtil.createHeaders(token))
-                    .body(AuthenticationResponse.builder()
-                            .message(Messages.ACCOUNT_CONNECTED.formatMessage(request.email()))
-                            .build()
-                    );
+                    .body(MessageResponse.fromMessage(Messages.ACCOUNT_CONNECTED.formatMessage(user.getEmail())));
         } catch (BadCredentialsException e) {
             throw new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage());
         }

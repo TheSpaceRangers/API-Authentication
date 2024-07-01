@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test User DTO New")
-public class CreateUserRequestTest {
+public class RegisterRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private CreateUserRequest request;

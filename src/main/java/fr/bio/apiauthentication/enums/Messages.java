@@ -2,13 +2,13 @@ package fr.bio.apiauthentication.enums;
 
 public enum Messages {
     // ENTITY
-    ENTITY_NOT_FOUND("%s %s not found."),
-    ENTITY_CREATED("%s %s has been created."),
-    ENTITY_ALREADY_EXISTS("%s %s already exists."),
-    ENTITY_UPDATED("%s %s has been updated."),
-    ENTITY_NO_MODIFIED("No modifications were made to the %s %s."),
-    ENTITY_ACTIVATED("%s %s has been activated."),
-    ENTITY_DEACTIVATED("%s %s has been deactivated."),
+    ENTITY_NOT_FOUND("%s '%s' not found."),
+    ENTITY_CREATED("%s '%s' has been created."),
+    ENTITY_ALREADY_EXISTS("%s '%s' already exists."),
+    ENTITY_UPDATED("%s '%s' has been updated."),
+    ENTITY_NO_MODIFIED("No modifications were made to the %s '%s'."),
+    ENTITY_ACTIVATED("%s '%s' has been activated."),
+    ENTITY_DEACTIVATED("%s '%s' has been deactivated."),
 
     // Reset
     SEND_RESET_MAIL("An email with reset instructions has been sent to %s."),
@@ -17,6 +17,7 @@ public enum Messages {
     PASSWORD_RESET("Your password has been successfully reset."),
 
     // Account
+    ACCOUNT_CREATED("Account %s has been created."),
     ACCOUNT_CONNECTED("Account %s is connected."),
     ACCOUNT_UPDATED("Account %s has been updated."),
     INVALID_CREDENTIALS("Incorrect email and/or password."),
