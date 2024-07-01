@@ -62,4 +62,12 @@ public class RoleStructureResponse {
                         : List.of()
                 ).build();
     }
+
+    public static List<RoleStructureResponse> fromRoles(List<Role> roles) {
+        return roles != null
+                ? roles.stream()
+                    .map(RoleStructureResponse::fromRole)
+                    .toList()
+                : List.of();
+    }
 }

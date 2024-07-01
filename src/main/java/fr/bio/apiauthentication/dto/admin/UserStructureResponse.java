@@ -65,4 +65,10 @@ public class UserStructureResponse {
                     : List.of()
                 ).build();
     }
+
+    public static List<UserStructureResponse> fromUsers(List<User> users) {
+        return users.stream()
+                .map(UserStructureResponse::fromUser)
+                .toList();
+    }
 }
