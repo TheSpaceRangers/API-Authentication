@@ -6,7 +6,7 @@ import fr.bio.apiauthentication.dto.reset.SendResetEmailRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface IResetService {
-    ResponseEntity<MessageResponse> sendPasswordResetEmail(String token, SendResetEmailRequest request);
+    ResponseEntity<MessageResponse> passwordResetEmail(String token, SendResetEmailRequest request);
 
     ResponseEntity<MessageResponse> resetPassword(String token, ResetPasswordRequest request);
 }

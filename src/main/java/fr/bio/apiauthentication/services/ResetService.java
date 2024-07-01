@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ResetService implements IResetService {
+    private static final TokenType PASSWORD_RESET = TokenType.PASSWORD_RESET;
     private static final String USER = "User";
 
     private final UserRepository userRepository;
@@ -40,7 +41,7 @@ public class ResetService implements IResetService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ResponseEntity<MessageResponse> sendPasswordResetEmail(
+    public ResponseEntity<MessageResponse> passwordResetEmail(
             String token,
             SendResetEmailRequest request
     ) {
@@ -49,8 +50,8 @@ public class ResetService implements IResetService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
         final String resetToken = jwtService.generateToken(userDetails);
-        jwtService.revokeAllUserTokens(userDetails, TokenType.PASSWORD_RESET);
-        jwtService.saveUserToken(userDetails, resetToken, TokenType.PASSWORD_RESET);
+        jwtService.revokeAllUserTokens(userDetails, PASSWORD_RESET);
+        jwtService.saveUserToken(userDetails, resetToken, PASSWORD_RESET);
 
         emailService.sendPasswordResetEmail(
                 user.getEmail(),
@@ -59,7 +60,7 @@ public class ResetService implements IResetService {
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(new MessageResponse(Messages.SEND_RESET_MAIL.formatMessage(request.email())));
+                .body(MessageResponse.fromMessage(Messages.SEND_RESET_MAIL.formatMessage(request.email())));
     }
 
     @Override
@@ -83,9 +84,6 @@ public class ResetService implements IResetService {
         tokenRepository.save(resetToken);
 
         return ResponseEntity.ok()
-                .body(MessageResponse.builder()
-                        .message(Messages.PASSWORD_RESET.formatMessage())
-                        .build()
-                );
+                .body(MessageResponse.fromMessage(Messages.PASSWORD_RESET.formatMessage()));
     }
 }

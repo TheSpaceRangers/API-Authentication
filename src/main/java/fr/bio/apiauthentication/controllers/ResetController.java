@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class ResetController {
     private final IResetService resetService;
 
-    @PostMapping(value = "/send-password-email")
-    public ResponseEntity<MessageResponse> sendPasswordResetEmail(
+    @PostMapping(value = "/password")
+    public ResponseEntity<MessageResponse> passwordResetEmail(
             @RequestHeader("Authorization") String token,
             @Validated  @RequestBody SendResetEmailRequest request
     ) {
-        return resetService.sendPasswordResetEmail(token, request);
+        return resetService.passwordResetEmail(token, request);
     }
 
     @PutMapping(value = "/password")
