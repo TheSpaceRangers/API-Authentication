@@ -21,7 +21,9 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
     private final HttpServletRequest request;
 
     @Override
-    public void onApplicationEvent(AuthenticationSuccessEvent event) {
+    public void onApplicationEvent(
+            AuthenticationSuccessEvent event
+    ) {
         Authentication authentication = event.getAuthentication();
         User user = (User) authentication.getPrincipal();
 
