@@ -2,7 +2,6 @@ package fr.bio.apiauthentication.config;
 
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
-import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Test application configuration")
