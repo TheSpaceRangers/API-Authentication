@@ -1,7 +1,9 @@
 package fr.bio.apiauthentication.config;
 
+import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -18,13 +20,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationConfig {
+    private static final String USER = "User";
+
     private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return email-> userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return email -> {
+            log.info("Loading user by email: {}", email);
+            return userRepository.findByEmail(email)
+                    .orElseThrow(() -> {
+                        log.error("User not found: {}", email);
+                        return new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, email));
+                    });
+        };
     }
 
     @Bean
