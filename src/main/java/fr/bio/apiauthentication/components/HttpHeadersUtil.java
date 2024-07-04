@@ -5,11 +5,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class HttpHeadersUtil {
-    public HttpHeaders createHeaders(String token) {
+    private static final String EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    private static final String EXPOSE_HEADERS_LIST = "Authorization";
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static final String CONTENT_TYPE_JSON = "application/json";
+
+    public HttpHeaders createHeaders(
+            String token
+    ) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        headers.set("Authorization", "Bearer " + token);
-        headers.set("Content-Type", "application/json");
+        headers.add(EXPOSE_HEADERS, EXPOSE_HEADERS_LIST);
+        headers.set(AUTHORIZATION_HEADER, BEARER_PREFIX + token);
+        headers.set(CONTENT_TYPE_HEADER, CONTENT_TYPE_JSON);
         return headers;
     }
 }
