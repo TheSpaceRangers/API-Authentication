@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,14 +15,19 @@ public class RegisterRequestTest {
 
     private RegisterRequest request;
 
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
+
     @BeforeEach
     void setUp() {
-        request = new RegisterRequest(
-                "Charles",
-                "Tronel",
-                "c.tronel@test.properties.com",
-                "12345678"
-        );
+        email = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+        password = RandomStringUtils.randomAlphanumeric(30);
+        firstName = RandomStringUtils.randomAlphanumeric(20);
+        lastName = RandomStringUtils.randomAlphanumeric(20);
+
+        request = new RegisterRequest(firstName, lastName, email, password);
     }
 
     @AfterEach
@@ -31,20 +37,16 @@ public class RegisterRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.firstName()).isEqualTo("Charles");
-        assertThat(request.lastName()).isEqualTo("Tronel");
-        assertThat(request.email()).isEqualTo("c.tronel@test.properties.com");
-        assertThat(request.password()).isEqualTo("12345678");
+        assertThat(request).isNotNull();
+        assertThat(request.email()).isEqualTo(email);
+        assertThat(request.password()).isEqualTo(password);
+        assertThat(request.firstName()).isEqualTo(firstName);
+        assertThat(request.lastName()).isEqualTo(lastName);
     }
 
     @Test
     public void testEquals() {
-        RegisterRequest requestEquals = new RegisterRequest(
-                "Charles",
-                "Tronel",
-                "c.tronel@test.properties.com",
-                "12345678"
-        );
+        RegisterRequest requestEquals = new RegisterRequest(firstName, lastName, email, password);
 
         assertThat(request).isEqualTo(requestEquals);
     }
@@ -52,10 +54,10 @@ public class RegisterRequestTest {
     @Test
     public void testNotEquals() {
         RegisterRequest requestNotEquals = new RegisterRequest(
-                "John",
-                "Doe",
-                "john.doe@example.com",
-                "12345678"
+                RandomStringUtils.randomAlphanumeric(20),
+                RandomStringUtils.randomAlphanumeric(20),
+                RandomStringUtils.randomAlphanumeric(10) + "@test.com",
+                RandomStringUtils.randomAlphanumeric(30)
         );
 
         assertThat(request).isNotEqualTo(requestNotEquals);
@@ -67,10 +69,10 @@ public class RegisterRequestTest {
         RegisterRequest actualRequest = mapper.readValue(json, RegisterRequest.class);
 
         String expectedJson = "{" +
-                "\"firstName\":\"Charles\"," +
-                "\"lastName\":\"Tronel\"," +
-                "\"email\":\"c.tronel@test.properties.com\"," +
-                "\"password\":\"12345678\"" +
+                "\"firstName\":\"" + firstName + "\"," +
+                "\"lastName\":\"" + lastName + "\"," +
+                "\"email\":\"" + email + "\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
         RegisterRequest expectedRequest = mapper.readValue(expectedJson, RegisterRequest.class);
 
@@ -80,10 +82,10 @@ public class RegisterRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"firstName\":\"Charles\"," +
-                "\"lastName\":\"Tronel\"," +
-                "\"email\":\"c.tronel@test.properties.com\"," +
-                "\"password\":\"12345678\"" +
+                "\"firstName\":\"" + firstName + "\"," +
+                "\"lastName\":\"" + lastName + "\"," +
+                "\"email\":\"" + email + "\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
 
         RegisterRequest request = mapper.readValue(json, RegisterRequest.class);
