@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class RoleStructureResponse {
 
 
     @JsonProperty("modified_at")
-    private LocalDate modifiedAt;
+    private Long modifiedAt;
 
 
     @JsonProperty("modified_by")
@@ -52,7 +51,7 @@ public class RoleStructureResponse {
                 .authority(role.getAuthority())
                 .displayName(role.getDisplayName())
                 .description(role.getDescription())
-                .modifiedAt(role.getModifiedAt())
+                .modifiedAt(role.getModifiedAt().toEpochDay())
                 .modifiedBy(role.getModifiedBy())
                 .enabled(role.isEnabled())
                 .users(role.getUsers() != null
