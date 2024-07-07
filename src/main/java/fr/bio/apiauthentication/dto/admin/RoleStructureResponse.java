@@ -39,7 +39,7 @@ public class RoleStructureResponse {
 
 
     @JsonProperty("enabled")
-    private boolean enabled = true;
+    private boolean enabled;
 
 
     @JsonProperty("users")

@@ -41,7 +41,7 @@ public class UserStructureResponse {
     private String modifiedBy;
 
     @JsonProperty("enabled")
-    private boolean enabled = true;
+    private boolean enabled;
 
     @JsonProperty("roles")
     private Collection<String> roles;
