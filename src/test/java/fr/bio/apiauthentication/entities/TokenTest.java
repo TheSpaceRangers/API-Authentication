@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.entities;
 
 import fr.bio.apiauthentication.enums.TokenType;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -17,24 +20,36 @@ public class TokenTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private User user;
     private Token token;
+    private User user;
+
+    private String tokenString;
+    private TokenType tokenType;
+    private boolean expired;
+    private boolean revoked;
 
     @BeforeEach
     void setUp() {
+        tokenString = RandomStringUtils.randomAlphanumeric(100);
+        tokenType = Arrays.stream(TokenType.values()).toList().get((int) (Math.random() * TokenType.values().length));
+        expired = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+        revoked = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+
         user = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
                 .enabled(true)
                 .build();
         entityManager.persist(user);
 
         token = Token.builder()
-                .token("This is a test.properties")
-                .type(TokenType.BEARER)
+                .token(tokenString)
+                .type(tokenType)
                 .user(user)
+                .expired(expired)
+                .revoked(revoked)
                 .build();
     }
 
@@ -51,6 +66,7 @@ public class TokenTest {
         Token savedToken = entityManager.persistAndFlush(token);
 
         assertThat(savedToken).isNotNull();
+        assertThat(savedToken).isNotEqualTo(token);
     }
 
     @Test
@@ -58,28 +74,34 @@ public class TokenTest {
     public void testUpdateToken() {
         Token savedToken = entityManager.persistAndFlush(token);
 
-        savedToken.setToken("This is a second test.properties");
-        savedToken.setType(TokenType.BEARER);
-        savedToken.setUser(user);
-        savedToken.setExpired(true);
-        savedToken.setRevoked(true);
+        tokenString = RandomStringUtils.randomAlphanumeric(100);
+        tokenType = Arrays.stream(TokenType.values()).toList().get((int) (Math.random() * TokenType.values().length));
+        expired = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+        revoked = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
 
-        Token savedToken2 = entityManager.persistAndFlush(savedToken);
+        savedToken.setToken(tokenString);
+        savedToken.setType(tokenType);
+        savedToken.setExpired(expired);
+        savedToken.setRevoked(revoked);
 
-        assertThat(savedToken2).isNotNull();
-        assertThat(savedToken2).usingRecursiveComparison().isEqualTo(savedToken);
+        Token updateToken = entityManager.persistAndFlush(savedToken);
+
+        assertThat(updateToken).isNotNull();
+        assertThat(updateToken).usingRecursiveComparison().isEqualTo(savedToken);
     }
 
     @Test
     @DisplayName("Test same object")
     public void testEquals_SameObject() {
-        assertThat(token).isEqualTo(token);
+        Token sameToken = token;
+
+        assertThat(sameToken).isEqualTo(token);
     }
 
     @Test
     @DisplayName("Test null")
     public void testEquals_Null() {
-        assertThat(token).isNotEqualTo(null);
+        assertThat((Token) null).isNotEqualTo(token);
     }
 
     @Test
@@ -92,12 +114,14 @@ public class TokenTest {
     @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         Token differentFields = Token.builder()
-                .token("This is a test.properties with different fields")
+                .token(RandomStringUtils.randomAlphanumeric(100))
+                .type(Arrays.stream(TokenType.values()).toList().get((int) (Math.random() * TokenType.values().length)))
                 .user(null)
-                .revoked(true)
-                .expired(true)
+                .revoked(Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1)))
+                .expired(Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1)))
                 .build();
 
+        assertThat(differentFields).isNotNull();
         assertThat(token).isNotEqualTo(differentFields);
     }
 
@@ -105,10 +129,14 @@ public class TokenTest {
     @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         Token sameFields = Token.builder()
-                .token("This is a test.properties")
+                .token(tokenString)
+                .type(tokenType)
                 .user(user)
+                .expired(expired)
+                .revoked(revoked)
                 .build();
 
+        assertThat(sameFields).isNotNull();
         assertThat(token).isEqualTo(sameFields);
     }
 
@@ -116,10 +144,14 @@ public class TokenTest {
     @DisplayName("Test same fields hashcode")
     public void testHashCode_SameFields() {
         Token sameFields = Token.builder()
-                .token("This is a test.properties")
+                .token(tokenString)
+                .type(tokenType)
                 .user(user)
+                .expired(expired)
+                .revoked(revoked)
                 .build();
 
+        assertThat(sameFields).isNotNull();
         assertThat(token.hashCode()).isEqualTo(sameFields.hashCode());
     }
 }
