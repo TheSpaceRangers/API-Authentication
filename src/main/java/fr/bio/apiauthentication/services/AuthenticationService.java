@@ -26,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +45,9 @@ public class AuthenticationService implements IAuthenticationService {
     private final JwtService jwtService;
 
     @Override
-    public ResponseEntity<MessageResponse> register(RegisterRequest request) {
+    public ResponseEntity<MessageResponse> register(
+            RegisterRequest request
+    ) {
         Role role = roleRepository.findByAuthority("USER")
                 .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, "USER")));
 
@@ -54,7 +56,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .lastName(request.lastName())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .roles(Collections.singleton(role))
+                .roles(List.of(role))
                 .build();
 
         userRepository.save(user);
