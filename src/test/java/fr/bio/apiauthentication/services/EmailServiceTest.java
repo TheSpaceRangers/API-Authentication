@@ -1,5 +1,6 @@
 package fr.bio.apiauthentication.services;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,9 +30,9 @@ public class EmailServiceTest {
     @Test
     @DisplayName("Test send email")
     void testSendEmail() {
-        String to = "test@example.com";
-        String subject = "Test Subject";
-        String body = "Test Body";
+        final String to = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+        final String subject = RandomStringUtils.randomAlphanumeric(30);
+        final String body = RandomStringUtils.randomAlphanumeric(255);
 
         doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));
 
