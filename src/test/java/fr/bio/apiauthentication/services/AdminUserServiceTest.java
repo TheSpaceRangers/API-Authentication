@@ -11,6 +11,7 @@ import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("Test user admin service")
 public class AdminUserServiceTest {
+    private static final LocalDate NOW = LocalDate.now();
+
     private static final String USER = "User";
 
     @Mock
@@ -41,133 +44,109 @@ public class AdminUserServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private JwtService jwtService;
+
+    @Mock
     private HttpHeadersUtil httpHeadersUtil;
 
     @InjectMocks
     private AdminUserService adminUserService;
 
+    private User userActive;
+    private User userInactive;
+    private Role role;
+
+    private HttpHeaders headers;
+
+    private String token;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        role = Role.builder()
+                .authority(RandomStringUtils.randomAlphanumeric(5).toUpperCase())
+                .displayName(RandomStringUtils.randomAlphanumeric(20))
+                .description(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(30))
+                .enabled(true)
+                .build();
+        roleRepository.save(role);
+
+        userActive = generateUser(true);
+        userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userActive);
+
+        headers = httpHeadersUtil.createHeaders(token);
     }
 
     @Test
     @DisplayName("Test get all users")
     public void testGetAllUsers() {
-        String token = "This is a token";
+        final List<UserStructureResponse> exceptedUsers = UserStructureResponse.fromUsers(List.of(userActive, userInactive));
 
-        Role role = Role.builder()
-                .authority("ROLE_TEST")
-                .build();
+        when(userRepository.findAll()).thenReturn(List.of(userActive, userInactive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
 
-        User user_1 = User.builder()
-                .email("user_1@test.com")
-                .firstName("user_1")
-                .lastName("user_1")
-                .createdAt(LocalDate.now())
-                .createdBy("system")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("system")
-                .enabled(true)
-                .roles(List.of(role))
-                .build();
-        User user_2 = User.builder()
-                .email("user_2@test.com")
-                .firstName("user_2")
-                .lastName("user_2")
-                .createdAt(LocalDate.now())
-                .createdBy("system")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("system")
-                .enabled(true)
-                .roles(List.of(role))
-                .build();
-        List<UserStructureResponse> users = List.of(UserStructureResponse.fromUser(user_1), UserStructureResponse.fromUser(user_2));
+        final ResponseEntity<List<UserStructureResponse>> response = adminUserService.getAllUsers(token);
 
-        when(userRepository.findAll()).thenReturn(List.of(user_1, user_2));
-        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
-
-        ResponseEntity<List<UserStructureResponse>> response = adminUserService.getAllUsers(token);
-
-        assertThat(response.getBody()).isEqualTo(users);
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).isEqualTo(exceptedUsers);
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedUsers);
 
         verify(userRepository, times(1)).findAll();
-        verify(httpHeadersUtil).createHeaders(token);
     }
 
     @Test
     @DisplayName("Test create user")
     public void testNewUser_Success() {
-        String token = "This is a token";
+        final UserRequest request = new UserRequest(userActive.getEmail(), userActive.getFirstName(), userActive.getLastName(), userActive.getRoles().stream().map(Role::getAuthority).toList());
+        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_CREATED.formatMessage(USER, userActive.getEmail()));
 
-        Role role = Role.builder()
-                .authority("ROLE_TEST")
-                .build();
+        when(userRepository.findByEmail(userActive.getEmail())).thenReturn(Optional.empty());
+        when(roleRepository.findByAuthority(role.getAuthority())).thenReturn(Optional.of(role));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
 
-        User user_1 = User.builder()
-                .email("user_1@test.com")
-                .firstName("user_1")
-                .lastName("user_1")
-                .roles(List.of(role))
-                .build();
-        UserRequest request = new UserRequest("user_1@test.com", "user_1", "user_1", List.of(role.getAuthority()));
+        final ResponseEntity<MessageResponse> response = adminUserService.newUser(token, request);
 
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(roleRepository.findByAuthority(anyString())).thenReturn(Optional.of(role));
-        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
-
-        ResponseEntity<MessageResponse> response = adminUserService.newUser(token, request);
-
-        ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
+        final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(roleCaptor.capture());
-        User savedUser = roleCaptor.getValue();
+        final User savedUser = roleCaptor.getValue();
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_CREATED.formatMessage(USER, request.email()));
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getEmail()).isEqualTo(request.email());
-        assertThat(savedUser.getFirstName()).isEqualTo(request.firstName());
-        assertThat(savedUser.getLastName()).isEqualTo(request.lastName());
-        assertThat(savedUser.getRoles().iterator().next()).isEqualTo(role);
+        assertThat(savedUser.getEmail()).isEqualTo(userActive.getEmail());
+        assertThat(savedUser.getFirstName()).isEqualTo(userActive.getFirstName());
+        assertThat(savedUser.getLastName()).isEqualTo(userActive.getLastName());
+        assertThat(savedUser.getRoles()).usingRecursiveComparison().isEqualTo(List.of(role));
 
         verify(roleRepository, times(1)).findByAuthority(anyString());
-        verify(userRepository, times(1)).save(user_1);
-        verify(httpHeadersUtil).createHeaders(token);
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
     @DisplayName("Test create user but user already exists")
     public void testNewUser_UserAlreadyExists() {
-        String token = "This is a token";
+        final UserRequest request = new UserRequest(userActive.getEmail(), userActive.getFirstName(), userActive.getLastName(), userActive.getRoles().stream().map(Role::getAuthority).toList());
 
-        Role role = Role.builder()
-                .authority("ROLE_TEST")
-                .build();
-
-        User user_1 = User.builder()
-                .email("user_1@test.com")
-                .firstName("user_1")
-                .lastName("user_1")
-                .roles(List.of(role))
-                .build();
-        UserRequest request = new UserRequest("user_1@test.com", "user_1", "user_1", List.of(role.getAuthority()));
-
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user_1));
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(userActive));
 
         assertThrows(UserAlreadyExistsException.class, () -> adminUserService.newUser(token, request));
 
-        verify(userRepository, times(1)).findByEmail(request.email());
+        verify(userRepository, times(1)).findByEmail(userActive.getEmail());
     }
 
     @Test
     @DisplayName("Test create user but role not found")
     public void testNewUser_RoleNotFount() {
-        String token = "This is a token";
+        final UserRequest request = new UserRequest(userInactive.getEmail(), userInactive.getFirstName(), userInactive.getLastName(), userInactive.getRoles().stream().map(Role::getAuthority).toList());
 
-        UserRequest request = new UserRequest("user_1@test.com", "user_1", "user_1", List.of("ROLE NOT EXISTS"));
-
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(roleRepository.findByAuthority(anyString())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.empty());
+        when(roleRepository.findByAuthority(role.getAuthority())).thenReturn(Optional.empty());
 
         assertThrows(RoleNotFoundException.class, () -> adminUserService.newUser(token, request));
 
@@ -178,45 +157,120 @@ public class AdminUserServiceTest {
     @Test
     @DisplayName("Test update user")
     void testModify_Success() {
-        String token = "token";
-        UserRequest request = new UserRequest("user_1@test.com", "user_1_update", "user_1_update", List.of());
+        final String firstName = RandomStringUtils.randomAlphanumeric(20);
+        final String lastName = RandomStringUtils.randomAlphanumeric(20);
 
-        User user_1 = User.builder()
-                .email("user_1@test.com")
-                .firstName("user_1")
-                .lastName("user_1")
-                .roles(List.of())
-                .build();
+        final UserRequest request = new UserRequest(userInactive.getEmail(), firstName, lastName, List.of());
+        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_UPDATED.formatMessage(USER, userInactive.getEmail()));
 
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user_1));
-        when(httpHeadersUtil.createHeaders(token)).thenReturn(new HttpHeaders());
+        when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.of(userInactive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
 
         ResponseEntity<MessageResponse> response = adminUserService.modify(token, request);
 
-        User savedUser = userRepository.findByEmail(request.email())
-                .orElse(null);
+        final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(roleCaptor.capture());
+        final User savedUser = roleCaptor.getValue();
 
-        assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_UPDATED.formatMessage(USER, request.email()));
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getFirstName()).isEqualTo(request.firstName());
-        assertThat(savedUser.getLastName()).isEqualTo(request.lastName());
+        assertThat(savedUser.getFirstName()).isEqualTo(firstName);
+        assertThat(savedUser.getLastName()).isEqualTo(lastName);
 
-        verify(userRepository, times(1)).save(user_1);
-        verify(httpHeadersUtil).createHeaders(token);
+        verify(userRepository, times(1)).save(userInactive);
     }
 
     @Test
     @DisplayName("Test update user but user not found")
     void testModifyNotFound() {
-        String token = "token";
-        UserRequest request = new UserRequest("user_1@test.com", "user_1_update", "user_1_update", List.of());
+        final String firstName = RandomStringUtils.randomAlphanumeric(20);
+        final String lastName = RandomStringUtils.randomAlphanumeric(20);
+
+        final UserRequest request = new UserRequest(userInactive.getEmail(), firstName, lastName, List.of());
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> adminUserService.modify(token, request));
 
-        verify(userRepository, times(1)).findByEmail(request.email());
+        verify(userRepository, times(1)).findByEmail(userInactive.getEmail());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Test active user status")
+    void testModifyUserStatus_Activated() {
+        final UserRequest request = new UserRequest(userInactive.getEmail(), "", "", List.of());
+        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, userInactive.getEmail()));
+
+        when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.of(userInactive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> response = adminUserService.modifyStatus(token, request, true);
+
+        final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(roleCaptor.capture());
+        final User savedUser = roleCaptor.getValue();
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.isEnabled()).isTrue();
+
+        verify(roleRepository, times(1)).save(role);
+    }
+
+    @Test
+    @DisplayName("Test deactivate user status")
+    void testModifyUserStatus_Deactivated() {
+        final UserRequest request = new UserRequest(userActive.getEmail(), "", "", List.of());
+        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, userActive.getEmail()));
+
+        when(userRepository.findByEmail(userActive.getEmail())).thenReturn(Optional.of(userActive));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> response = adminUserService.modifyStatus(token, request, false);
+
+        final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(roleCaptor.capture());
+        final User savedUser = roleCaptor.getValue();
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.isEnabled()).isFalse();
+
+        verify(roleRepository, times(1)).save(role);
+    }
+
+    @Test
+    @DisplayName("Test update role status but role not found")
+    void testModifyRoleStatus_NotFound() {
+        UserRequest request = new UserRequest(userInactive.getEmail(), "", "", List.of());
+
+        when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> adminUserService.modifyStatus(token, request, true));
+
+        verify(userRepository, times(1)).findByEmail(userInactive.getEmail());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    private User generateUser(boolean enabled) {
+        return User.builder()
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
+                .createdAt(NOW)
+                .createdBy(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
+                .enabled(enabled)
+                .roles(List.of(role))
+                .build();
     }
 }
