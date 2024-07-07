@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,12 +15,15 @@ public class LoginRequestTest {
 
     private LoginRequest request;
 
+    private String email;
+    private String password;
+
     @BeforeEach
     void setUp() {
-        request = new LoginRequest(
-                "username@test.properties.com",
-                "password"
-        );
+        email = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+        password = RandomStringUtils.randomAlphanumeric(30);
+
+        request = new LoginRequest(email, password);
     }
 
     @AfterEach
@@ -29,16 +33,14 @@ public class LoginRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.email()).isEqualTo("username@test.properties.com");
-        assertThat(request.password()).isEqualTo("password");
+        assertThat(request).isNotNull();
+        assertThat(request.email()).isEqualTo(email);
+        assertThat(request.password()).isEqualTo(password);
     }
 
     @Test
     public void testEquals() {
-        LoginRequest requestEquals = new LoginRequest(
-                "username@test.properties.com",
-                "password"
-        );
+        LoginRequest requestEquals = new LoginRequest(email, password);
 
         assertThat(request).isEqualTo(requestEquals);
     }
@@ -46,8 +48,8 @@ public class LoginRequestTest {
     @Test
     public void testNotEquals() {
         LoginRequest requestEquals = new LoginRequest(
-                "username@test.properties.com",
-                "password not equals"
+                RandomStringUtils.randomAlphanumeric(10) + "@test.com",
+                RandomStringUtils.randomAlphanumeric(30)
         );
 
         assertThat(request).isNotEqualTo(requestEquals);
@@ -59,8 +61,8 @@ public class LoginRequestTest {
         LoginRequest actualRequest = mapper.readValue(json, LoginRequest.class);
 
         String expectedJson = "{" +
-                "\"email\":\"username@test.properties.com\"," +
-                "\"password\":\"password\"" +
+                "\"email\":\"" + email +"\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
         LoginRequest expectedRequest = mapper.readValue(expectedJson, LoginRequest.class);
 
@@ -70,8 +72,8 @@ public class LoginRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"email\":\"username@test.properties.com\"," +
-                "\"password\":\"password\"" +
+                "\"email\":\"" + email +"\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
 
         LoginRequest requestMapped = mapper.readValue(json, LoginRequest.class);
