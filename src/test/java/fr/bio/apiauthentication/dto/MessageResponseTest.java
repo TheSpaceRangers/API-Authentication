@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +15,13 @@ public class MessageResponseTest {
 
     private MessageResponse response;
 
+    private String message;
+
     @BeforeEach
     void setUp() {
-        response = new MessageResponse("This is a test message");
+        message = RandomStringUtils.randomAlphabetic(100);
+
+        response = new MessageResponse(message);
     }
 
     @AfterEach
@@ -26,19 +31,20 @@ public class MessageResponseTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(response.getMessage()).isEqualTo("This is a test message");
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo(message);
     }
 
     @Test
     public void testEquals() {
-        MessageResponse requestEquals = new MessageResponse("This is a test message");;
+        MessageResponse requestEquals = new MessageResponse(message);
 
         assertThat(response).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        MessageResponse requestNotEquals = new MessageResponse("This is a different message");
+        MessageResponse requestNotEquals = new MessageResponse(message);
 
         assertThat(response).isNotEqualTo(requestNotEquals);
     }
@@ -61,5 +67,12 @@ public class MessageResponseTest {
         MessageResponse requestMapped = mapper.readValue(json, MessageResponse.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(response);
+    }
+
+    @Test
+    public void testFromMessage() {
+        MessageResponse response = MessageResponse.fromMessage(message);
+
+        assertThat(response.getMessage()).isEqualTo(message);
     }
 }
