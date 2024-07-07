@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,13 +29,13 @@ public class UserStructureResponse {
     private String lastName;
 
     @JsonProperty("created_at")
-    private LocalDate createdAt;
+    private long createdAt;
 
     @JsonProperty("created_by")
     private String createdBy;
 
     @JsonProperty("modified_at")
-    private LocalDate modifiedAt;
+    private long modifiedAt;
 
     @JsonProperty("modified_by")
     private String modifiedBy;
@@ -53,9 +52,9 @@ public class UserStructureResponse {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .createdAt(user.getCreatedAt())
+                .createdAt(user.getCreatedAt().toEpochDay())
                 .createdBy(user.getCreatedBy())
-                .modifiedAt(user.getModifiedAt())
+                .modifiedAt(user.getModifiedAt().toEpochDay())
                 .modifiedBy(user.getModifiedBy())
                 .enabled(user.isEnabled())
                 .roles(user.getRoles() != null
