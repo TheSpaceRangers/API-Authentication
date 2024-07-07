@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDate;
-
 @ControllerAdvice
 public class ConflictExceptionHandler {
     private static final HttpStatus CONFLICT = HttpStatus.CONFLICT;
@@ -17,12 +15,6 @@ public class ConflictExceptionHandler {
     @ExceptionHandler(RoleAlreadyExistsException.class)
     public ResponseEntity<?> roleAlreadyExists(RoleAlreadyExistsException exception, WebRequest request) {
         return ResponseEntity.status(CONFLICT)
-                .body(ExceptionResponse.builder()
-                        .timeStamp(LocalDate.now())
-                        .errorMessage(exception.getMessage())
-                        .errorCode(CONFLICT.value())
-                        .errorDetails(request.getDescription(false))
-                        .build()
-                );
+                .body(ExceptionResponse.fromErrorMessage(exception.getMessage(), CONFLICT.value(), request.getDescription(false)));
     }
 }

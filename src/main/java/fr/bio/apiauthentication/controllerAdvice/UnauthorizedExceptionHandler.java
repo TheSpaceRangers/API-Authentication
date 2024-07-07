@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDate;
-
 @ControllerAdvice
 public class UnauthorizedExceptionHandler {
     private static final HttpStatus UNAUTHORIZED = HttpStatus.UNAUTHORIZED;
@@ -17,12 +15,6 @@ public class UnauthorizedExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<?> invalidCredentials(InvalidCredentialsException exception, WebRequest request) {
         return ResponseEntity.status(UNAUTHORIZED)
-                .body(ExceptionResponse.builder()
-                        .timeStamp(LocalDate.now())
-                        .errorMessage(exception.getMessage())
-                        .errorCode(UNAUTHORIZED.value())
-                        .errorDetails(request.getDescription(false))
-                        .build()
-                );
+                .body(ExceptionResponse.fromErrorMessage(exception.getMessage(), UNAUTHORIZED.value(), request.getDescription(false)));
     }
 }

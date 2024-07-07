@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDate;
-
 @ControllerAdvice
 public class NotFoundExceptionHandler {
     private final HttpStatus STATUS = HttpStatus.NOT_FOUND;
@@ -21,13 +19,7 @@ public class NotFoundExceptionHandler {
             WebRequest request
     ) {
         return ResponseEntity.status(STATUS)
-                .body(ExceptionResponse.builder()
-                        .timeStamp(LocalDate.now())
-                        .errorMessage(exception.getMessage())
-                        .errorCode(STATUS.value())
-                        .errorDetails(request.getDescription(false))
-                        .build()
-                );
+                .body(ExceptionResponse.fromErrorMessage(exception.getMessage(), STATUS.value(), request.getDescription(false)));
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
@@ -36,12 +28,6 @@ public class NotFoundExceptionHandler {
             WebRequest request
     ) {
         return ResponseEntity.status(STATUS)
-                .body(ExceptionResponse.builder()
-                        .timeStamp(LocalDate.now())
-                        .errorMessage(exception.getMessage())
-                        .errorCode(STATUS.value())
-                        .errorDetails(request.getDescription(false))
-                        .build()
-                );
+                .body(ExceptionResponse.fromErrorMessage(exception.getMessage(), STATUS.value(), request.getDescription(false)));
     }
 }
