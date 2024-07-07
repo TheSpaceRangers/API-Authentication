@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +15,17 @@ public class RoleRequestTest {
 
     private RoleRequest request;
 
+    private String authority;
+    private String displayName;
+    private String description;
+
     @BeforeEach
     void setUp() {
-        request = new RoleRequest("USER", "USER", "" );
+        authority = RandomStringUtils.randomAlphabetic(10).toUpperCase();
+        displayName = RandomStringUtils.randomAlphabetic(20);
+        description = RandomStringUtils.randomAlphabetic(20);
+
+        request = new RoleRequest(authority, displayName, description);
     }
 
     @AfterEach
@@ -26,19 +35,26 @@ public class RoleRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.authority()).isEqualTo("USER");
+        assertThat(request).isNotNull();
+        assertThat(request.authority()).isEqualTo(authority);
+        assertThat(request.displayName()).isEqualTo(displayName);
+        assertThat(request.description()).isEqualTo(description);
     }
 
     @Test
     public void testEquals() {
-        RoleRequest requestEquals = new RoleRequest("USER", "USER", "" );
+        RoleRequest requestEquals = new RoleRequest(authority, displayName, description );
 
         assertThat(request).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        RoleRequest requestNotEquals = new RoleRequest("ADMIN", "USER", "" );
+        RoleRequest requestNotEquals = new RoleRequest(
+                RandomStringUtils.randomAlphanumeric(20).toUpperCase(),
+                RandomStringUtils.randomAlphanumeric(20),
+                RandomStringUtils.randomAlphanumeric(20)
+        );
 
         assertThat(request).isNotEqualTo(requestNotEquals);
     }
@@ -49,9 +65,9 @@ public class RoleRequestTest {
         RoleRequest actualRequest = mapper.readValue(json, RoleRequest.class);
 
         String expectedJson = "{" +
-                "\"authority\":\"USER\"," +
-                "\"display_name\":\"USER\"," +
-                "\"description\":\"\"" +
+                "\"authority\":\"" + authority + "\"," +
+                "\"display_name\":\"" + displayName + "\"," +
+                "\"description\":\"" + description + "\"" +
                 "}";
         RoleRequest expectedRequest = mapper.readValue(expectedJson, RoleRequest.class);
 
@@ -61,9 +77,9 @@ public class RoleRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"authority\":\"USER\"," +
-                "\"display_name\":\"USER\"," +
-                "\"description\":\"\"" +
+                "\"authority\":\"" + authority + "\"," +
+                "\"display_name\":\"" + displayName + "\"," +
+                "\"description\":\"" + description + "\"" +
                 "}";
         RoleRequest requestMapped = mapper.readValue(json, RoleRequest.class);
 
