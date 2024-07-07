@@ -3,40 +3,63 @@ package fr.bio.apiauthentication.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Properties;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test email configuration")
-@TestPropertySource(properties = {
-        "spring.mail.host=smtp.example.com",
-        "spring.mail.port=587",
-        "spring.mail.username=test@example.com",
-        "spring.mail.password=secret",
-        "spring.mail.properties.mail.smtp.auth=true",
-        "spring.mail.properties.mail.smtp.starttls.enable=true"
-})
+@ExtendWith(MockitoExtension.class)
 public class EmailConfigurationTest {
+
     @InjectMocks
     private EmailConfiguration emailConfiguration;
 
+    @Value("${spring.mail.host}")
+    private String host = "smtp.test.com";
+
+    @Value("${spring.mail.port}")
+    private int port = 587;
+
+    @Value("${spring.mail.username}")
+    private String username = "test@test.com";
+
+    @Value("${spring.mail.password}")
+    private String password = "password";
+
+    @Value("${spring.mail.properties.mail.smtp.auth}")
+    private boolean auth = true;
+
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    private boolean starttls = true;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setUp() {
+        ReflectionTestUtils.setField(emailConfiguration, "host", host);
+        ReflectionTestUtils.setField(emailConfiguration, "port", port);
+        ReflectionTestUtils.setField(emailConfiguration, "username", username);
+        ReflectionTestUtils.setField(emailConfiguration, "password", password);
+        ReflectionTestUtils.setField(emailConfiguration, "auth", auth);
+        ReflectionTestUtils.setField(emailConfiguration, "starttls", starttls);
     }
 
     @Test
-    @DisplayName("Test bean java mail sender")
     public void testJavaMailSender() {
-        JavaMailSenderImpl mailSender = (JavaMailSenderImpl) emailConfiguration.javaMailSender();
-
-        // TODO Faire de vrai tests
-
+        final JavaMailSender mailSender = emailConfiguration.javaMailSender();
         assertThat(mailSender).isNotNull();
+        assertThat(mailSender).isInstanceOf(JavaMailSenderImpl.class);
+
+        final JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
+        assertThat(mailSenderImpl.getHost()).isEqualTo(host);
+        assertThat(mailSenderImpl.getPort()).isEqualTo(port);
+        assertThat(mailSenderImpl.getUsername()).isEqualTo(username);
+        assertThat(mailSenderImpl.getPassword()).isEqualTo(password);
     }
 }

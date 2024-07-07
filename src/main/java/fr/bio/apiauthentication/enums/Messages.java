@@ -22,6 +22,12 @@ public enum Messages {
     ACCOUNT_UPDATED("Account %s has been updated."),
     INVALID_CREDENTIALS("Incorrect email and/or password."),
 
+    // Mail configuration
+    MAIL_HOST("Mail server host must be provided"),
+    MAIL_PORT("Mail server port must be provided"),
+    MAIL_USERNAME("Mail username must be provided"),
+    MAIL_PASSWORD("Mail password must be provided"),
+
     // Paremeters
     STATUS_PARAMETER_INVALID("Invalid action parameter. Use 'activate' or 'deactivate'.");
 
