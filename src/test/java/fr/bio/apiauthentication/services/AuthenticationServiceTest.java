@@ -8,11 +8,9 @@ import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.enums.TokenType;
-import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
-import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,13 +34,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -69,18 +65,11 @@ public class AuthenticationServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
-    private TokenRepository tokenRepository;
-
-    @Mock
     private JwtService jwtService;
 
     @InjectMocks
     private AuthenticationService authenticationService;
 
-    private RegisterRequest request;
-    private LoginRequest loginRequest;
-
-    private UserDetails userDetails;
     private User user;
     private Role role;
 
@@ -154,7 +143,6 @@ public class AuthenticationServiceTest {
     @DisplayName("Test register user but role not found")
     public void testRegisterUser_RoleNotFound() {
         final RegisterRequest request = new RegisterRequest(firstName, lastName, email, password);
-        final MessageResponse expectedResponse = MessageResponse.fromMessage(Messages.ENTITY_NOT_FOUND.formatMessage("Role", role.getAuthority()));
 
         when(roleRepository.findByAuthority("USER")).thenReturn(Optional.empty());
 
