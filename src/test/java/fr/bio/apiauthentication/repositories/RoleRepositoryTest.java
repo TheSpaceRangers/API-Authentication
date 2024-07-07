@@ -1,7 +1,9 @@
 package fr.bio.apiauthentication.repositories;
 
 import fr.bio.apiauthentication.entities.Role;
+import fr.bio.apiauthentication.entities.User;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.Collections;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,55 +21,75 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @DataJpaTest
 @Transactional
 public class RoleRepositoryTest {
+    private static final LocalDate NOW = LocalDate.now();
+
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private Role role;
+    private User user;
+
     @BeforeEach
     void setUp() {
+        final String authority = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
+        final String displayName = RandomStringUtils.randomAlphanumeric(20);
+        final String description = RandomStringUtils.randomAlphanumeric(20);
+        final String modifiedBy = RandomStringUtils.randomAlphanumeric(20);
+        final boolean enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+
+        user = User.builder()
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
+                .createdAt(NOW)
+                .createdBy(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
+                .enabled(true)
+                .build();
+        user = userRepository.save(user);
+
+        role = Role.builder()
+                .authority(authority)
+                .displayName(displayName)
+                .description(description)
+                .modifiedAt(NOW)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
+                .users(List.of(user))
+                .build();
+
         roleRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
         roleRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Test save role")
     public void testSaveRole() {
-        Role role = Role.builder()
-                .authority("ROLE_SAVE")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(null)
-                .build();
         Role savedRole = roleRepository.save(role);
 
         assertThat(savedRole).isNotNull();
-        assertThat(savedRole.getAuthority()).isEqualTo(role.getAuthority());
+        assertThat(savedRole).isEqualTo(role);
+        assertThat(savedRole).usingRecursiveComparison().isEqualTo(role);
     }
 
     @Test
     @DisplayName("Test find all roles")
     public void testFindAll() {
-        Role role_1 = Role.builder()
-                .authority("ROLE_FIND_1")
-                .displayName("ROLE_FIND_1")
-                .description("ROLE_FIND_1")
-                .enabled(true)
-                .users(null)
-                .build();
-        roleRepository.save(role_1);
-        Role role_2 = Role.builder()
-                .authority("ROLE_FIND_2")
-                .displayName("ROLE_FIND_2")
-                .description("ROLE_FIND_2")
-                .enabled(false)
-                .users(null)
-                .build();
-        roleRepository.save(role_2);
+        Role savedRole_1 = roleRepository.save(role);
+        Role savedRole_2 = roleRepository.save(generateRole(true));
 
-        List<Role> expectedRoles = List.of(role_1, role_2);
+        List<Role> expectedRoles = List.of(savedRole_1, savedRole_2);
         List<Role> foundRoles = roleRepository.findAll();
 
         assertThat(foundRoles).isEqualTo(expectedRoles);
@@ -76,55 +98,40 @@ public class RoleRepositoryTest {
     @Test
     @DisplayName("Test find role by role name")
     public void testFindByRoleName() {
-        Role role = Role.builder()
-                .authority("ROLE_FIND")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(null)
-                .build();
         Role savedRole = roleRepository.save(role);
 
+        Optional<Role> exceptedRole = Optional.of(savedRole);
         Optional<Role> foundRole = roleRepository.findByAuthority(savedRole.getAuthority());
 
-        assertThat(foundRole.isPresent()).isTrue();
+        if (foundRole.isPresent()) {
+            assertThat(foundRole).isEqualTo(exceptedRole);
+            assertThat(foundRole.get()).isEqualTo(exceptedRole.get());
+            assertThat(foundRole.get()).usingRecursiveComparison().isEqualTo(exceptedRole.get());
+        }
     }
 
     @Test
     @DisplayName("Test find all role by is enable")
     public void testFindAllByIsEnable() {
-        Role roleEnable = Role.builder()
-                .authority("ROLE_ENABLE")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .enabled(true)
-                .users(null)
-                .build();
-        roleRepository.save(roleEnable);
+        Role savedRole_1 = roleRepository.save(generateRole(true));
+        Role savedRole_2 = roleRepository.save(generateRole(false));
 
-        Role roleDesable = Role.builder()
-                .authority("ROLE_DISABLE")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .enabled(false)
-                .users(null)
-                .build();
-        roleRepository.save(roleDesable);
+        List<Role> exceptedRolesEnabled = List.of(savedRole_1);
+        List<Role> exceptedRolesDisabled = List.of(savedRole_2);
 
-        List<Role> actualRoles = List.of(roleEnable);
-        List<Role> foundRoles = roleRepository.findAllByEnabled(true);
+        List<Role> foundRolesEnabled = roleRepository.findAllByEnabled(true);
+        List<Role> foundRolesDisabled = roleRepository.findAllByEnabled(false);
 
-        assertThat(foundRoles).isEqualTo(actualRoles);
+        assertThat(foundRolesEnabled).isEqualTo(exceptedRolesEnabled);
+        assertThat(foundRolesEnabled).usingRecursiveComparison().isEqualTo(exceptedRolesEnabled);
+
+        assertThat(foundRolesDisabled).isEqualTo(exceptedRolesDisabled);
+        assertThat(foundRolesDisabled).usingRecursiveComparison().isEqualTo(exceptedRolesDisabled);
     }
 
     @Test
     @DisplayName("Test delete role")
     public void testDeleteRole() {
-        Role role = Role.builder()
-                .authority("ROLE_DELETE")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(null)
-                .build();
         Role savedRole = roleRepository.save(role);
 
         roleRepository.deleteById(savedRole.getIdRole());
@@ -132,5 +139,17 @@ public class RoleRepositoryTest {
         Optional<Role> foundRole = roleRepository.findById(savedRole.getIdRole());
 
         assertThat(foundRole.isPresent()).isFalse();
+    }
+
+    private Role generateRole(boolean enabled) {
+        return Role.builder()
+                .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
+                .displayName(RandomStringUtils.randomAlphanumeric(20))
+                .description(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW.plusMonths(10))
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
+                .enabled(enabled)
+                .users(List.of(user))
+                .build();
     }
 }
