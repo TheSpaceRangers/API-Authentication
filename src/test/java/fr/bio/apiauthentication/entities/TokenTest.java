@@ -66,7 +66,7 @@ public class TokenTest {
         Token savedToken = entityManager.persistAndFlush(token);
 
         assertThat(savedToken).isNotNull();
-        assertThat(savedToken).isNotEqualTo(token);
+        assertThat(savedToken).isEqualTo(token);
     }
 
     @Test

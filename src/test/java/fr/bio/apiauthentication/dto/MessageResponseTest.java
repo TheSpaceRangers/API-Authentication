@@ -44,7 +44,7 @@ public class MessageResponseTest {
 
     @Test
     public void testNotEquals() {
-        MessageResponse requestNotEquals = new MessageResponse(message);
+        MessageResponse requestNotEquals = new MessageResponse(RandomStringUtils.randomAlphabetic(100));
 
         assertThat(response).isNotEqualTo(requestNotEquals);
     }
@@ -54,7 +54,7 @@ public class MessageResponseTest {
         String json = mapper.writeValueAsString(response);
         MessageResponse actualRequest = mapper.readValue(json, MessageResponse.class);
 
-        String expectedJson = "{\"message\":\"This is a test message\"}";
+        String expectedJson = "{\"message\":\"" + message + "\"}";
         MessageResponse expectedRequest = mapper.readValue(expectedJson, MessageResponse.class);
 
         assertThat(expectedRequest).isEqualTo(actualRequest);
@@ -62,7 +62,7 @@ public class MessageResponseTest {
 
     @Test
     public void testDeserialize() throws Exception {
-        String json = "{\"message\":\"This is a test message\"}";
+        String json = "{\"message\":\"" + message + "\"}";
 
         MessageResponse requestMapped = mapper.readValue(json, MessageResponse.class);
 

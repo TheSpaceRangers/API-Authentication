@@ -51,7 +51,7 @@ public class UnauthorizedExceptionHandlerTest {
             assertThat(response.getErrorMessage()).isEqualTo(Messages.INVALID_CREDENTIALS.formatMessage());
             assertThat(response.getErrorCode()).isEqualTo(UNAUTHORIZED.value());
             assertThat(response.getErrorDetails()).isEqualTo("uri=/api/v1/****");
-            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now());
+            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now().toEpochDay());
         }
     }
 }

@@ -53,7 +53,7 @@ public class ConflictExceptionHandlerTest {
             assertThat(response.getErrorMessage()).isEqualTo(Messages.ENTITY_ALREADY_EXISTS.formatMessage(ROLE, "USER"));
             assertThat(response.getErrorCode()).isEqualTo(CONFLICT.value());
             assertThat(response.getErrorDetails()).isEqualTo("uri=/api/v1/****");
-            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now());
+            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now().toEpochDay());
         }
     }
 }

@@ -55,7 +55,7 @@ public class NotFoundExceptionHandlerTest {
             assertThat(response.getErrorMessage()).isEqualTo(Messages.ENTITY_NOT_FOUND.formatMessage(USER, "test@test.com"));
             assertThat(response.getErrorCode()).isEqualTo(NOT_FOUND.value());
             assertThat(response.getErrorDetails()).isEqualTo("uri=/api/v1/****");
-            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now());
+            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now().toEpochDay());
         }
     }
 
@@ -77,7 +77,7 @@ public class NotFoundExceptionHandlerTest {
             assertThat(response.getErrorMessage()).isEqualTo(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, "test@test.com"));
             assertThat(response.getErrorCode()).isEqualTo(NOT_FOUND.value());
             assertThat(response.getErrorDetails()).isEqualTo("uri=/api/v1/****");
-            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now());
+            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now().toEpochDay());
         }
     }
 }

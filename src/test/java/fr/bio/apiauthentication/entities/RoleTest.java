@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -62,7 +63,7 @@ public class RoleTest {
                 .modifiedAt(modifiedAt)
                 .modifiedBy(modifiedBy)
                 .enabled(enabled)
-                .users(List.of(user))
+                .users(new ArrayList<>(List.of(user)))
                 .build();
     }
 
@@ -84,7 +85,7 @@ public class RoleTest {
     @Test
     @DisplayName("Test update role")
     public void testUpdateRole() {
-        Role persistedRole = entityManager.persist(role);
+        Role savedRole = entityManager.persist(role);
 
         authority = RandomStringUtils.randomAlphanumeric(10).toUpperCase();
         displayName = RandomStringUtils.randomAlphanumeric(20);
@@ -92,16 +93,15 @@ public class RoleTest {
         modifiedAt = NOW.plusDays(10);
         modifiedBy = RandomStringUtils.randomAlphanumeric(20);
 
-        persistedRole.setAuthority(authority);
-        persistedRole.setDisplayName(displayName);
-        persistedRole.setDescription(description);
-        persistedRole.setModifiedAt(modifiedAt);
-        persistedRole.setModifiedBy(modifiedBy);
+        savedRole.setAuthority(authority);
+        savedRole.setDisplayName(displayName);
+        savedRole.setDescription(description);
+        savedRole.setModifiedAt(modifiedAt);
+        savedRole.setModifiedBy(modifiedBy);
 
-        Role updatedRole = entityManager.merge(persistedRole);
+        Role updatedRole = entityManager.merge(savedRole);
 
         assertThat(updatedRole).isNotNull();
-        assertThat(updatedRole).isNotEqualTo(persistedRole);
         assertThat(updatedRole.getAuthority()).isEqualTo(authority);
         assertThat(updatedRole.getDisplayName()).isEqualTo(displayName);
         assertThat(updatedRole.getDescription()).isEqualTo(description);

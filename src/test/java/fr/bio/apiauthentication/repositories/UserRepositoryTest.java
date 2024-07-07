@@ -49,9 +49,9 @@ public class    UserRepositoryTest {
         firstName = RandomStringUtils.randomAlphanumeric(20);
         lastName = RandomStringUtils.randomAlphanumeric(20);
         createdAt = NOW;
-        createdBy = RandomStringUtils.randomAlphanumeric(20);
+        createdBy = "system";
         modifiedAt = NOW;
-        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
+        modifiedBy = "system";
         enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
 
         role = Role.builder()

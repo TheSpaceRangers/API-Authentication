@@ -50,7 +50,7 @@ public class BadRequestExceptionHandlerTest {
             assertThat(response.getErrorMessage()).isEqualTo(Messages.STATUS_PARAMETER_INVALID.formatMessage());
             assertThat(response.getErrorCode()).isEqualTo(BAD_REQUEST.value());
             assertThat(response.getErrorDetails()).isEqualTo("uri=/api/v1/****");
-            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now());
+            assertThat(response.getTimeStamp()).isEqualTo(LocalDate.now().toEpochDay());
         }
     }
 }

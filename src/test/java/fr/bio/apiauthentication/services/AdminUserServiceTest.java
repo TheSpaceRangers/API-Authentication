@@ -226,7 +226,7 @@ public class AdminUserServiceTest {
     @DisplayName("Test deactivate user status")
     void testModifyUserStatus_Deactivated() {
         final UserRequest request = new UserRequest(userActive.getEmail(), "", "", List.of());
-        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, userActive.getEmail()));
+        final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_DEACTIVATED.formatMessage(USER, userActive.getEmail()));
 
         when(userRepository.findByEmail(userActive.getEmail())).thenReturn(Optional.of(userActive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);

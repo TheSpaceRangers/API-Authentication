@@ -105,8 +105,13 @@ public class UserTest {
         User updatedUser = entityManager.merge(savedUser);
 
         assertThat(updatedUser).isNotNull();
-        assertThat(updatedUser).isEqualTo(savedUser);
-        assertThat(savedUser).usingRecursiveComparison().isNotEqualTo(updatedUser);
+        assertThat(updatedUser.getEmail()).isEqualTo(email);
+        assertThat(updatedUser.getPassword()).isEqualTo(password);
+        assertThat(updatedUser.getFirstName()).isEqualTo(firstName);
+        assertThat(updatedUser.getLastName()).isEqualTo(lastName);
+        assertThat(updatedUser.getModifiedAt()).isEqualTo(modifiedAt);
+        assertThat(updatedUser.getModifiedBy()).isEqualTo(modifiedBy);
+        assertThat(updatedUser.isEnabled()).isEqualTo(enabled);
     }
 
     @Test
