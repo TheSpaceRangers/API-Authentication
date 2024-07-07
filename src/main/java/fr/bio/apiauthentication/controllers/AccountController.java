@@ -20,7 +20,7 @@ public class AccountController {
     public ResponseEntity<UserStructureResponse> login(
             @RequestHeader("Authorization") String token
     ) {
-        return accountService.getUserProfile(token.substring(7));
+        return accountService.getUserStructure(token.substring(7));
     }
 
     @PutMapping(value = "/profile")

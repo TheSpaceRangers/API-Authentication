@@ -29,7 +29,7 @@ public class AccountService implements IAccountService {
     private final HttpHeadersUtil httpHeadersUtil;
 
     @Override
-    public ResponseEntity<UserStructureResponse> getUserProfile(
+    public ResponseEntity<UserStructureResponse> getUserStructure(
             String token
     ) {
         final String email = jwtService.getUsernameFromToken(token);
