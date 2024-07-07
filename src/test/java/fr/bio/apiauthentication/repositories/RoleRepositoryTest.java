@@ -62,9 +62,6 @@ public class RoleRepositoryTest {
                 .enabled(enabled)
                 .users(List.of(user))
                 .build();
-
-        roleRepository.deleteAll();
-        userRepository.deleteAll();
     }
 
     @AfterEach

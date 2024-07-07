@@ -58,8 +58,6 @@ public class LoginHistoryRepositoryTest {
                 .dateLogin(dateLogin)
                 .user(user)
                 .build();
-
-        loginHistoryRepository.deleteAll();
     }
 
     @AfterEach
