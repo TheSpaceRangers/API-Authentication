@@ -2,6 +2,7 @@ package fr.bio.apiauthentication.entities;
 
 import jakarta.transaction.Transactional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,97 +23,130 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @DataJpaTest
 @Transactional
 public class UserTest {
+    private static final LocalDate NOW = LocalDate.now();
+
     @Autowired
     private TestEntityManager entityManager;
 
     private User user;
 
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
+    private LocalDate createdAt;
+    private String createdBy;
+    private LocalDate modifiedAt;
+    private String modifiedBy;
+    private boolean enabled;
+
     @BeforeEach
     void setUp() {
+        email = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+        password = RandomStringUtils.randomAlphanumeric(30);
+        firstName = RandomStringUtils.randomAlphanumeric(20);
+        lastName = RandomStringUtils.randomAlphanumeric(20);
+        createdAt = NOW;
+        createdBy = RandomStringUtils.randomAlphanumeric(20);
+        modifiedAt = NOW;
+        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
+        enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+
         user = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
-                .createdAt(LocalDate.now())
-                .createdBy("System")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(true)
+                .email(email)
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
+                .createdAt(createdAt)
+                .createdBy(createdBy)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
                 .build();
     }
 
     @AfterEach
     void tearDown() {
         user = null;
+
+        entityManager.flush();
     }
 
     @Test
     @DisplayName("Test create user")
     public void testCreateUser() {
-        user = entityManager.persistAndFlush(user);
+        User savedUser = entityManager.persist(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser).isEqualTo(user);
+        assertThat(savedUser).usingRecursiveComparison().isEqualTo(user);
     }
 
     @Test
     @DisplayName("Test update user")
     public void testUpdateUser() {
-        Role role = Role.builder()
-                .authority("UPDATE_USER")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(Collections.singleton(user))
-                .build();
-        entityManager.persist(role);
+        User savedUser = entityManager.persist(user);
 
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setEmail("j.doe@test.properties.com");
-        user.setPassword("password 3");
-        user.setCreatedAt(LocalDate.now());
-        user.setCreatedBy("System");
-        user.setModifiedAt(LocalDate.now());
-        user.setRoles(Collections.singleton(role));
-        user.setModifiedBy("System");
+        email = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+        password = RandomStringUtils.randomAlphanumeric(30);
+        firstName = RandomStringUtils.randomAlphanumeric(20);
+        lastName = RandomStringUtils.randomAlphanumeric(20);
+        modifiedAt = NOW.plusMonths(12);
+        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
+        enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
 
-        user.setEnabled(false);
+        savedUser.setFirstName(firstName);
+        savedUser.setLastName(lastName);
+        savedUser.setEmail(email);
+        savedUser.setPassword(password);
+        savedUser.setModifiedAt(modifiedAt);
+        savedUser.setModifiedBy(modifiedBy);
 
-        user = entityManager.persistAndFlush(user);
+        User updatedUser = entityManager.merge(savedUser);
+
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser).isEqualTo(savedUser);
+        assertThat(savedUser).usingRecursiveComparison().isNotEqualTo(updatedUser);
     }
 
     @Test
-    @DisplayName("Test user details")
-    public void testUserDetails() {
+    @DisplayName("Test get granted authorities")
+    public void testGetGrantedAuthorities() {
         Role role = Role.builder()
-                .authority("USER_DETAILS")
-                .displayName("Utilisateur")
-                .description("Utilisateur")
-                .users(Collections.singleton(user))
+                .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
+                .displayName(RandomStringUtils.randomAlphanumeric(20))
+                .description(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
                 .build();
         entityManager.persist(role);
-
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getAuthority());
 
         user.setRoles(Collections.singleton(role));
-        User persitedUser = entityManager.persist(user);
 
-        assertThat(persitedUser).isNotNull();
-        assertThat(persitedUser.getEmail()).isEqualTo(user.getUsername());
-        assertThat(persitedUser.isAccountNonExpired()).isTrue();
-        assertThat(persitedUser.isAccountNonLocked()).isTrue();
-        assertThat(persitedUser.isCredentialsNonExpired()).isTrue();
-        assertThat(persitedUser.getAuthorities()).isEqualTo(List.of(authority));
+        User savedUser = entityManager.persist(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser).usingRecursiveComparison().isEqualTo(user);
+        assertThat(savedUser.getUsername()).isEqualTo(email);
+        assertThat(savedUser.isAccountNonExpired()).isEqualTo(enabled);
+        assertThat(savedUser.isAccountNonLocked()).isEqualTo(enabled);
+        assertThat(savedUser.isCredentialsNonExpired()).isEqualTo(enabled);
+        assertThat(savedUser.getAuthorities()).isEqualTo(List.of(authority));
     }
 
     @Test
     @DisplayName("Test same object")
     public void testEquals_SameObject() {
-        assertThat(user).isEqualTo(user);
+        User savedUser = entityManager.persist(user);
+
+        assertThat(savedUser).isEqualTo(user);
     }
 
     @Test
     @DisplayName("Test null")
     public void testEquals_Null() {
-        assertThat(user).isNotEqualTo(null);
+        assertThat((User) null).isNotEqualTo(user);
     }
 
     @Test
@@ -125,49 +159,53 @@ public class UserTest {
     @DisplayName("Test different fields")
     public void testEquals_DifferentFields() {
         User differentFields = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("Charles")
-                .lastName("TRONEL")
-                .enabled(true)
+                .email(RandomStringUtils.randomAlphanumeric(5).toUpperCase())
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
+                .createdAt(NOW.plusMonths(12))
+                .createdBy(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW.plusMonths(12))
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
+                .enabled(Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1)))
                 .build();
 
-        assertThat(user).isNotEqualTo(differentFields);
+        assertThat(differentFields).isNotEqualTo(user);
     }
 
     @Test
     @DisplayName("Test same fields")
     public void testEquals_SameFields() {
         User sameFields = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
-                .createdAt(LocalDate.now())
-                .createdBy("System")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(true)
+                .email(email)
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
+                .createdAt(createdAt)
+                .createdBy(createdBy)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
                 .build();
 
-        assertThat(user).isEqualTo(sameFields);
+        assertThat(sameFields).isEqualTo(user);
     }
 
     @Test
     @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
         User sameFields = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
-                .createdAt(LocalDate.now())
-                .createdBy("System")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(true)
+                .email(email)
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
+                .createdAt(createdAt)
+                .createdBy(createdBy)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
                 .build();
 
-        assertThat(user.hashCode()).isEqualTo(sameFields.hashCode());
+        assertThat(sameFields.hashCode()).isEqualTo(user.hashCode());
     }
 }
