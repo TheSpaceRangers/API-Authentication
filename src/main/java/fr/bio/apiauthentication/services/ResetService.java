@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ResetService implements IResetService {
     private static final TokenType PASSWORD_RESET = TokenType.PASSWORD_RESET;
+
     private static final String USER = "User";
 
     private final UserRepository userRepository;
