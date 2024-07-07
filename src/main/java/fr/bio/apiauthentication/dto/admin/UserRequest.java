@@ -13,5 +13,4 @@ public record UserRequest(
         @JsonProperty("last_name") String lastName,
         @JsonProperty("roles")List<String> roles
 ) {
-
 }
