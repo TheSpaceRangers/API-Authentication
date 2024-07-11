@@ -95,6 +95,8 @@ public class AdminRoleServiceTest {
     @Test
     @DisplayName("Test get roles")
     void testGetAllByStatus() {
+        MockitoAnnotations.openMocks(this);
+
         roleActive = generateRole(true);
         roleInactive = generateRole(false);
 
