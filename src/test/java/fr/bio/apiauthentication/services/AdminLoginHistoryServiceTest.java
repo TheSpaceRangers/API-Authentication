@@ -6,7 +6,6 @@ import fr.bio.apiauthentication.dto.admin.LoginHistoryStructureResponse;
 import fr.bio.apiauthentication.entities.LoginHistory;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
-import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -30,7 +29,6 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Test login history admin service")
@@ -121,7 +119,6 @@ public class AdminLoginHistoryServiceTest {
         final List<LoginHistory> loginHistories = IntStream.range(0, 10)
                 .mapToObj(loginHistory -> generateLoginHistory(user))
                 .toList();
-        final List<LoginHistoryStructureResponse> exceptedResponses = LoginHistoryStructureResponse.fromLoginHistories(loginHistories);
 
         final LoginHistoryRequest request = new LoginHistoryRequest(user.getEmail());
 
