@@ -116,9 +116,6 @@ public class AdminLoginHistoryServiceTest {
     @Test
     public void testGetLoginHistoryByUser_UserNotFound() {
         final User user = generateUser();
-        final List<LoginHistory> loginHistories = IntStream.range(0, 10)
-                .mapToObj(loginHistory -> generateLoginHistory(user))
-                .toList();
 
         final LoginHistoryRequest request = new LoginHistoryRequest(user.getEmail());
 
