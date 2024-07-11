@@ -111,7 +111,7 @@ public class LoginHistoryStructureResponseTest {
         assertThat(response.getIdLoginHistory()).isEqualTo(loginHistory.getIdLoginHistory());
         assertThat(response.getIdUser()).isEqualTo(response.getIdUser());
         assertThat(response.getUserEmail()).isEqualTo(loginHistory.getUser().getEmail());
-        assertThat(response.getDateLogin()).isEqualTo(loginHistory.getDateLogin().toEpochSecond(ZoneOffset.UTC));
+        assertThat(response.getDateLogin()).isEqualTo(loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class LoginHistoryStructureResponseTest {
             assertThat(response.getIdLoginHistory()).isEqualTo(loginHistory.getIdLoginHistory());
             assertThat(response.getIdUser()).isEqualTo(loginHistory.getUser().getIdUser());
             assertThat(response.getUserEmail()).isEqualTo(loginHistory.getUser().getEmail());
-            assertThat(response.getDateLogin()).isEqualTo(loginHistory.getDateLogin().toEpochSecond(ZoneOffset.UTC));
+            assertThat(response.getDateLogin()).isEqualTo(loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli());
         }
     }
 

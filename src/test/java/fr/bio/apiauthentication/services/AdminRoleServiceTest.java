@@ -77,6 +77,9 @@ public class AdminRoleServiceTest {
                 .build();
         userRepository.save(user);
 
+        roleActive = generateRole(true);
+        roleInactive = generateRole(false);
+
         token = jwtService.generateToken(user);
 
         headers = httpHeadersUtil.createHeaders(token);
@@ -95,11 +98,6 @@ public class AdminRoleServiceTest {
     @Test
     @DisplayName("Test get roles")
     void testGetAllByStatus() {
-        MockitoAnnotations.openMocks(this);
-
-        roleActive = generateRole(true);
-        roleInactive = generateRole(false);
-
         List<RoleStructureResponse> exceptedResponse = List.of(RoleStructureResponse.fromRole(roleActive), RoleStructureResponse.fromRole(roleInactive));
 
         when(roleRepository.findAll()).thenReturn(List.of(roleActive, roleInactive));
@@ -116,8 +114,6 @@ public class AdminRoleServiceTest {
     @Test
     @DisplayName("Test get roles with active status")
     void testGetAllByStatus_Active() {
-        roleActive = generateRole(true);
-
         List<RoleStructureResponse> exceptedResponse = List.of(RoleStructureResponse.fromRole(roleActive));
 
         when(roleRepository.findAllByEnabled(true)).thenReturn(List.of(roleActive));
@@ -134,8 +130,6 @@ public class AdminRoleServiceTest {
     @Test
     @DisplayName("Test get roles with inactive status")
     void testGetAllByStatus_Inactive() {
-        roleInactive = generateRole(false);
-
         List<RoleStructureResponse> exceptedResponse = List.of(RoleStructureResponse.fromRole(roleInactive));
 
         when(roleRepository.findAllByEnabled(false)).thenReturn(List.of(roleInactive));
