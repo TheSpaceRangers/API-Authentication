@@ -47,7 +47,8 @@ public class UserStructureResponse {
     private Collection<String> roles;
 
     public static UserStructureResponse fromUser(User user) {
-        return UserStructureResponse.builder()
+        return user != null
+            ? UserStructureResponse.builder()
                 .idUser(user.getIdUser())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
@@ -62,12 +63,15 @@ public class UserStructureResponse {
                         .map(role -> role.getAuthority() + " : " + role.getDisplayName())
                         .toList()
                     : List.of()
-                ).build();
+                ).build()
+            : null;
     }
 
     public static List<UserStructureResponse> fromUsers(List<User> users) {
-        return users.stream()
+        return users != null
+            ? users.stream()
                 .map(UserStructureResponse::fromUser)
-                .toList();
+                .toList()
+            : List.of();
     }
 }

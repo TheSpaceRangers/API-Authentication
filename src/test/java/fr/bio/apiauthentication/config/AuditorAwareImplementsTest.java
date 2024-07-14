@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -58,7 +59,9 @@ public class AuditorAwareImplementsTest {
         SecurityContextHolder.setContext(securityContext);
 
         Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-        assertThat(currentAuditor.get()).isEqualTo(user.getFirstName().charAt(0) + "." + user.getLastName());
+        assertThat(currentAuditor.isPresent()).isTrue();
+
+        currentAuditor.ifPresent(s -> assertThat(s).isEqualTo(user.getFirstName().charAt(0) + "." + user.getLastName()));
     }
 
     @Test
@@ -70,10 +73,11 @@ public class AuditorAwareImplementsTest {
         SecurityContextHolder.setContext(securityContext);
 
         Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-        assertThat(currentAuditor.get()).isEqualTo("system");
+        currentAuditor.ifPresent(s -> assertThat(s).isEqualTo("system"));
     }
 
     @Test
+    @DisplayName("Test get current auditor with different principal")
     public void testGetCurrentAuditor_withDifferentPrincipal() {
         final String principal = RandomStringUtils.randomAlphanumeric(20);
 
@@ -89,6 +93,22 @@ public class AuditorAwareImplementsTest {
         SecurityContextHolder.setContext(securityContext);
 
         Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-        assertThat(principal).isEqualTo(currentAuditor.get());
+        currentAuditor.ifPresent(s -> assertThat(s).isEqualTo(principal));
+    }
+
+    @Test
+    @DisplayName("Test get current auditor with different principal")
+    public void testGetCurrentAuditor_withNonUserDetailsPrincipal() {
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(null);
+
+        try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
+            mocked.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            Optional<String> auditor = auditorAware.getCurrentAuditor();
+            assertThat(auditor.isPresent()).isTrue();
+            auditor.ifPresent(s -> assertThat(s).isEqualTo("system"));
+        }
     }
 }

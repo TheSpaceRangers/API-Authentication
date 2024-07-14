@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -71,15 +72,16 @@ public class UserStructureResponseTest {
     }
 
     @Test
-    public void testEquals() {
-        UserStructureResponse requestEquals = new UserStructureResponse(idUser, email, firstName, lastName, createdAt, createdBy, modifiedAt, modifiedBy, enabled, roles);
+    public void testEqualsAndHashCode() {
+        final UserStructureResponse requestEquals = new UserStructureResponse(idUser, email, firstName, lastName, createdAt, createdBy, modifiedAt, modifiedBy, enabled, roles);
 
         assertThat(response).isEqualTo(requestEquals);
+        assertThat(response.hashCode()).isEqualTo(requestEquals.hashCode());
     }
 
     @Test
-    public void testNotEquals() {
-        UserStructureResponse requestNotEquals = new UserStructureResponse(
+    public void testNotEqualsAndNotHashCode() {
+        final UserStructureResponse requestNotEquals = new UserStructureResponse(
                 Long.parseLong(RandomStringUtils.randomNumeric(15)),
                 RandomStringUtils.randomAlphanumeric(5).toUpperCase(),
                 RandomStringUtils.randomAlphanumeric(20),
@@ -93,14 +95,15 @@ public class UserStructureResponseTest {
         );
 
         assertThat(response).isNotEqualTo(requestNotEquals);
+        assertThat(response.hashCode()).isNotEqualTo(requestNotEquals.hashCode());
     }
 
     @Test
     public void testSerialize() throws Exception {
-        String json = MAPPER.writeValueAsString(response);
-        UserStructureResponse actualRequest = MAPPER.readValue(json, UserStructureResponse.class);
+        final String json = MAPPER.writeValueAsString(response);
+        final UserStructureResponse actualRequest = MAPPER.readValue(json, UserStructureResponse.class);
 
-        String expectedJson = "{" +
+        final String expectedJson = "{" +
                 "\"id_user\":" + response.getIdUser() + "," +
                 "\"email\":\"" + response.getEmail() + "\"," +
                 "\"first_name\":\"" + response.getFirstName() + "\"," +
@@ -112,14 +115,14 @@ public class UserStructureResponseTest {
                 "\"enabled\":" + response.isEnabled() + "," +
                 "\"roles\":[" + String.join(",", response.getRoles().stream().map(role -> "\"" + role + "\"").toList()) + "]" +
                 "}";
-        UserStructureResponse expectedRequest = MAPPER.readValue(expectedJson, UserStructureResponse.class);
+        final UserStructureResponse expectedRequest = MAPPER.readValue(expectedJson, UserStructureResponse.class);
 
         assertThat(expectedRequest).isEqualTo(actualRequest);
     }
 
     @Test
     public void testDeserialize() throws Exception {
-        String json = "{" +
+        final String json = "{" +
                 "\"id_user\":" + response.getIdUser() + "," +
                 "\"email\":\"" + response.getEmail() + "\"," +
                 "\"first_name\":\"" + response.getFirstName() + "\"," +
@@ -132,15 +135,15 @@ public class UserStructureResponseTest {
                 "\"roles\":[" + String.join(",", response.getRoles().stream().map(role -> "\"" + role + "\"").toList()) + "]" +
                 "}";
 
-        UserStructureResponse requestMapped = MAPPER.readValue(json, UserStructureResponse.class);
+        final UserStructureResponse requestMapped = MAPPER.readValue(json, UserStructureResponse.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
-    public void testFromRole() {
-        User user = generateRandomUsers();
-        UserStructureResponse response = UserStructureResponse.fromUser(user);
+    public void testFromUser_Success() {
+        final User user = generateUser();
+        final UserStructureResponse response = UserStructureResponse.fromUser(user);
 
         assertThat(response).isNotNull();
         assertThat(response.getIdUser()).isEqualTo(user.getIdUser());
@@ -153,26 +156,55 @@ public class UserStructureResponseTest {
         assertThat(response.getModifiedBy()).isEqualTo(user.getModifiedBy());
         assertThat(response.isEnabled()).isEqualTo(user.isEnabled());
 
-        List<String> expectedRoles = user.getRoles().stream()
+        final List<String> expectedRoles = user.getRoles().stream()
                 .map(role -> role.getAuthority() + " : " + role.getDisplayName())
                 .toList();
         assertThat(response.getRoles()).isEqualTo(expectedRoles);
     }
 
     @Test
-    public void testFromRoles() {
-        List<User> users = IntStream.range(0, 5)
-                .mapToObj(user -> generateRandomUsers())
+    public void testFromUser_UserIsNull() {
+        final User user = null;
+        final UserStructureResponse response = UserStructureResponse.fromUser(user);
+
+        assertThat(response).isNull();
+    }
+
+    @Test
+    public void testFromUser_UserRolesAreNull() {
+        final User user = generateUser();
+        user.setRoles(null);
+        final UserStructureResponse response = UserStructureResponse.fromUser(user);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getIdUser()).isEqualTo(user.getIdUser());
+        assertThat(response.getEmail()).isEqualTo(user.getEmail());
+        assertThat(response.getFirstName()).isEqualTo(user.getFirstName());
+        assertThat(response.getLastName()).isEqualTo(user.getLastName());
+        assertThat(response.getCreatedAt()).isEqualTo(user.getCreatedAt().toEpochDay());
+        assertThat(response.getCreatedBy()).isEqualTo(user.getCreatedBy());
+        assertThat(response.getModifiedAt()).isEqualTo(user.getModifiedAt().toEpochDay());
+        assertThat(response.getModifiedBy()).isEqualTo(user.getModifiedBy());
+        assertThat(response.isEnabled()).isEqualTo(user.isEnabled());
+
+        final List<String> expectedRoles = List.of();
+        assertThat(response.getRoles()).isEqualTo(expectedRoles);
+    }
+
+    @Test
+    public void testFromUsers_Success() {
+        final List<User> users = IntStream.range(0, 5)
+                .mapToObj(user -> generateUser())
                 .toList();
 
-        List<UserStructureResponse> responses = UserStructureResponse.fromUsers(users);
+        final List<UserStructureResponse> responses = UserStructureResponse.fromUsers(users);
 
         assertThat(responses).isNotNull();
         assertThat(responses.size()).isEqualTo(users.size());
 
         for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
-            UserStructureResponse response = responses.get(i);
+            final User user = users.get(i);
+            final UserStructureResponse response = responses.get(i);
 
             assertThat(response.getIdUser()).isEqualTo(user.getIdUser());
             assertThat(response.getEmail()).isEqualTo(user.getEmail());
@@ -184,25 +216,68 @@ public class UserStructureResponseTest {
             assertThat(response.getModifiedBy()).isEqualTo(user.getModifiedBy());
             assertThat(response.isEnabled()).isEqualTo(user.isEnabled());
 
-            List<String> expectedRoles = user.getRoles().stream()
+            final List<String> expectedRoles = user.getRoles().stream()
                     .map(role -> role.getAuthority() + " : " + role.getDisplayName())
                     .toList();
             assertThat(response.getRoles()).isEqualTo(expectedRoles);
         }
     }
 
-    private List<Role> generateRandomRole() {
-        return IntStream.range(0, 5)
-                .mapToObj(role -> Role.builder()
-                        .idRole((long) (Math.random() * 1000))
-                        .authority(RandomStringUtils.randomAlphanumeric(10))
-                        .displayName(RandomStringUtils.randomAlphanumeric(10))
-                        .description(RandomStringUtils.randomAlphanumeric(20))
-                        .build())
-                .toList();
+    @Test
+    public void testFromUsers_UsersAreNull() {
+        final List<User> users = null;
+        final List<UserStructureResponse> responses = UserStructureResponse.fromUsers(users);
+
+        assertThat(responses).isEqualTo(List.of());
     }
 
-    private User generateRandomUsers() {
+    @Test
+    public void testToString() {
+        final User user = generateUser();
+        final UserStructureResponse response = UserStructureResponse.fromUser(user);
+
+        final String exceptedRolesToString = user.getRoles().stream()
+                .map(role -> role.getAuthority() + " : " + role.getDisplayName())
+                .collect(Collectors.joining(", "));
+        final String exceptedToString = "UserStructureResponse(idUser=" + response.getIdUser() +
+                ", email=" + user.getEmail() +
+                ", firstName=" + user.getFirstName() +
+                ", lastName=" + user.getLastName() +
+                ", createdAt=" + user.getCreatedAt().toEpochDay() +
+                ", createdBy=" + user.getCreatedBy() +
+                ", modifiedAt=" + user.getModifiedAt().toEpochDay() +
+                ", modifiedBy=" + user.getModifiedBy() +
+                ", enabled=" + user.isEnabled() +
+                ", roles=[" + exceptedRolesToString + "])";
+        final String exceptedToStringLombok = "UserStructureResponse.UserStructureResponseBuilder(idUser=" + response.getIdUser() +
+                ", email=" + user.getEmail() +
+                ", firstName=" + user.getFirstName() +
+                ", lastName=" + user.getLastName() +
+                ", createdAt=" + user.getCreatedAt().toEpochDay() +
+                ", createdBy=" + user.getCreatedBy() +
+                ", modifiedAt=" + user.getModifiedAt().toEpochDay() +
+                ", modifiedBy=" + user.getModifiedBy() +
+                ", enabled=" + user.isEnabled() +
+                ", roles=[" + exceptedRolesToString + "])";
+
+        assertThat(response).isNotNull();
+        assertThat(response.toString()).isEqualTo(exceptedToString);
+        assertThat(UserStructureResponse.builder()
+                .idUser(user.getIdUser())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .createdAt(user.getCreatedAt().toEpochDay())
+                .createdBy(user.getCreatedBy())
+                .modifiedAt(user.getModifiedAt().toEpochDay())
+                .modifiedBy(user.getModifiedBy())
+                .enabled(user.isEnabled())
+                .roles(user.getRoles().stream().map(role -> role.getAuthority() + " : " + role.getDisplayName()).collect(Collectors.toList()))
+                .toString()
+        ).isEqualTo(exceptedToStringLombok);
+    }
+
+    private User generateUser() {
         return User.builder()
                 .idUser((long) (Math.random() * 1000))
                 .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
@@ -214,7 +289,18 @@ public class UserStructureResponseTest {
                 .modifiedAt(LocalDate.now())
                 .modifiedBy(RandomStringUtils.randomAlphanumeric(10))
                 .enabled(Math.random() < 0.5)
-                .roles(generateRandomRole())
+                .roles(generateRoles())
                 .build();
+    }
+
+    private List<Role> generateRoles() {
+        return IntStream.range(0, 5)
+                .mapToObj(role -> Role.builder()
+                        .idRole((long) (Math.random() * 1000))
+                        .authority(RandomStringUtils.randomAlphanumeric(10))
+                        .displayName(RandomStringUtils.randomAlphanumeric(10))
+                        .description(RandomStringUtils.randomAlphanumeric(20))
+                        .build())
+                .toList();
     }
 }

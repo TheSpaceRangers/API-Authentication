@@ -49,7 +49,7 @@ public class JwtService implements IJwtService {
 
     @PostConstruct
     public void init() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        final byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         key = Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -89,7 +89,7 @@ public class JwtService implements IJwtService {
     public String generateToken(
             UserDetails userDetails
     ) {
-        Map<String, Object> claims = new HashMap<>();
+        final Map<String, Object> claims = new HashMap<>();
         claims.put("Authorities", userDetails.getAuthorities());
 
         return generateToken(claims, userDetails);
@@ -140,10 +140,10 @@ public class JwtService implements IJwtService {
             String strToken,
             TokenType type
     ) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        final User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
 
-        Token token = Token.builder()
+        final Token token = Token.builder()
                 .token(strToken)
                 .type(type)
                 .user(user)
@@ -156,10 +156,10 @@ public class JwtService implements IJwtService {
             UserDetails userDetails,
             TokenType type
     ) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        final User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, userDetails.getUsername())));
 
-        List<Token> tokens = tokenRepository.findByUserAndTypeAndExpiredFalseAndRevokedFalse(user, type);
+        final List<Token> tokens = tokenRepository.findByUserAndTypeAndExpiredFalseAndRevokedFalse(user, type);
 
         tokens.forEach(token -> {
             token.setExpired(true);

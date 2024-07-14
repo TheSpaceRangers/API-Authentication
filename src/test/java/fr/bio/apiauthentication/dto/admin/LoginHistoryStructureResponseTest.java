@@ -54,14 +54,15 @@ public class LoginHistoryStructureResponseTest {
     }
 
     @Test
-    public void testEquals() {
+    public void testEqualsAndHashCode() {
         LoginHistoryStructureResponse requestEquals = new LoginHistoryStructureResponse(idLoginHistory, idUser, userEmail, dateLogin);
 
         assertThat(response).isEqualTo(requestEquals);
+        assertThat(response.hashCode()).isEqualTo(requestEquals.hashCode());
     }
 
     @Test
-    public void testNotEquals() {
+    public void testNotEqualsAndNotHashCode() {
         LoginHistoryStructureResponse requestNotEquals = new LoginHistoryStructureResponse(
                 idLoginHistory = Long.parseLong(RandomStringUtils.randomNumeric(10)),
                 idUser = Long.parseLong(RandomStringUtils.randomNumeric(10)),
@@ -70,6 +71,7 @@ public class LoginHistoryStructureResponseTest {
         );
 
         assertThat(response).isNotEqualTo(requestNotEquals);
+        assertThat(response.hashCode()).isNotEqualTo(requestNotEquals.hashCode());
     }
 
     @Test
@@ -103,8 +105,8 @@ public class LoginHistoryStructureResponseTest {
     }
 
     @Test
-    public void testFromLoginHistory() {
-        LoginHistory loginHistory = generateRandomLoginHistory();
+    public void testFromLoginHistory_Success() {
+        LoginHistory loginHistory = generateLoginHistory();
         LoginHistoryStructureResponse response = LoginHistoryStructureResponse.fromLoginHistory(loginHistory);
 
         assertThat(response).isNotNull();
@@ -115,9 +117,16 @@ public class LoginHistoryStructureResponseTest {
     }
 
     @Test
-    public void testFromLoginHistories() {
+    public void testFromLoginHistory_LoginHistoryIsNull() {
+        LoginHistoryStructureResponse response = LoginHistoryStructureResponse.fromLoginHistory(null);
+
+        assertThat(response).isNull();
+    }
+
+    @Test
+    public void testFromLoginHistories_Success() {
         List<LoginHistory> loginHistories = IntStream.range(0, 5)
-                .mapToObj(loginHistory -> generateRandomLoginHistory())
+                .mapToObj(loginHistory -> generateLoginHistory())
                 .toList();
         List<LoginHistoryStructureResponse> responses = LoginHistoryStructureResponse.fromLoginHistories(loginHistories);
 
@@ -135,15 +144,47 @@ public class LoginHistoryStructureResponseTest {
         }
     }
 
-    private LoginHistory generateRandomLoginHistory() {
+    @Test
+    public void testFromLoginHistories_LoginHistorisIsNull() {
+        List<LoginHistoryStructureResponse> responses = LoginHistoryStructureResponse.fromLoginHistories(null);
+
+        assertThat(responses).isEqualTo(List.of());
+    }
+
+    @Test
+    public void testToString() {
+        final LoginHistory loginHistory = generateLoginHistory();
+        final LoginHistoryStructureResponse response = LoginHistoryStructureResponse.fromLoginHistory(loginHistory);
+
+        final String exceptedToString = "LoginHistoryStructureResponse(idLoginHistory=" + loginHistory.getIdLoginHistory() +
+                ", idUser=" + loginHistory.getUser().getIdUser() +
+                ", userEmail=" + loginHistory.getUser().getEmail() +
+                ", dateLogin=" + loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli() + ")";
+        final String exceptedToStringLombok = "LoginHistoryStructureResponse.LoginHistoryStructureResponseBuilder(idLoginHistory=" + loginHistory.getIdLoginHistory() +
+                ", idUser=" + loginHistory.getUser().getIdUser() +
+                ", userEmail=" + loginHistory.getUser().getEmail() +
+                ", dateLogin=" + loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli() + ")";
+
+        assertThat(response).isNotNull();
+        assertThat(response.toString()).isEqualTo(exceptedToString);
+        assertThat(LoginHistoryStructureResponse.builder()
+                .idLoginHistory(loginHistory.getIdLoginHistory())
+                .idUser(loginHistory.getUser().getIdUser())
+                .userEmail(loginHistory.getUser().getEmail())
+                .dateLogin(loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .toString()
+        ).isEqualTo(exceptedToStringLombok);
+    }
+
+    private LoginHistory generateLoginHistory() {
         return LoginHistory.builder()
                 .idLoginHistory(Long.parseLong(RandomStringUtils.randomNumeric(10)))
-                .user(generateRandomUser())
+                .user(generateUser())
                 .dateLogin(LocalDateTime.now().plusYears(10))
                 .build();
     }
 
-    private User generateRandomUser() {
+    private User generateUser() {
         return User.builder()
                 .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
                 .password(RandomStringUtils.randomAlphanumeric(30))

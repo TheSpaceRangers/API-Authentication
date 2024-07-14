@@ -30,12 +30,14 @@ public class LoginHistoryStructureResponse {
     public static LoginHistoryStructureResponse fromLoginHistory(
             LoginHistory loginHistory
     ) {
-        return LoginHistoryStructureResponse.builder()
+        return loginHistory != null
+            ? LoginHistoryStructureResponse.builder()
                 .idLoginHistory(loginHistory.getIdLoginHistory())
                 .idUser(loginHistory.getUser().getIdUser())
                 .userEmail(loginHistory.getUser().getEmail())
                 .dateLogin(loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli())
-                .build();
+                .build()
+            : null;
     }
 
     public static List<LoginHistoryStructureResponse> fromLoginHistories(

@@ -33,7 +33,7 @@ public class EmailConfiguration {
     private boolean starttls;
 
     @PostConstruct
-    private void validateProperties() {
+    public void validateProperties() {
         if (!StringUtils.hasText(host))
             throw new IllegalArgumentException(Messages.MAIL_HOST.formatMessage());
 

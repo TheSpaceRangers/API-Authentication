@@ -1,8 +1,12 @@
 package fr.bio.apiauthentication.services;
 
 import fr.bio.apiauthentication.entities.Role;
+import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.TokenType;
+import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
+import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -11,16 +15,20 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Test JWT Service")
@@ -44,6 +52,9 @@ public class JwtServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private TokenRepository tokenRepository;
+
+    @Mock
     private DateUtils dateUtils;
 
     private User user;
@@ -58,7 +69,7 @@ public class JwtServiceTest {
 
         expiration = (long) ((1 + RANDOM.nextInt(10)) * 60 * 1000);
 
-        Role role = Role.builder()
+        final Role role = Role.builder()
                 .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
                 .displayName(RandomStringUtils.randomAlphanumeric(20))
                 .description(RandomStringUtils.randomAlphanumeric(20))
@@ -85,6 +96,7 @@ public class JwtServiceTest {
         secretKey = RandomStringUtils.randomAlphanumeric(256);
         jwtService.setSecretKey(secretKey);
         jwtService.setJwtExpiration(1000 * 60 * 60);
+        jwtService.setKey(jwtService.getKey());
         jwtService.init();
     }
 
@@ -140,6 +152,72 @@ public class JwtServiceTest {
         when(userDetails.getUsername()).thenReturn(user.getEmail());
 
         assertThat(jwtService.validateToken(token, userDetails)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Test save user token")
+    void testSaveUserToken_Success() {
+        when(userDetails.getUsername()).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        final String token = generateJwtToken(expiration);
+
+        jwtService.saveUserToken(userDetails, token, TokenType.BEARER);
+
+        final ArgumentCaptor<Token> tokenCaptor = ArgumentCaptor.forClass(Token.class);
+        verify(tokenRepository).save(tokenCaptor.capture());
+        final Token savedToken = tokenCaptor.getValue();
+
+        assertThat(savedToken).isNotNull();
+        assertThat(savedToken.getToken()).isEqualTo(token);
+        assertThat(savedToken.getUser()).isEqualTo(user);
+        assertThat(savedToken.getType()).isEqualTo(TokenType.BEARER);
+    }
+
+    @Test
+    @DisplayName("Test save user token")
+    void testSaveUserToken_UserNotFound() {
+        when(userDetails.getUsername()).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        final String token = generateJwtToken(expiration);
+
+        assertThrows(UsernameNotFoundException.class, () -> jwtService.saveUserToken(userDetails, token, TokenType.BEARER));
+    }
+
+    @Test
+    @DisplayName("Test revoke all user tokens")
+    void testRevokeAllUserTokens_Success() {
+        when(userDetails.getUsername()).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        final Token token = Token.builder().user(user).type(TokenType.BEARER).expired(false).revoked(false).build();
+        final Token tokenExpired = Token.builder().user(user).type(TokenType.BEARER).expired(false).revoked(false).build();
+        final Token tokenRevoked = Token.builder().user(user).type(TokenType.BEARER).expired(false).revoked(false).build();
+        final Token tokenExpiredAndRevoked = Token.builder().user(user).type(TokenType.BEARER).expired(false).revoked(false).build();
+
+        final List<Token> exceptedTokens = Arrays.asList(token, tokenExpired, tokenRevoked, tokenExpiredAndRevoked);
+
+        when(tokenRepository.findByUserAndTypeAndExpiredFalseAndRevokedFalse(user, TokenType.BEARER)).thenReturn(exceptedTokens);
+
+        jwtService.revokeAllUserTokens(userDetails, TokenType.BEARER);
+
+        exceptedTokens.forEach(t -> {
+            assertThat(t).isNotNull();
+            assertThat(t.isExpired()).isTrue();
+            assertThat(t.isRevoked()).isTrue();
+        });
+    }
+
+    @Test
+    @DisplayName("Test revoke all user tokens")
+    void testRevokeAllUserTokens_UserNotFound() {
+        when(userDetails.getUsername()).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        final String token = generateJwtToken(expiration);
+
+        assertThrows(UsernameNotFoundException.class, () -> jwtService.saveUserToken(userDetails, token, TokenType.BEARER));
     }
 
     private String generateJwtToken(long expiration) {

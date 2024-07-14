@@ -46,7 +46,8 @@ public class RoleStructureResponse {
     private Collection<String> users;
 
     public static RoleStructureResponse fromRole(Role role) {
-        return RoleStructureResponse.builder()
+        return role != null
+            ? RoleStructureResponse.builder()
                 .idRole(role.getIdRole())
                 .authority(role.getAuthority())
                 .displayName(role.getDisplayName())
@@ -59,7 +60,8 @@ public class RoleStructureResponse {
                             .map(user -> user.getFirstName() + " " + user.getLastName())
                             .toList()
                         : List.of()
-                ).build();
+                ).build()
+            : null;
     }
 
     public static List<RoleStructureResponse> fromRoles(List<Role> roles) {

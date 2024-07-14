@@ -69,70 +69,73 @@ public class RoleTest {
 
     @AfterEach
     void tearDown() {
-        entityManager.flush();
         role = null;
     }
 
     @Test
     @DisplayName("Test create role")
     public void testCreateRole() {
-        Role persistedRole = entityManager.persist(role);
+        final Role savedRole = entityManager.persistAndFlush(role);
 
-        assertThat(persistedRole).isNotNull();
-        assertThat(persistedRole).isEqualTo(role);
+        assertThat(savedRole).isNotNull();
+        assertThat(savedRole).isEqualTo(role);
+        assertThat(savedRole.hashCode()).isEqualTo(role.hashCode());
+        assertThat(savedRole).usingRecursiveComparison().isEqualTo(role);
     }
 
     @Test
     @DisplayName("Test update role")
     public void testUpdateRole() {
-        Role savedRole = entityManager.persist(role);
+        final Role savedRole = entityManager.persistAndFlush(role);
 
+        long idRole = Long.parseLong(RandomStringUtils.randomNumeric(8));
         authority = RandomStringUtils.randomAlphanumeric(10).toUpperCase();
         displayName = RandomStringUtils.randomAlphanumeric(20);
         description = RandomStringUtils.randomAlphanumeric(20);
         modifiedAt = NOW.plusDays(10);
         modifiedBy = RandomStringUtils.randomAlphanumeric(20);
 
+        savedRole.setIdRole(idRole);
         savedRole.setAuthority(authority);
         savedRole.setDisplayName(displayName);
         savedRole.setDescription(description);
         savedRole.setModifiedAt(modifiedAt);
         savedRole.setModifiedBy(modifiedBy);
 
-        Role updatedRole = entityManager.merge(savedRole);
+        final Role updatedRole = entityManager.merge(savedRole);
 
         assertThat(updatedRole).isNotNull();
-        assertThat(updatedRole.getAuthority()).isEqualTo(authority);
-        assertThat(updatedRole.getDisplayName()).isEqualTo(displayName);
-        assertThat(updatedRole.getDescription()).isEqualTo(description);
-        assertThat(updatedRole.getModifiedAt()).isEqualTo(modifiedAt);
-        assertThat(updatedRole.getModifiedBy()).isEqualTo(modifiedBy);
+        assertThat(updatedRole).isEqualTo(savedRole);
+        assertThat(updatedRole).usingRecursiveComparison().isEqualTo(savedRole);
     }
 
     @Test
     @DisplayName("Test same object")
-    public void testEquals_SameObject() {
-        Role sameRole = role;
+    public void testEqualsAndHashCode_SameObject() {
+        final Role sameRole = role;
 
         assertThat(sameRole).isEqualTo(role);
+        assertThat(sameRole.hashCode()).isEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test null")
-    public void testEquals_Null() {
+    public void testEqualsAndHashCode_Null() {
         assertThat((Role) null).isNotEqualTo(role);
+        assertThat((Role) null).isNotEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test different class")
-    public void testEquals_DifferentClass() {
+    public void testEqualsAndHashCode_DifferentClass() {
         assertThat(role).isNotEqualTo("This is a different object");
+        assertThat(role.hashCode()).isNotEqualTo("This is a different object".hashCode());
     }
 
     @Test
     @DisplayName("Test different fields")
-    public void testEquals_DifferentFields() {
-        Role differentFields = Role.builder()
+    public void testEqualsAndHashCode_DifferentFields() {
+        final Role differentFields = Role.builder()
                 .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
                 .displayName(RandomStringUtils.randomAlphanumeric(20))
                 .description(RandomStringUtils.randomAlphanumeric(20))
@@ -141,12 +144,13 @@ public class RoleTest {
                 .build();
 
         assertThat(differentFields).isNotEqualTo(role);
+        assertThat(differentFields.hashCode()).isNotEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test same fields")
-    public void testEquals_SameFields() {
-        Role sameFields = Role.builder()
+    public void testEqualsAndHashCode_SameFields() {
+        final Role sameFields = Role.builder()
                 .authority(authority)
                 .displayName(displayName)
                 .description(description)
@@ -157,12 +161,13 @@ public class RoleTest {
                 .build();
 
         assertThat(sameFields).isEqualTo(role);
+        assertThat(sameFields.hashCode()).isEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
-        Role sameFields = Role.builder()
+        final Role sameFields = Role.builder()
                 .authority(authority)
                 .displayName(displayName)
                 .description(description)
@@ -173,5 +178,43 @@ public class RoleTest {
                 .build();
 
         assertThat(sameFields.hashCode()).isEqualTo(role.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        final Role savedRole = entityManager.persistAndFlush(role );
+        final String exceptedString = "Role(" +
+                "idRole=" + savedRole.getIdRole() + ", " +
+                "authority=" + savedRole.getAuthority() + ", " +
+                "displayName=" + savedRole.getDisplayName() + ", " +
+                "description=" + savedRole.getDescription() + ", " +
+                "modifiedAt=" + savedRole.getModifiedAt() + ", " +
+                "modifiedBy=" + savedRole.getModifiedBy() + ", " +
+                "enabled=" + savedRole.isEnabled() +
+                ")";
+        final String exceptedStringLombok = "Role.RoleBuilder(" +
+                "idRole=" + savedRole.getIdRole() + ", " +
+                "authority=" + savedRole.getAuthority() + ", " +
+                "displayName=" + savedRole.getDisplayName() + ", " +
+                "description=" + savedRole.getDescription() + ", " +
+                "modifiedAt=" + savedRole.getModifiedAt() + ", " +
+                "modifiedBy=" + savedRole.getModifiedBy() + ", " +
+                "enabled$value=" + savedRole.isEnabled() + ", " +
+                "users=" + savedRole.getUsers() +
+                ")";
+
+        assertThat(savedRole).isNotNull();
+        assertThat(exceptedString).isEqualTo(savedRole.toString());
+        assertThat(Role.builder()
+                .idRole(savedRole.getIdRole())
+                .authority(savedRole.getAuthority())
+                .displayName(savedRole.getDisplayName())
+                .description(savedRole.getDescription())
+                .modifiedAt(savedRole.getModifiedAt())
+                .modifiedBy(savedRole.getModifiedBy())
+                .enabled(savedRole.isEnabled())
+                .users(savedRole.getUsers())
+                .toString()
+        ).isEqualTo(exceptedStringLombok);
     }
 }
