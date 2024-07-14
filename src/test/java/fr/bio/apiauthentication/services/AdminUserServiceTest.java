@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,8 +53,6 @@ public class AdminUserServiceTest {
     @InjectMocks
     private AdminUserService adminUserService;
 
-    private User userActive;
-    private User userInactive;
     private Role role;
 
     private HttpHeaders headers;
@@ -73,18 +72,17 @@ public class AdminUserServiceTest {
                 .enabled(true)
                 .build();
         roleRepository.save(role);
-
-        userActive = generateUser(true);
-        userInactive = generateUser(false);
-
-        token = jwtService.generateToken(userActive);
-
-        headers = httpHeadersUtil.createHeaders(token);
     }
 
     @Test
     @DisplayName("Test get all users")
-    public void testGetAllUsers() {
+    public void testGetAllUsers_Success() {
+        final User userActive = generateUser(true);
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userActive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final List<UserStructureResponse> exceptedUsers = UserStructureResponse.fromUsers(List.of(userActive, userInactive));
 
         when(userRepository.findAll()).thenReturn(List.of(userActive, userInactive));
@@ -101,7 +99,12 @@ public class AdminUserServiceTest {
 
     @Test
     @DisplayName("Test create user")
-    public void testNewUser_Success() {
+    public void testCreateUser_Success() {
+        final User userActive = generateUser(true);
+
+        token = jwtService.generateToken(userActive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final UserRequest request = new UserRequest(userActive.getEmail(), userActive.getFirstName(), userActive.getLastName(), userActive.getRoles().stream().map(Role::getAuthority).toList());
         final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_CREATED.formatMessage(USER, userActive.getEmail()));
 
@@ -111,12 +114,12 @@ public class AdminUserServiceTest {
 
         final ResponseEntity<MessageResponse> response = adminUserService.newUser(token, request);
 
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
+
         final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(roleCaptor.capture());
         final User savedUser = roleCaptor.getValue();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo(userActive.getEmail());
@@ -124,13 +127,20 @@ public class AdminUserServiceTest {
         assertThat(savedUser.getLastName()).isEqualTo(userActive.getLastName());
         assertThat(savedUser.getRoles()).usingRecursiveComparison().isEqualTo(List.of(role));
 
+        final Collection<Role> expectedRoles = userActive.getRoles();
+        assertThat(savedUser.getRoles()).isEqualTo(expectedRoles);
+
         verify(roleRepository, times(1)).findByAuthority(anyString());
-        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
     @DisplayName("Test create user but user already exists")
-    public void testNewUser_UserAlreadyExists() {
+    public void testCreateUser_UserAlreadyExists() {
+        final User userActive = generateUser(true);
+
+        token = jwtService.generateToken(userActive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final UserRequest request = new UserRequest(userActive.getEmail(), userActive.getFirstName(), userActive.getLastName(), userActive.getRoles().stream().map(Role::getAuthority).toList());
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(userActive));
@@ -142,7 +152,12 @@ public class AdminUserServiceTest {
 
     @Test
     @DisplayName("Test create user but role not found")
-    public void testNewUser_RoleNotFount() {
+    public void testCreateUser_RoleNotFount() {
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userInactive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final UserRequest request = new UserRequest(userInactive.getEmail(), userInactive.getFirstName(), userInactive.getLastName(), userInactive.getRoles().stream().map(Role::getAuthority).toList());
 
         when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.empty());
@@ -152,11 +167,17 @@ public class AdminUserServiceTest {
 
         verify(userRepository, times(1)).findByEmail(request.email());
         verify(roleRepository, times(1)).findByAuthority(anyString());
+        verify(userRepository, never()).save(userInactive);
     }
 
     @Test
     @DisplayName("Test update user")
     void testModify_Success() {
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userInactive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final String firstName = RandomStringUtils.randomAlphanumeric(20);
         final String lastName = RandomStringUtils.randomAlphanumeric(20);
 
@@ -166,14 +187,14 @@ public class AdminUserServiceTest {
         when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.of(userInactive));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
 
-        ResponseEntity<MessageResponse> response = adminUserService.modify(token, request);
+        final ResponseEntity<MessageResponse> response = adminUserService.modify(token, request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(roleCaptor.capture());
         final User savedUser = roleCaptor.getValue();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getFirstName()).isEqualTo(firstName);
@@ -185,6 +206,11 @@ public class AdminUserServiceTest {
     @Test
     @DisplayName("Test update user but user not found")
     void testModifyNotFound() {
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userInactive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final String firstName = RandomStringUtils.randomAlphanumeric(20);
         final String lastName = RandomStringUtils.randomAlphanumeric(20);
 
@@ -200,7 +226,12 @@ public class AdminUserServiceTest {
 
     @Test
     @DisplayName("Test active user status")
-    void testModifyUserStatus_Activated() {
+    void testModifyStatus_Activate() {
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userInactive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final UserRequest request = new UserRequest(userInactive.getEmail(), "", "", List.of());
         final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_ACTIVATED.formatMessage(USER, userInactive.getEmail()));
 
@@ -209,12 +240,12 @@ public class AdminUserServiceTest {
 
         final ResponseEntity<MessageResponse> response = adminUserService.modifyStatus(token, request, true);
 
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
+
         final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(roleCaptor.capture());
         final User savedUser = roleCaptor.getValue();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.isEnabled()).isTrue();
@@ -224,7 +255,12 @@ public class AdminUserServiceTest {
 
     @Test
     @DisplayName("Test deactivate user status")
-    void testModifyUserStatus_Deactivated() {
+    void testModifyStatus_Deactivate() {
+        final User userActive = generateUser(true);
+
+        token = jwtService.generateToken(userActive);
+        headers = httpHeadersUtil.createHeaders(token);
+
         final UserRequest request = new UserRequest(userActive.getEmail(), "", "", List.of());
         final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.ENTITY_DEACTIVATED.formatMessage(USER, userActive.getEmail()));
 
@@ -233,12 +269,12 @@ public class AdminUserServiceTest {
 
         final ResponseEntity<MessageResponse> response = adminUserService.modifyStatus(token, request, false);
 
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
+
         final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(roleCaptor.capture());
         final User savedUser = roleCaptor.getValue();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.isEnabled()).isFalse();
@@ -247,9 +283,14 @@ public class AdminUserServiceTest {
     }
 
     @Test
-    @DisplayName("Test update role status but role not found")
-    void testModifyRoleStatus_NotFound() {
-        UserRequest request = new UserRequest(userInactive.getEmail(), "", "", List.of());
+    @DisplayName("Test update user status but user not found")
+    void testModifyStatus_NotFound() {
+        final User userInactive = generateUser(false);
+
+        token = jwtService.generateToken(userInactive);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        final UserRequest request = new UserRequest(userInactive.getEmail(), "", "", List.of());
 
         when(userRepository.findByEmail(userInactive.getEmail())).thenReturn(Optional.empty());
 
