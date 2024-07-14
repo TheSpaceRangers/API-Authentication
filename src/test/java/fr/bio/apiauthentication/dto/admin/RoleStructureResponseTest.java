@@ -150,9 +150,7 @@ public class RoleStructureResponseTest {
 
     @Test
     public void testFromRole_RoleIsNull() {
-        final RoleStructureResponse response = RoleStructureResponse.fromRole(null);
-
-        assertThat(response).isNull();
+        assertThat(RoleStructureResponse.fromRole(null)).isNull();
     }
 
     @Test

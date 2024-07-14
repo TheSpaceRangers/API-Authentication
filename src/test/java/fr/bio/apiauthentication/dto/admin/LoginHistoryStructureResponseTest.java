@@ -118,9 +118,7 @@ public class LoginHistoryStructureResponseTest {
 
     @Test
     public void testFromLoginHistory_LoginHistoryIsNull() {
-        LoginHistoryStructureResponse response = LoginHistoryStructureResponse.fromLoginHistory(null);
-
-        assertThat(response).isNull();
+        assertThat(LoginHistoryStructureResponse.fromLoginHistory(null)).isNull();
     }
 
     @Test

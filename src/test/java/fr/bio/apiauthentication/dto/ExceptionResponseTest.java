@@ -1,8 +1,6 @@
 package fr.bio.apiauthentication.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
-import fr.bio.apiauthentication.entities.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +10,6 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

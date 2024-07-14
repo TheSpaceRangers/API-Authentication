@@ -164,10 +164,7 @@ public class UserStructureResponseTest {
 
     @Test
     public void testFromUser_UserIsNull() {
-        final User user = null;
-        final UserStructureResponse response = UserStructureResponse.fromUser(user);
-
-        assertThat(response).isNull();
+        assertThat(UserStructureResponse.fromUser(null)).isNull();
     }
 
     @Test

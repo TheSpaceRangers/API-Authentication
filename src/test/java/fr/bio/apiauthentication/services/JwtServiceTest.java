@@ -4,7 +4,6 @@ import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.TokenType;
-import fr.bio.apiauthentication.exceptions.already_exists.UserAlreadyExistsException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;

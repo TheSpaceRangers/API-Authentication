@@ -1,6 +1,5 @@
 package fr.bio.apiauthentication.config;
 
-import ch.qos.logback.core.util.StringUtil;
 import fr.bio.apiauthentication.enums.Messages;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
