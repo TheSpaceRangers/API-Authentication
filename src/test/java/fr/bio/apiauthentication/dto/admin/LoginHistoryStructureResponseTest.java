@@ -156,14 +156,8 @@ public class LoginHistoryStructureResponseTest {
         final LoginHistory loginHistory = generateLoginHistory();
         final LoginHistoryStructureResponse response = LoginHistoryStructureResponse.fromLoginHistory(loginHistory);
 
-        final String exceptedToString = "LoginHistoryStructureResponse(idLoginHistory=" + loginHistory.getIdLoginHistory() +
-                ", idUser=" + loginHistory.getUser().getIdUser() +
-                ", userEmail=" + loginHistory.getUser().getEmail() +
-                ", dateLogin=" + loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli() + ")";
-        final String exceptedToStringLombok = "LoginHistoryStructureResponse.LoginHistoryStructureResponseBuilder(idLoginHistory=" + loginHistory.getIdLoginHistory() +
-                ", idUser=" + loginHistory.getUser().getIdUser() +
-                ", userEmail=" + loginHistory.getUser().getEmail() +
-                ", dateLogin=" + loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli() + ")";
+        final String exceptedToString = "LoginHistoryStructureResponse(idLoginHistory=%s, idUser=%s, userEmail=%s, dateLogin=%s)".formatted(loginHistory.getIdLoginHistory(), loginHistory.getUser().getIdUser(), loginHistory.getUser().getEmail(), loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli());
+        final String exceptedToStringLombok = "LoginHistoryStructureResponse.LoginHistoryStructureResponseBuilder(idLoginHistory=%s, idUser=%s, userEmail=%s, dateLogin=%s)".formatted(loginHistory.getIdLoginHistory(), loginHistory.getUser().getIdUser(), loginHistory.getUser().getEmail(), loginHistory.getDateLogin().toInstant(ZoneOffset.UTC).toEpochMilli());
 
         assertThat(response).isNotNull();
         assertThat(response.toString()).isEqualTo(exceptedToString);

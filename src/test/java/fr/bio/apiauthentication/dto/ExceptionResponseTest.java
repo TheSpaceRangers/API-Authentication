@@ -1,6 +1,8 @@
 package fr.bio.apiauthentication.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
+import fr.bio.apiauthentication.entities.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -51,14 +54,15 @@ public class ExceptionResponseTest {
     }
 
     @Test
-    public void testEquals() {
+    public void testEqualsAndHashCode() {
         ExceptionResponse requestEquals = new ExceptionResponse(timeStamp, errorMessage, errorCode, errorDetails);
 
         assertThat(response).isEqualTo(requestEquals);
+        assertThat(response.hashCode()).isEqualTo(requestEquals.hashCode());
     }
 
     @Test
-    public void testNotEquals() {
+    public void testNotEqualsAndHashCode() {
         ExceptionResponse requestNotEquals = new ExceptionResponse(
                 LocalDate.now().toEpochDay(),
                 RandomStringUtils.randomAlphanumeric(30),
@@ -67,6 +71,7 @@ public class ExceptionResponseTest {
         );
 
         assertThat(response).isNotEqualTo(requestNotEquals);
+        assertThat(response.hashCode()).isNotEqualTo(requestNotEquals.hashCode());
     }
 
     @Test
@@ -107,5 +112,23 @@ public class ExceptionResponseTest {
         assertThat(response.getErrorMessage()).isEqualTo(errorMessage);
         assertThat(response.getErrorCode()).isEqualTo(errorCode);
         assertThat(response.getErrorDetails()).isEqualTo(errorDetails);
+    }
+
+    @Test
+    public void testToString() {
+        final ExceptionResponse response = new ExceptionResponse(timeStamp, errorMessage, errorCode, errorDetails);
+
+        final String exceptedToString = "ExceptionResponse(timeStamp=%s, errorMessage=%s, errorCode=%s, errorDetails=%s)".formatted(timeStamp, errorMessage, errorCode, errorDetails);
+        final String exceptedToStringLombok = "ExceptionResponse.ExceptionResponseBuilder(timeStamp=%s, errorMessage=%s, errorCode=%s, errorDetails=%s)".formatted(timeStamp, errorMessage, errorCode, errorDetails);
+
+        assertThat(response).isNotNull();
+        assertThat(response.toString()).isEqualTo(exceptedToString);
+        assertThat(ExceptionResponse.builder()
+                .timeStamp(timeStamp)
+                .errorMessage(errorMessage)
+                .errorCode(errorCode)
+                .errorDetails(errorDetails)
+                .toString()
+        ).isEqualTo(exceptedToStringLombok);
     }
 }

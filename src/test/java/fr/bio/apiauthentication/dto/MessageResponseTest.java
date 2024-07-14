@@ -36,17 +36,19 @@ public class MessageResponseTest {
     }
 
     @Test
-    public void testEquals() {
+    public void testEqualsAndHashCode() {
         MessageResponse requestEquals = new MessageResponse(message);
 
         assertThat(response).isEqualTo(requestEquals);
+        assertThat(response).hasSameHashCodeAs(requestEquals);
     }
 
     @Test
-    public void testNotEquals() {
+    public void testNotEqualsAndHashCode() {
         MessageResponse requestNotEquals = new MessageResponse(RandomStringUtils.randomAlphabetic(100));
 
         assertThat(response).isNotEqualTo(requestNotEquals);
+        assertThat(response).doesNotHaveSameHashCodeAs(requestNotEquals);
     }
 
     @Test
@@ -74,5 +76,20 @@ public class MessageResponseTest {
         MessageResponse response = MessageResponse.fromMessage(message);
 
         assertThat(response.getMessage()).isEqualTo(message);
+    }
+
+    @Test
+    public void testToString() {
+        final MessageResponse response = new MessageResponse(message);
+
+        final String exceptedToString = "MessageResponse(message=%s)".formatted(message);
+        final String exceptedToStringLombok = "MessageResponse.MessageResponseBuilder(message=%s)".formatted(message);
+
+        assertThat(response).isNotNull();
+        assertThat(response.toString()).isEqualTo(exceptedToString);
+        assertThat(MessageResponse.builder()
+                .message(message)
+                .toString()
+        ).isEqualTo(exceptedToStringLombok);
     }
 }
