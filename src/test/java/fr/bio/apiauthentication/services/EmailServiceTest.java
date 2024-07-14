@@ -40,4 +40,17 @@ public class EmailServiceTest {
 
         verify(javaMailSender).send(any(SimpleMailMessage.class));
     }
+
+    @Test
+    @DisplayName("Test send email")
+    void testSendPasswordResetEmail() {
+        final String to = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+        final String token = RandomStringUtils.randomAlphanumeric(50);
+
+        doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));
+
+        emailService.sendPasswordResetEmail(to, token);
+
+        verify(javaMailSender).send(any(SimpleMailMessage.class));
+    }
 }
