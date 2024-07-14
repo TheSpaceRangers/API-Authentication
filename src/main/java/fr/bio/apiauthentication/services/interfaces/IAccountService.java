@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 public interface IAccountService {
     ResponseEntity<UserStructureResponse> getUserStructure(String token);
 
-    ResponseEntity<MessageResponse> updateProfile(String token, UpdateUserProfilRequest request);
+    ResponseEntity<MessageResponse> modify(String token, UpdateUserProfilRequest request);
 
-    ResponseEntity<MessageResponse> statusAccount(String token, boolean status);
+    ResponseEntity<MessageResponse> modifyStatus(String token, boolean status);
 }

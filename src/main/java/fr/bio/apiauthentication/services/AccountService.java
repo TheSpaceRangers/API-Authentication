@@ -43,7 +43,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse> updateProfile(
+    public ResponseEntity<MessageResponse> modify(
             String token,
             UpdateUserProfilRequest request
     ) {
@@ -52,27 +52,37 @@ public class AccountService implements IAccountService {
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, email)));
 
-        Optional.ofNullable(request.firstName())
+        boolean isModified = false;
+
+        isModified |= Optional.ofNullable(request.firstName())
                 .filter(firstName -> !firstName.isBlank() && !firstName.equals(user.getFirstName()))
-                .ifPresent(user::setFirstName);
+                .map(firstName -> {user.setFirstName(firstName); return true;})
+                .orElse(false);
 
-        Optional.ofNullable(request.lastName())
+        isModified |= Optional.ofNullable(request.lastName())
                 .filter(lastName -> !lastName.isEmpty() && !lastName.equals(user.getLastName()))
-                .ifPresent(user::setLastName);
+                .map(lastName -> {user.setLastName(lastName); return true;})
+                .orElse(false);
 
-        Optional.ofNullable(request.email())
+        isModified |= Optional.ofNullable(request.email())
                 .filter(newEmail -> !newEmail.isEmpty() && !newEmail.equals(user.getEmail()))
-                .ifPresent(user::setEmail);
+                .map(newEmail -> {user.setEmail(newEmail); return true;})
+                .orElse(false);
 
-        userRepository.save(user);
+        if (isModified) {
+            userRepository.save(user);
+        }
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
-                .body(MessageResponse.fromMessage(Messages.ACCOUNT_UPDATED.formatMessage(email)));
+                .body(isModified
+                        ? MessageResponse.fromMessage(Messages.ACCOUNT_UPDATED.formatMessage(email))
+                        : MessageResponse.fromMessage(Messages.ENTITY_NO_MODIFIED.formatMessage(USER, email))
+                );
     }
 
     @Override
-    public ResponseEntity<MessageResponse> statusAccount(
+    public ResponseEntity<MessageResponse> modifyStatus(
             String token,
             boolean status
     ) {

@@ -7,12 +7,12 @@ import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.Role;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
-import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,9 +38,6 @@ public class AccountServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private RoleRepository roleRepository;
-
-    @Mock
     private JwtService jwtService;
 
     @Mock
@@ -48,196 +46,299 @@ public class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    private User user;
-
     private String token;
-
-    private String email;
-    private String firstName;
-    private String lastName;
-    private LocalDate createdAt;
-    private String createdBy;
-    private LocalDate modifiedAt;
-    private String modifiedBy;
-    private boolean enabled;
 
     private HttpHeaders headers;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        email = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
-        firstName = RandomStringUtils.randomAlphanumeric(20);
-        lastName = RandomStringUtils.randomAlphanumeric(20);
-        createdAt = NOW;
-        createdBy = RandomStringUtils.randomAlphanumeric(20);
-        modifiedAt = NOW;
-        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
-        enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
-
-        Role role = Role.builder()
-                .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
-                .displayName(RandomStringUtils.randomAlphanumeric(20))
-                .description(RandomStringUtils.randomAlphanumeric(20))
-                .modifiedAt(NOW)
-                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
-                .build();
-        roleRepository.save(role);
-
-        user = User.builder()
-                .email(email)
-                .password(RandomStringUtils.randomAlphanumeric(30))
-                .firstName(firstName)
-                .lastName(lastName)
-                .createdAt(createdAt)
-                .createdBy(createdBy)
-                .modifiedAt(modifiedAt)
-                .modifiedBy(modifiedBy)
-                .enabled(enabled)
-                .roles(List.of(role))
-                .build();
-        userRepository.save(user);
-
-        token = jwtService.generateToken(user);
-
-        headers = httpHeadersUtil.createHeaders(token);
     }
 
     @Test
-    @DisplayName("Test get user profile")
+    @DisplayName("Test get user structure")
     public void testGetUserStructure_Success() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        final User savedUser = generateUser();
+
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.of(savedUser));
         when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
 
-        ResponseEntity<UserStructureResponse> responseEntity = accountService.getUserStructure(token);
+        final ResponseEntity<UserStructureResponse> responseEntity = accountService.getUserStructure(token);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
         if (responseEntity.getBody() != null) {
-            assertThat(responseEntity.getBody().getEmail()).isEqualTo(email);
-            assertThat(responseEntity.getBody().getFirstName()).isEqualTo(firstName);
-            assertThat(responseEntity.getBody().getLastName()).isEqualTo(lastName);
-            assertThat(responseEntity.getBody().getCreatedAt()).isEqualTo(createdAt.toEpochDay());
-            assertThat(responseEntity.getBody().getCreatedBy()).isEqualTo(createdBy);
-            assertThat(responseEntity.getBody().getModifiedAt()).isEqualTo(modifiedAt.toEpochDay());
-            assertThat(responseEntity.getBody().getModifiedBy()).isEqualTo(modifiedBy);
-            assertThat(responseEntity.getBody().isEnabled()).isEqualTo(enabled);
+            assertThat(responseEntity.getBody().getEmail()).isEqualTo(savedUser.getEmail());
+            assertThat(responseEntity.getBody().getFirstName()).isEqualTo(savedUser.getFirstName());
+            assertThat(responseEntity.getBody().getLastName()).isEqualTo(savedUser.getLastName());
+            assertThat(responseEntity.getBody().getCreatedAt()).isEqualTo(savedUser.getCreatedAt().toEpochDay());
+            assertThat(responseEntity.getBody().getCreatedBy()).isEqualTo(savedUser.getCreatedBy());
+            assertThat(responseEntity.getBody().getModifiedAt()).isEqualTo(savedUser.getModifiedAt().toEpochDay());
+            assertThat(responseEntity.getBody().getModifiedBy()).isEqualTo(savedUser.getModifiedBy());
+            assertThat(responseEntity.getBody().isEnabled()).isEqualTo(savedUser.isEnabled());
+
+            final List<String> expectedRoles = savedUser.getRoles().stream()
+                    .map(role -> role.getAuthority() + " : " + role.getDisplayName())
+                    .toList();
+            assertThat(responseEntity.getBody().getRoles()).isEqualTo(expectedRoles);
         }
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
     }
 
     @Test
-    @DisplayName("Test get user profile but user not found")
-    void testGetUserProfil_UserNotFound() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+    @DisplayName("Test get user structure but user not found")
+    void testGetUserStructure_UserNotFound() {
+        final User savedUser = generateUser();
+
+        token = jwtService.generateToken(savedUser);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> accountService.getUserStructure(token));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
     }
 
     @Test
-    @DisplayName("Test update user profile")
-    public void testUpdateProfile_Success() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
+    @DisplayName("Test modify user")
+    public void testModify_Success() {
+        final User savedUser = generateUser();
 
-        firstName = RandomStringUtils.randomAlphanumeric(20);
-        lastName = RandomStringUtils.randomAlphanumeric(20);
+        final String actualEmail = savedUser.getEmail();
 
-        UpdateUserProfilRequest request = new UpdateUserProfilRequest(firstName, lastName, null);
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.updateProfile(token, request);
+        final String newEmail = RandomStringUtils.randomAlphanumeric(20) + "@test.com";
+        final String firstName = RandomStringUtils.randomAlphanumeric(20);
+        final String lastName = RandomStringUtils.randomAlphanumeric(20);
+
+        final UpdateUserProfilRequest request = new UpdateUserProfilRequest(firstName, lastName, newEmail);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(actualEmail);
+        when(userRepository.findByEmail(actualEmail)).thenReturn(Optional.of(savedUser));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> responseEntity = accountService.modify(token, request);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
-        if (responseEntity.getBody() != null) {
-            assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ACCOUNT_UPDATED.formatMessage(email));
-        }
+        if (responseEntity.getBody() != null)
+            assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ACCOUNT_UPDATED.formatMessage(actualEmail));
 
-        User updatedUser = userRepository.findByEmail(email).orElse(null);
+        final ArgumentCaptor<User> roleCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository, times(1)).save(roleCaptor.capture());
+        final User updatedUser = roleCaptor.getValue();
 
         assertThat(updatedUser).isNotNull();
 
         if (updatedUser != null) {
             assertThat(updatedUser.getFirstName()).isEqualTo(firstName);
             assertThat(updatedUser.getLastName()).isEqualTo(lastName);
+            assertThat(updatedUser.getEmail()).isEqualTo(newEmail);
         }
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(2)).findByEmail(email);
-        verify(userRepository, times(2)).save(user);
+        verify(userRepository, times(1)).findByEmail(actualEmail);
+    }
+
+    @Test
+    @DisplayName("Test update profile with no changes")
+    void testModify_NoChanges() {
+        final User savedUser = generateUser();
+
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        final UpdateUserProfilRequest request = new UpdateUserProfilRequest(savedUser.getFirstName(), savedUser.getLastName(), savedUser.getEmail());
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.of(savedUser));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> response = accountService.modify(token, request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+
+        if (response.getBody() != null)
+            assertThat(response.getBody().getMessage()).isEqualTo(Messages.ENTITY_NO_MODIFIED.formatMessage("User", savedUser.getEmail()));
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
+        verify(userRepository, never()).save(savedUser);
+    }
+
+    @Test
+    @DisplayName("Test update profile with partial changes")
+    void testModify_PartialChanges() {
+        final User savedUser = generateUser();
+
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        final String firstName = RandomStringUtils.randomAlphanumeric(20);
+
+        final UpdateUserProfilRequest request = new UpdateUserProfilRequest(firstName, "", savedUser.getEmail());
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.of(savedUser));
+        when(httpHeadersUtil.createHeaders(token)).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> response = accountService.modify(token, request);
+
+        final ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        final User updatedUser = userCaptor.getValue();
+
+        assertThat(updatedUser.getEmail()).isEqualTo(savedUser.getEmail());
+        assertThat(updatedUser.getFirstName()).isEqualTo(firstName);
+        assertThat(updatedUser.getLastName()).isEqualTo(savedUser.getLastName());
+
+        if (response.getBody() != null)
+            assertThat(response.getBody().getMessage()).isEqualTo(Messages.ACCOUNT_UPDATED.formatMessage(savedUser.getEmail()));
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
     }
 
     @Test
     @DisplayName("Test update user profile but user not found")
     public void testUpdateUserProfile_NotFound() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        final User savedUser = generateUser();
 
-        firstName = RandomStringUtils.randomAlphanumeric(20);
-        lastName = RandomStringUtils.randomAlphanumeric(20);
+        token = jwtService.generateToken(savedUser);
 
-        UpdateUserProfilRequest request = new UpdateUserProfilRequest(firstName, lastName, null);
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.updateProfile(token, request));
+        final UpdateUserProfilRequest request = new UpdateUserProfilRequest(savedUser.getFirstName(), savedUser.getLastName(), savedUser.getEmail());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.modify(token, request));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
+        verify(userRepository, never()).save(savedUser);
     }
 
     @Test
-    @DisplayName("Test deactivate account")
-    public void testUpdateStatus_Success() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(new HttpHeaders());
+    @DisplayName("Test activate account")
+    public void testModifyStatus_Activate() {
+        final User savedUser = generateUser();
+        savedUser.setEnabled(false);
 
-        ResponseEntity<MessageResponse> responseEntity = accountService.statusAccount(token, !enabled);
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.of(savedUser));
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> responseEntity = accountService.modifyStatus(token, true);
 
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
-        if (responseEntity.getBody() != null) {
-            if (enabled)
-                assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ENTITY_DEACTIVATED.formatMessage("User", email));
-            else
-                assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ENTITY_ACTIVATED.formatMessage("User", email));
-        }
+        if (responseEntity.getBody() != null)
+            assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ENTITY_ACTIVATED.formatMessage("User", savedUser.getEmail()));
 
-        User savedUser = userRepository.findByEmail(email).orElse(null);
+        final ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        final User updatedUser = userCaptor.getValue();
 
-        assertThat(savedUser).isNotNull();
-
-        if (user != null)
-            assertThat(user.isEnabled()).isNotEqualTo(enabled);
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.isEnabled()).isTrue();
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(2)).findByEmail(email);
-        verify(userRepository, times(2)).save(user);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
+    }
+
+    @Test
+    @DisplayName("Test deactivate account")
+    public void testModifyStatus_Deactivate() {
+        final User savedUser = generateUser();
+
+        token = jwtService.generateToken(savedUser);
+        headers = httpHeadersUtil.createHeaders(token);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.of(savedUser));
+        when(httpHeadersUtil.createHeaders(anyString())).thenReturn(headers);
+
+        final ResponseEntity<MessageResponse> responseEntity = accountService.modifyStatus(token, false);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        if (responseEntity.getBody() != null)
+            assertThat(responseEntity.getBody().getMessage()).isEqualTo(Messages.ENTITY_DEACTIVATED.formatMessage("User", savedUser.getEmail()));
+
+        final ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        final User updatedUser = userCaptor.getValue();
+
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.isEnabled()).isFalse();
+
+        verify(jwtService, times(1)).getUsernameFromToken(token);
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
     }
 
     @Test
     @DisplayName("Test deactivate account but user not found")
-    public void testStatusAccount_UserNotFound() {
-        when(jwtService.getUsernameFromToken(token)).thenReturn("c.tronel@test.properties.com");
-        when(userRepository.findByEmail("c.tronel@test.properties.com")).thenReturn(Optional.empty());
+    public void testModifyStatus_UserNotFound() {
+        final User savedUser = generateUser();
 
-        assertThrows(UsernameNotFoundException.class, () -> accountService.statusAccount(token, false));
+        token = jwtService.generateToken(savedUser);
+
+        when(jwtService.getUsernameFromToken(token)).thenReturn(savedUser.getEmail());
+        when(userRepository.findByEmail(savedUser.getEmail())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.modifyStatus(token, false));
 
         verify(jwtService, times(1)).getUsernameFromToken(token);
-        verify(userRepository, times(1)).findByEmail("c.tronel@test.properties.com");
+        verify(userRepository, times(1)).findByEmail(savedUser.getEmail());
+    }
+
+    private User generateUser() {
+        return User.builder()
+                .idUser((long) (Math.random() * 1000))
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(5))
+                .lastName(RandomStringUtils.randomAlphanumeric(7))
+                .createdAt(NOW)
+                .createdBy(RandomStringUtils.randomAlphanumeric(10))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(10))
+                .enabled(true)
+                .roles(generateRoles())
+                .build();
+    }
+
+    private List<Role> generateRoles() {
+        return IntStream.range(0, 5)
+                .mapToObj(role -> Role.builder()
+                        .idRole((long) (Math.random() * 1000))
+                        .authority(RandomStringUtils.randomAlphanumeric(10))
+                        .displayName(RandomStringUtils.randomAlphanumeric(10))
+                        .description(RandomStringUtils.randomAlphanumeric(20))
+                        .build())
+                .toList();
     }
 }

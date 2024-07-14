@@ -17,22 +17,22 @@ public class AccountController {
     private final IAccountService accountService;
 
     @PostMapping(value = "/profile")
-    public ResponseEntity<UserStructureResponse> login(
+    public ResponseEntity<UserStructureResponse> userStructure(
             @RequestHeader("Authorization") String token
     ) {
         return accountService.getUserStructure(token.substring(7));
     }
 
     @PutMapping(value = "/profile")
-    public ResponseEntity<MessageResponse> updateProfile(
+    public ResponseEntity<MessageResponse> modify(
             @RequestHeader("Authorization") String token,
             @Validated @RequestBody UpdateUserProfilRequest request
     ) {
-        return accountService.updateProfile(token.substring(7), request);
+        return accountService.modify(token.substring(7), request);
     }
 
     @PutMapping(value = "/status")
-    public ResponseEntity<MessageResponse> desactivate(
+    public ResponseEntity<MessageResponse> modifyStatus(
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "action") String action
     ) {
@@ -45,6 +45,6 @@ public class AccountController {
         else
             throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage());
 
-        return accountService.statusAccount(token, status);
+        return accountService.modifyStatus(token, status);
     }
 }
