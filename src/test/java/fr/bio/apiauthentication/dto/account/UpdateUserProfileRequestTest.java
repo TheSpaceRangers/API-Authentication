@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,12 +15,20 @@ public class UpdateUserProfileRequestTest {
 
     private UpdateUserProfilRequest request;
 
+    private String firstName;
+    private String lastName;
+    private String email;
+
     @BeforeEach
     void setUp() {
+        firstName = RandomStringUtils.randomAlphanumeric(20);
+        lastName = RandomStringUtils.randomAlphanumeric(20);
+        email = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+
         request = new UpdateUserProfilRequest(
-                "John",
-                "Doe",
-                "j.doe@test.properties.com"
+                firstName,
+                lastName,
+                email
         );
     }
 
@@ -30,15 +39,17 @@ public class UpdateUserProfileRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.email()).isEqualTo("j.doe@test.properties.com");
+        assertThat(request.firstName()).isEqualTo(firstName);
+        assertThat(request.lastName()).isEqualTo(lastName);
+        assertThat(request.email()).isEqualTo(email);
     }
 
     @Test
     public void testEquals() {
         UpdateUserProfilRequest requestEquals = new UpdateUserProfilRequest(
-                "John",
-                "Doe",
-                "j.doe@test.properties.com"
+                firstName,
+                lastName,
+                email
         );
 
         assertThat(request).isEqualTo(requestEquals);
@@ -47,9 +58,9 @@ public class UpdateUserProfileRequestTest {
     @Test
     public void testNotEquals() {
         UpdateUserProfilRequest requestNotEquals = new UpdateUserProfilRequest(
-                "False",
-                "False",
-                "f.false@test.properties.com"
+                RandomStringUtils.randomAlphanumeric(20),
+                RandomStringUtils.randomAlphanumeric(20),
+                RandomStringUtils.randomAlphanumeric(10) + "@test.com"
         );
 
         assertThat(request).isNotEqualTo(requestNotEquals);
@@ -61,9 +72,9 @@ public class UpdateUserProfileRequestTest {
         UpdateUserProfilRequest actualRequest = mapper.readValue(json, UpdateUserProfilRequest.class);
 
         String expectedJson = "{" +
-                "\"first_name\":\"John\"," +
-                "\"last_name\":\"Doe\"," +
-                "\"email\":\"j.doe@test.properties.com\"" +
+                "\"first_name\":\"" + firstName + "\"," +
+                "\"last_name\":\"" + lastName + "\"," +
+                "\"email\":\"" + email + "\"" +
                 "}";
         UpdateUserProfilRequest expectedRequest = mapper.readValue(expectedJson, UpdateUserProfilRequest.class);
 
@@ -73,9 +84,9 @@ public class UpdateUserProfileRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"first_name\":\"John\"," +
-                "\"last_name\":\"Doe\"," +
-                "\"email\":\"j.doe@test.properties.com\"" +
+                "\"first_name\":\"" + firstName + "\"," +
+                "\"last_name\":\"" + lastName + "\"," +
+                "\"email\":\"" + email + "\"" +
                 "}";
         UpdateUserProfilRequest requestMapped = mapper.readValue(json, UpdateUserProfilRequest.class);
 

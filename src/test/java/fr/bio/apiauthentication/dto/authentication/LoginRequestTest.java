@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,17 +10,20 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Test Authentication DTO Request")
-public class AuthenticationRequestTest {
+public class LoginRequestTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private AuthenticationRequest request;
+    private LoginRequest request;
+
+    private String email;
+    private String password;
 
     @BeforeEach
     void setUp() {
-        request = new AuthenticationRequest(
-                "username@test.properties.com",
-                "password"
-        );
+        email = RandomStringUtils.randomAlphanumeric(10) + "@test.com";
+        password = RandomStringUtils.randomAlphanumeric(30);
+
+        request = new LoginRequest(email, password);
     }
 
     @AfterEach
@@ -29,25 +33,23 @@ public class AuthenticationRequestTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(request.email()).isEqualTo("username@test.properties.com");
-        assertThat(request.password()).isEqualTo("password");
+        assertThat(request).isNotNull();
+        assertThat(request.email()).isEqualTo(email);
+        assertThat(request.password()).isEqualTo(password);
     }
 
     @Test
     public void testEquals() {
-        AuthenticationRequest requestEquals = new AuthenticationRequest(
-                "username@test.properties.com",
-                "password"
-        );
+        LoginRequest requestEquals = new LoginRequest(email, password);
 
         assertThat(request).isEqualTo(requestEquals);
     }
 
     @Test
     public void testNotEquals() {
-        AuthenticationRequest requestEquals = new AuthenticationRequest(
-                "username@test.properties.com",
-                "password not equals"
+        LoginRequest requestEquals = new LoginRequest(
+                RandomStringUtils.randomAlphanumeric(10) + "@test.com",
+                RandomStringUtils.randomAlphanumeric(30)
         );
 
         assertThat(request).isNotEqualTo(requestEquals);
@@ -56,13 +58,13 @@ public class AuthenticationRequestTest {
     @Test
     public void testSerialize() throws Exception {
         String json = mapper.writeValueAsString(request);
-        AuthenticationRequest actualRequest = mapper.readValue(json, AuthenticationRequest.class);
+        LoginRequest actualRequest = mapper.readValue(json, LoginRequest.class);
 
         String expectedJson = "{" +
-                "\"email\":\"username@test.properties.com\"," +
-                "\"password\":\"password\"" +
+                "\"email\":\"" + email +"\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
-        AuthenticationRequest expectedRequest = mapper.readValue(expectedJson, AuthenticationRequest.class);
+        LoginRequest expectedRequest = mapper.readValue(expectedJson, LoginRequest.class);
 
         assertThat(actualRequest).isEqualTo(expectedRequest);
     }
@@ -70,11 +72,11 @@ public class AuthenticationRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"email\":\"username@test.properties.com\"," +
-                "\"password\":\"password\"" +
+                "\"email\":\"" + email +"\"," +
+                "\"password\":\"" + password + "\"" +
                 "}";
 
-        AuthenticationRequest requestMapped = mapper.readValue(json, AuthenticationRequest.class);
+        LoginRequest requestMapped = mapper.readValue(json, LoginRequest.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(request);
     }

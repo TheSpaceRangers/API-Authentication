@@ -1,73 +1,76 @@
 package fr.bio.apiauthentication.services;
 
-import fr.bio.apiauthentication.dto.authentication.AuthenticationRequest;
-import fr.bio.apiauthentication.dto.authentication.AuthenticationResponse;
-import fr.bio.apiauthentication.dto.authentication.CreateUserRequest;
+import fr.bio.apiauthentication.components.HttpHeadersUtil;
+import fr.bio.apiauthentication.dto.MessageResponse;
+import fr.bio.apiauthentication.dto.authentication.LoginRequest;
+import fr.bio.apiauthentication.dto.authentication.RegisterRequest;
 import fr.bio.apiauthentication.entities.Role;
-import fr.bio.apiauthentication.entities.Token;
 import fr.bio.apiauthentication.entities.User;
-import fr.bio.apiauthentication.exceptions.InvalidCredentialsException;
-import fr.bio.apiauthentication.exceptions.RoleNotFoundException;
+import fr.bio.apiauthentication.enums.Messages;
+import fr.bio.apiauthentication.enums.TokenType;
+import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
+import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
-import fr.bio.apiauthentication.repositories.TokenRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
 import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthenticationService implements IAuthenticationService {
+    private static final String ROLE = "Role";
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final TokenRepository tokenRepository;
 
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final HttpHeadersUtil httpHeadersUtil;
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
 
     @Override
-    public ResponseEntity<AuthenticationResponse> register(CreateUserRequest request) {
-        Role role = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RoleNotFoundException("Role 'USER' not found"));
+    public ResponseEntity<MessageResponse> register(
+            RegisterRequest request
+    ) {
+        Role role = roleRepository.findByAuthority("USER")
+                .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, "USER")));
 
         User user = User.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .roles(Collections.singleton(role))
+                .roles(List.of(role))
                 .build();
 
         userRepository.save(user);
 
-        return ResponseEntity.ok().body(
-                AuthenticationResponse.builder()
-                        .message("L'utilisateur " + user.getEmail() + " a bien été créé !")
-                        .build()
-        );
+        return ResponseEntity.ok()
+                .body(MessageResponse.fromMessage(Messages.ACCOUNT_CREATED.formatMessage(user.getEmail())));
     }
 
     @Override
-    public ResponseEntity<AuthenticationResponse> login(AuthenticationRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new InvalidCredentialsException("Incorrect email and/or password"));
+    public ResponseEntity<MessageResponse> login(
+            LoginRequest request
+    ) {
+        final User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage()));
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -76,54 +79,21 @@ public class AuthenticationService implements IAuthenticationService {
                             request.password()
                     )
             );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (InvalidCredentialsException e) {
-            throw new InvalidCredentialsException("Incorrect email and/or password");
+
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+
+            final String token = jwtService.generateToken(userDetails);
+
+            jwtService.revokeAllUserTokens(userDetails, TokenType.BEARER);
+            jwtService.saveUserToken(userDetails, token, TokenType.BEARER);
+
+            return ResponseEntity.ok()
+                    .headers(httpHeadersUtil.createHeaders(token))
+                    .body(MessageResponse.fromMessage(Messages.ACCOUNT_CONNECTED.formatMessage(user.getEmail())));
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException(Messages.INVALID_CREDENTIALS.formatMessage());
         }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-
-        final String token = jwtService.generateToken(userDetails);
-
-        revokeAllUserTokens(userDetails);
-        saveUserToken(userDetails, token);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        headers.add("Authorization", "Bearer " + token);
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(AuthenticationResponse.builder()
-                        .message("L'utilisateur " + request.email() + " est connecté !")
-                        .build()
-                );
-    }
-
-    private void saveUserToken(
-            UserDetails userDetails,
-            String strToken
-    ) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        Token token = Token.builder()
-                .token(strToken)
-                .user(user)
-                .build();
-
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(UserDetails userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        List<Token> tokens = tokenRepository.findAllValidTokenByUser(user.getIdUser());
-        tokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(tokens);
     }
 }

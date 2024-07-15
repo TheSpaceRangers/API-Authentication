@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.entities;
 
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,37 +22,42 @@ public class LoginHistoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private User user;
     private LoginHistory loginHistory;
 
     private final LocalDateTime NOW = LocalDateTime.now();
 
+    private String ipAddress;
+    private LocalDateTime dateLogin;
+
+    private User user;
+
     @BeforeEach
     void setUp() {
+        ipAddress = RandomStringUtils.randomAlphanumeric(10);
+        dateLogin = NOW;
+
         user = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
                 .createdAt(LocalDate.now())
-                .createdBy("System")
+                .createdBy(RandomStringUtils.randomAlphanumeric(20))
                 .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
-                .enabled(true)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
+                .enabled(Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1)))
                 .build();
         entityManager.persist(user);
 
         loginHistory = LoginHistory.builder()
                 .user(user)
-                .ipAddress("This is IP Address")
-                .dateLogin(NOW)
+                .ipAddress(ipAddress)
+                .dateLogin(dateLogin)
                 .build();
     }
 
     @AfterEach
     void tearDown() {
-        entityManager.flush();
-
         user = null;
         loginHistory = null;
     }
@@ -59,70 +65,108 @@ public class LoginHistoryTest {
     @Test
     @DisplayName("Test create login history")
     public void testCreateLoginHistory() {
-        loginHistory = entityManager.persistAndFlush(loginHistory);
+        final LoginHistory savedLoginHistory = entityManager.persistAndFlush(loginHistory);
+
+        assertThat(savedLoginHistory).isNotNull();
+        assertThat(savedLoginHistory).isEqualTo(loginHistory);
+        assertThat(savedLoginHistory).usingRecursiveComparison().isEqualTo(loginHistory);
     }
 
     @Test
     @DisplayName("Test update login history")
     public void testUpdateLoginHistory() {
-        loginHistory.setUser(user);
-        loginHistory.setIpAddress("This is new ip address");
-        loginHistory.setDateLogin(LocalDateTime.of(2020, 1, 1, 1, 1));
+        final LoginHistory savedLoginHistory = entityManager.persistAndFlush(loginHistory);
 
-        loginHistory = entityManager.persistAndFlush(loginHistory);
+
+        final long idLoginHistory = Long.parseLong(RandomStringUtils.randomNumeric(10));
+        ipAddress = RandomStringUtils.randomAlphanumeric(10);
+        dateLogin = NOW.plusDays(20);
+
+        savedLoginHistory.setIdLoginHistory(idLoginHistory);
+        savedLoginHistory.setUser(user);
+        savedLoginHistory.setIpAddress(ipAddress);
+        savedLoginHistory.setDateLogin(NOW);
+
+        final LoginHistory updatedLoginHistory = entityManager.persist(savedLoginHistory);
+
+        assertThat(updatedLoginHistory).isNotNull();
+        assertThat(updatedLoginHistory).isEqualTo(loginHistory);
+        assertThat(updatedLoginHistory).usingRecursiveComparison().isEqualTo(loginHistory);
     }
 
     @Test
     @DisplayName("Test same object")
-    public void testEquals_SameObject() {
-        assertThat(loginHistory).isEqualTo(loginHistory);
+    public void testEqualsAndHashCode_SameObject() {
+        final LoginHistory sameLoginHistory = loginHistory;
+
+        assertThat(sameLoginHistory).isEqualTo(loginHistory);
+        assertThat(sameLoginHistory.hashCode()).isEqualTo(loginHistory.hashCode());
     }
 
     @Test
     @DisplayName("Test null")
-    public void testEquals_Null() {
-        assertThat(loginHistory).isNotEqualTo(null);
+    public void testEqualsAndHashCode_Null() {
+        assertThat((LoginHistory) null).isNotEqualTo(loginHistory);
+        assertThat((LoginHistory) null).isNotEqualTo(loginHistory.hashCode());
     }
 
     @Test
     @DisplayName("Test different class")
-    public void testEquals_DifferentClass() {
+    public void testEqualsAndHashCode_DifferentClass() {
         assertThat(loginHistory).isNotEqualTo("This is a different object");
+        assertThat(loginHistory.hashCode()).isNotEqualTo("This is a different object".hashCode());
     }
 
     @Test
     @DisplayName("Test different fields")
-    public void testEquals_DifferentFields() {
+    public void testEqualsAndHashCode_DifferentFields() {
         LoginHistory differentFields = LoginHistory.builder()
                 .user(user)
-                .ipAddress("This is different IP Address")
-                .dateLogin(LocalDateTime.now())
+                .ipAddress(RandomStringUtils.randomAlphanumeric(20))
+                .dateLogin(LocalDateTime.now().plusYears(20))
                 .build();
 
-        assertThat(loginHistory).isNotEqualTo(differentFields);
+        assertThat(differentFields).isNotEqualTo(loginHistory);
+        assertThat(differentFields.hashCode()).isNotEqualTo(loginHistory.hashCode());
     }
 
     @Test
     @DisplayName("Test same fields")
-    public void testEquals_SameFields() {
+    public void testEqualsAndHashCode_SameFields() {
         LoginHistory sameFields = LoginHistory.builder()
                 .user(user)
-                .ipAddress("This is IP Address")
-                .dateLogin(NOW)
+                .ipAddress(ipAddress)
+                .dateLogin(dateLogin)
                 .build();
 
         assertThat(loginHistory).isEqualTo(sameFields);
+        assertThat(loginHistory.hashCode()).isEqualTo(sameFields.hashCode());
     }
 
     @Test
-    @DisplayName("Test same fields hashCode")
-    public void testHashCode_SameFields() {
-        LoginHistory sameFields = LoginHistory.builder()
-                .user(user)
-                .ipAddress("This is IP Address")
-                .dateLogin(NOW)
-                .build();
+    public void testToString() {
+        final LoginHistory savedLoginHistory = entityManager.persistAndFlush(loginHistory);
+        final String exceptedString = "LoginHistory(" +
+                "idLoginHistory=" + savedLoginHistory.getIdLoginHistory() + ", " +
+                "user=" + savedLoginHistory.getUser() + ", " +
+                "ipAddress=" + savedLoginHistory.getIpAddress() + ", " +
+                "dateLogin=" + savedLoginHistory.getDateLogin() +
+                ")";
+        final String exceptedStringLombok = "LoginHistory.LoginHistoryBuilder(" +
+                "idLoginHistory=" + savedLoginHistory.getIdLoginHistory() + ", " +
+                "user=" + savedLoginHistory.getUser() + ", " +
+                "ipAddress=" + savedLoginHistory.getIpAddress() + ", " +
+                "dateLogin=" + savedLoginHistory.getDateLogin() +
+                ")";
 
-        assertThat(loginHistory.hashCode()).isEqualTo(sameFields.hashCode());
+        assertThat(savedLoginHistory).isNotNull();
+        assertThat(exceptedString).isEqualTo(savedLoginHistory.toString());
+        assertThat(LoginHistory.builder()
+                .idLoginHistory(savedLoginHistory.getIdLoginHistory())
+                .ipAddress(savedLoginHistory.getIpAddress())
+                .dateLogin(savedLoginHistory.getDateLogin())
+                .user(savedLoginHistory.getUser())
+                .toString()
+        ).isEqualTo(exceptedStringLombok);
     }
 }

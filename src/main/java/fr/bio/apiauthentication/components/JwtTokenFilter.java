@@ -1,12 +1,13 @@
 package fr.bio.apiauthentication.components;
 
 import fr.bio.apiauthentication.repositories.TokenRepository;
-import fr.bio.apiauthentication.services.JwtService;
+import fr.bio.apiauthentication.services.interfaces.IJwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +20,10 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
 
@@ -31,7 +33,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/v1/auth")) {
+        final String servletPath = request.getServletPath();
+        if (servletPath.contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -43,7 +46,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
-        final String userEmail = jwtService.getUsernameFromToken(token);
+
+        String userEmail;
+        try {
+            userEmail = jwtService.getUsernameFromToken(token);
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token : {}", e.getMessage());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
@@ -60,6 +72,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                log.warn("Invalid or expired JWT token for user {}", userEmail);
             }
         }
 

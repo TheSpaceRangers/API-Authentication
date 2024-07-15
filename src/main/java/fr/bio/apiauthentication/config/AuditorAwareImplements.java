@@ -8,16 +8,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 
 public class AuditorAwareImplements implements AuditorAware<String> {
+    private static final String DEFAULT_USERNAME = "system";
+
     @Override
     public Optional<String> getCurrentAuditor() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(authentication -> {
-                    if (authentication.getPrincipal() instanceof UserDetails userDetails) {
-                        User user = (User) userDetails;
-                        return user.getFirstName().charAt(0) + "." + user.getLastName();
+                    Object principal = authentication.getPrincipal();
+                    if (principal instanceof UserDetails userDetails) {
+                        return extractAuditorName(userDetails);
                     }
                     return null;
                 })
-                .or(() -> Optional.of("system"));
+                .or(() -> Optional.of(DEFAULT_USERNAME));
+    }
+
+    private String extractAuditorName(UserDetails userDetails) {
+        if (userDetails instanceof User user)
+            return user.getFirstName().charAt(0) + "." + user.getLastName();
+
+        return userDetails.getUsername();
     }
 }

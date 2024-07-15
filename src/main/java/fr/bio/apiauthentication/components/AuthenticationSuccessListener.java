@@ -4,7 +4,7 @@ import fr.bio.apiauthentication.entities.LoginHistory;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.repositories.LoginHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
@@ -14,24 +14,22 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class AuthenticationSuccessListener implements ApplicationListener<AuthenticationSuccessEvent> {
-    @Autowired
-    private LoginHistoryRepository loginHistoryRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
 
-    @Autowired
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
 
     @Override
-    public void onApplicationEvent(AuthenticationSuccessEvent event) {
+    public void onApplicationEvent(
+            AuthenticationSuccessEvent event
+    ) {
         Authentication authentication = event.getAuthentication();
         User user = (User) authentication.getPrincipal();
 
         String ipAddress = request.getRemoteAddr();
-        if (authentication.getDetails() instanceof WebAuthenticationDetails) {
-            WebAuthenticationDetails webDetails = (WebAuthenticationDetails) authentication.getDetails();
-            if (webDetails != null) {
-                ipAddress = webDetails.getRemoteAddress();
-            }
+        if (authentication.getDetails() instanceof WebAuthenticationDetails webDetails) {
+            ipAddress = webDetails.getRemoteAddress();
         }
 
         LoginHistory loginHistory = LoginHistory.builder()

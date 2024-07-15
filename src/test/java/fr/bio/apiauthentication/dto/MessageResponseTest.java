@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +15,13 @@ public class MessageResponseTest {
 
     private MessageResponse response;
 
+    private String message;
+
     @BeforeEach
     void setUp() {
-        response = new MessageResponse("This is a test message");
+        message = RandomStringUtils.randomAlphabetic(100);
+
+        response = new MessageResponse(message);
     }
 
     @AfterEach
@@ -26,21 +31,24 @@ public class MessageResponseTest {
 
     @Test
     public void testRecordFields() {
-        assertThat(response.getMessage()).isEqualTo("This is a test message");
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo(message);
     }
 
     @Test
-    public void testEquals() {
-        MessageResponse requestEquals = new MessageResponse("This is a test message");;
+    public void testEqualsAndHashCode() {
+        MessageResponse requestEquals = new MessageResponse(message);
 
         assertThat(response).isEqualTo(requestEquals);
+        assertThat(response).hasSameHashCodeAs(requestEquals);
     }
 
     @Test
-    public void testNotEquals() {
-        MessageResponse requestNotEquals = new MessageResponse("This is a different message");
+    public void testNotEqualsAndHashCode() {
+        MessageResponse requestNotEquals = new MessageResponse(RandomStringUtils.randomAlphabetic(100));
 
         assertThat(response).isNotEqualTo(requestNotEquals);
+        assertThat(response).doesNotHaveSameHashCodeAs(requestNotEquals);
     }
 
     @Test
@@ -48,7 +56,7 @@ public class MessageResponseTest {
         String json = mapper.writeValueAsString(response);
         MessageResponse actualRequest = mapper.readValue(json, MessageResponse.class);
 
-        String expectedJson = "{\"message\":\"This is a test message\"}";
+        String expectedJson = "{\"message\":\"" + message + "\"}";
         MessageResponse expectedRequest = mapper.readValue(expectedJson, MessageResponse.class);
 
         assertThat(expectedRequest).isEqualTo(actualRequest);
@@ -56,10 +64,32 @@ public class MessageResponseTest {
 
     @Test
     public void testDeserialize() throws Exception {
-        String json = "{\"message\":\"This is a test message\"}";
+        String json = "{\"message\":\"" + message + "\"}";
 
         MessageResponse requestMapped = mapper.readValue(json, MessageResponse.class);
 
         assertThat(requestMapped).usingRecursiveComparison().isEqualTo(response);
+    }
+
+    @Test
+    public void testFromMessage() {
+        MessageResponse response = MessageResponse.fromMessage(message);
+
+        assertThat(response.getMessage()).isEqualTo(message);
+    }
+
+    @Test
+    public void testToString() {
+        final MessageResponse response = new MessageResponse(message);
+
+        final String exceptedToString = "MessageResponse(message=%s)".formatted(message);
+        final String exceptedToStringLombok = "MessageResponse.MessageResponseBuilder(message=%s)".formatted(message);
+
+        assertThat(response).isNotNull();
+        assertThat(response.toString()).isEqualTo(exceptedToString);
+        assertThat(MessageResponse.builder()
+                .message(message)
+                .toString()
+        ).isEqualTo(exceptedToStringLombok);
     }
 }

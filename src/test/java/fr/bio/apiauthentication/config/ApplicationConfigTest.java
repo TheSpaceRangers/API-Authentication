@@ -1,7 +1,9 @@
 package fr.bio.apiauthentication.config;
 
 import fr.bio.apiauthentication.entities.User;
+import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.repositories.UserRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,20 +37,29 @@ public class ApplicationConfigTest {
     @Mock
     private AuthenticationConfiguration authenticationConfiguration;
 
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        email = RandomStringUtils.randomAlphanumeric(20) + "@test.com";
+        password = RandomStringUtils.randomAlphanumeric(20);
+        firstName = RandomStringUtils.randomAlphanumeric(20);
+        lastName = RandomStringUtils.randomAlphanumeric(20);
     }
 
     @Test
     @DisplayName("Test bean userDetailsService")
     public void testUserDetailsService() {
-        String email = "test@example.com";
-        User user = User.builder()
+        final User user = User.builder()
                 .email(email)
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
                 .enabled(true)
                 .roles(null)
                 .build();
@@ -66,13 +77,13 @@ public class ApplicationConfigTest {
     @Test
     @DisplayName("Test bean userDetailsService but user not found")
     public void testUserDetailsService_UserNotFound() {
-        String email = "test@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         UserDetailsService userDetailsService = applicationConfig.userDetailsService();
+
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername(email))
                 .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining(Messages.ENTITY_NOT_FOUND.formatMessage("User", email));
     }
 
     @Test
@@ -109,7 +120,6 @@ public class ApplicationConfigTest {
     public void testPasswordEncoder() {
         PasswordEncoder passwordEncoder = applicationConfig.passwordEncoder();
 
-        // Assert
         assertThat(passwordEncoder).isNotNull();
         assertThat(passwordEncoder).isInstanceOf(BCryptPasswordEncoder.class);
     }

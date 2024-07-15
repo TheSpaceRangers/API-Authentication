@@ -1,6 +1,7 @@
 package fr.bio.apiauthentication.entities;
 
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +11,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -18,111 +20,201 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @DataJpaTest
 @Transactional
 public class RoleTest {
+    private static final LocalDate NOW = LocalDate.now();
+
     @Autowired
     private TestEntityManager entityManager;
 
     private Role role;
     private User user;
 
+    private String authority;
+    private String displayName;
+    private String description;
+    private LocalDate modifiedAt;
+    private String modifiedBy;
+    private boolean enabled;
+
     @BeforeEach
     void setUp() {
+        authority = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
+        displayName = RandomStringUtils.randomAlphanumeric(20);
+        description = RandomStringUtils.randomAlphanumeric(20);
+        modifiedAt = NOW;
+        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
+        enabled = Boolean.parseBoolean(RandomStringUtils.randomNumeric(0, 1));
+
         user = User.builder()
-                .email("c.tronel@test.properties.com")
-                .password("password")
-                .firstName("firstName")
-                .lastName("lastName")
-                .createdAt(LocalDate.now())
-                .createdBy("System")
-                .modifiedAt(LocalDate.now())
-                .modifiedBy("System")
+                .email(RandomStringUtils.randomAlphanumeric(10) + "@test.com")
+                .password(RandomStringUtils.randomAlphanumeric(30))
+                .firstName(RandomStringUtils.randomAlphanumeric(20))
+                .lastName(RandomStringUtils.randomAlphanumeric(20))
+                .createdAt(NOW)
+                .createdBy(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW)
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
                 .enabled(true)
                 .build();
 
         role = Role.builder()
-                .roleName("USER")
-                .users(Collections.singleton(user))
+                .authority(authority)
+                .displayName(displayName)
+                .description(description)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
+                .users(new ArrayList<>(List.of(user)))
                 .build();
     }
 
     @AfterEach
     void tearDown() {
-        entityManager.flush();
         role = null;
     }
 
     @Test
     @DisplayName("Test create role")
     public void testCreateRole() {
-        Role role = Role.builder()
-                .roleName("ROLE_CREATE")
-                .build();
-        Role persistedRole = entityManager.persist(role);
+        final Role savedRole = entityManager.persistAndFlush(role);
 
-        assertThat(persistedRole).isNotNull();
+        assertThat(savedRole).isNotNull();
+        assertThat(savedRole).isEqualTo(role);
+        assertThat(savedRole.hashCode()).isEqualTo(role.hashCode());
+        assertThat(savedRole).usingRecursiveComparison().isEqualTo(role);
     }
 
     @Test
     @DisplayName("Test update role")
     public void testUpdateRole() {
-        Role newRole = role;
+        final Role savedRole = entityManager.persistAndFlush(role);
 
-        newRole.setRoleName("ADMIN");
-        newRole.setUsers(Collections.singleton(user));
-        newRole.setEnabled(false);
+        long idRole = Long.parseLong(RandomStringUtils.randomNumeric(8));
+        authority = RandomStringUtils.randomAlphanumeric(10).toUpperCase();
+        displayName = RandomStringUtils.randomAlphanumeric(20);
+        description = RandomStringUtils.randomAlphanumeric(20);
+        modifiedAt = NOW.plusDays(10);
+        modifiedBy = RandomStringUtils.randomAlphanumeric(20);
 
-        Role persistedRole = entityManager.persist(newRole);
+        savedRole.setIdRole(idRole);
+        savedRole.setAuthority(authority);
+        savedRole.setDisplayName(displayName);
+        savedRole.setDescription(description);
+        savedRole.setModifiedAt(modifiedAt);
+        savedRole.setModifiedBy(modifiedBy);
 
-        assertThat(persistedRole).isNotNull();
+        final Role updatedRole = entityManager.merge(savedRole);
+
+        assertThat(updatedRole).isNotNull();
+        assertThat(updatedRole).isEqualTo(savedRole);
+        assertThat(updatedRole).usingRecursiveComparison().isEqualTo(savedRole);
     }
 
     @Test
     @DisplayName("Test same object")
-    public void testEquals_SameObject() {
-        assertThat(role).isEqualTo(role);
+    public void testEqualsAndHashCode_SameObject() {
+        final Role sameRole = role;
+
+        assertThat(sameRole).isEqualTo(role);
+        assertThat(sameRole.hashCode()).isEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test null")
-    public void testEquals_Null() {
-        assertThat(role).isNotEqualTo(null);
+    public void testEqualsAndHashCode_Null() {
+        assertThat((Role) null).isNotEqualTo(role);
+        assertThat((Role) null).isNotEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test different class")
-    public void testEquals_DifferentClass() {
+    public void testEqualsAndHashCode_DifferentClass() {
         assertThat(role).isNotEqualTo("This is a different object");
+        assertThat(role.hashCode()).isNotEqualTo("This is a different object".hashCode());
     }
 
     @Test
     @DisplayName("Test different fields")
-    public void testEquals_DifferentFields() {
-        Role differentFields = Role.builder()
-                .roleName("ADMIN")
-                .enabled(false)
+    public void testEqualsAndHashCode_DifferentFields() {
+        final Role differentFields = Role.builder()
+                .authority(RandomStringUtils.randomAlphanumeric(10).toUpperCase())
+                .displayName(RandomStringUtils.randomAlphanumeric(20))
+                .description(RandomStringUtils.randomAlphanumeric(20))
+                .modifiedAt(NOW.plusMonths(10))
+                .modifiedBy(RandomStringUtils.randomAlphanumeric(20))
                 .build();
 
-        assertThat(role).isNotEqualTo(differentFields);
+        assertThat(differentFields).isNotEqualTo(role);
+        assertThat(differentFields.hashCode()).isNotEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test same fields")
-    public void testEquals_SameFields() {
-        Role sameFields = Role.builder()
-                .roleName("USER")
-                .users(Collections.singleton(user))
+    public void testEqualsAndHashCode_SameFields() {
+        final Role sameFields = Role.builder()
+                .authority(authority)
+                .displayName(displayName)
+                .description(description)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
+                .users(List.of(user))
                 .build();
 
-        assertThat(role).isEqualTo(sameFields);
+        assertThat(sameFields).isEqualTo(role);
+        assertThat(sameFields.hashCode()).isEqualTo(role.hashCode());
     }
 
     @Test
     @DisplayName("Test same fields hashCode")
     public void testHashCode_SameFields() {
-        Role sameFields = Role.builder()
-                .roleName("USER")
-                .users(Collections.singleton(user))
+        final Role sameFields = Role.builder()
+                .authority(authority)
+                .displayName(displayName)
+                .description(description)
+                .modifiedAt(modifiedAt)
+                .modifiedBy(modifiedBy)
+                .enabled(enabled)
+                .users(List.of(user))
                 .build();
 
-        assertThat(role.hashCode()).isEqualTo(sameFields.hashCode());
+        assertThat(sameFields.hashCode()).isEqualTo(role.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        final Role savedRole = entityManager.persistAndFlush(role );
+        final String exceptedString = "Role(" +
+                "idRole=" + savedRole.getIdRole() + ", " +
+                "authority=" + savedRole.getAuthority() + ", " +
+                "displayName=" + savedRole.getDisplayName() + ", " +
+                "description=" + savedRole.getDescription() + ", " +
+                "modifiedAt=" + savedRole.getModifiedAt() + ", " +
+                "modifiedBy=" + savedRole.getModifiedBy() + ", " +
+                "enabled=" + savedRole.isEnabled() +
+                ")";
+        final String exceptedStringLombok = "Role.RoleBuilder(" +
+                "idRole=" + savedRole.getIdRole() + ", " +
+                "authority=" + savedRole.getAuthority() + ", " +
+                "displayName=" + savedRole.getDisplayName() + ", " +
+                "description=" + savedRole.getDescription() + ", " +
+                "modifiedAt=" + savedRole.getModifiedAt() + ", " +
+                "modifiedBy=" + savedRole.getModifiedBy() + ", " +
+                "enabled$value=" + savedRole.isEnabled() + ", " +
+                "users=" + savedRole.getUsers() +
+                ")";
+
+        assertThat(savedRole).isNotNull();
+        assertThat(exceptedString).isEqualTo(savedRole.toString());
+        assertThat(Role.builder()
+                .idRole(savedRole.getIdRole())
+                .authority(savedRole.getAuthority())
+                .displayName(savedRole.getDisplayName())
+                .description(savedRole.getDescription())
+                .modifiedAt(savedRole.getModifiedAt())
+                .modifiedBy(savedRole.getModifiedBy())
+                .enabled(savedRole.isEnabled())
+                .users(savedRole.getUsers())
+                .toString()
+        ).isEqualTo(exceptedStringLombok);
     }
 }

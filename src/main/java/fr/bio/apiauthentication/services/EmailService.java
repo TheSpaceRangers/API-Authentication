@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService implements IEmailService {
 
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Override
-    public void sendEmail(String to, String subject, String body) {
+    public void sendEmail(
+            String to,
+            String subject,
+            String body
+    ) {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(to);
@@ -21,5 +25,16 @@ public class EmailService implements IEmailService {
         message.setText(body);
 
         javaMailSender.send(message);
+    }
+
+    @Override
+    public void sendPasswordResetEmail(
+            String to,
+            String token
+    ) {
+        final String subject = "Reset your password - ITBudget";
+        final String message = "To reset your password, click the link below:\n" + "http://localhost:8080/api/v1/reset/password?token=" + token;
+
+        sendEmail(to, subject, message);
     }
 }

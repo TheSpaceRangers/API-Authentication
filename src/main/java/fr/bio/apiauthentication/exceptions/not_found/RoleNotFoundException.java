@@ -1,4 +1,4 @@
-package fr.bio.apiauthentication.exceptions;
+package fr.bio.apiauthentication.exceptions.not_found;
 
 public class RoleNotFoundException extends RuntimeException {
     public RoleNotFoundException(
