@@ -10,4 +10,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByAuthority(String authority);
 
     List<Role> findAllByEnabled(boolean enabled);
+
+    List<Role> findAllByAuthorityIn(List<String> authority);
 }

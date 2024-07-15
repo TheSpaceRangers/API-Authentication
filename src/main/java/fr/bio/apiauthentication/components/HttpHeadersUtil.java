@@ -17,9 +17,12 @@ public class HttpHeadersUtil {
     public HttpHeaders createHeaders(
             String token
     ) {
+        if (!token.startsWith(BEARER_PREFIX))
+            token = BEARER_PREFIX + token;
+
         HttpHeaders headers = new HttpHeaders();
         headers.add(EXPOSE_HEADERS, EXPOSE_HEADERS_LIST);
-        headers.set(AUTHORIZATION_HEADER, BEARER_PREFIX + token);
+        headers.set(AUTHORIZATION_HEADER, token);
         headers.set(CONTENT_TYPE_HEADER, CONTENT_TYPE_JSON);
         return headers;
     }
