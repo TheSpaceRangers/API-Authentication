@@ -1,6 +1,9 @@
+server:
+  port: 8081
+
 spring:
   application:
-    name: API - Authentication
+    name: API-Authentication
 
   # Configuration de la source de données MySQL
   datasource:
@@ -44,3 +47,5 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+  instance:
+    prefer-ip-address: true

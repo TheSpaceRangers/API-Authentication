@@ -21,7 +21,7 @@ public class Token {
     @Column(name = "id_token")
     private long idToken;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 4096)
     private String token;
 
     @Enumerated(EnumType.STRING)
