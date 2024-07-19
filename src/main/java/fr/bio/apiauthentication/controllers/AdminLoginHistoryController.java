@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api-auth/v1/admin")
 public class AdminLoginHistoryController {
     private final IAdminLoginHistoryService loginHistoryService;
 

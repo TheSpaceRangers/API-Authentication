@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/admin/users-roles")
+@RequestMapping("/api-auth/v1/admin/users-roles")
 @RequiredArgsConstructor
 public class AdminUserRolesController {
     private final IAdminUserRolesService adminUserRolesService;
