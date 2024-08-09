@@ -2,20 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>3.3.1</version>
+        <relativePath/>
     </parent>
+
     <groupId>fr.bio</groupId>
+
     <artifactId>API-Authentication</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>API - Authentication</name>
     <description>API - Authentication</description>
+    <version>1.0</version>
+
     <properties>
         <java.version>17</java.version>
     </properties>
+
     <dependencies>
         <!-- Dépendances Spring Boot -->
         <dependency>
@@ -188,5 +193,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
