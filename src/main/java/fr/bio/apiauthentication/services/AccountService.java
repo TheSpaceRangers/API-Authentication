@@ -7,7 +7,7 @@ import fr.bio.apiauthentication.dto.admin.UserStructureResponse;
 import fr.bio.apiauthentication.entities.User;
 import fr.bio.apiauthentication.enums.Messages;
 import fr.bio.apiauthentication.repositories.UserRepository;
-import fr.bio.apiauthentication.services.interfaces.IAccountService;
+import fr.bio.apiauthentication.services.interfaces.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +24,7 @@ public class AccountService implements IAccountService {
 
     private final UserRepository userRepository;
 
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
 
     private final HttpHeadersUtil httpHeadersUtil;
 
