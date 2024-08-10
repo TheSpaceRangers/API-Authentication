@@ -12,7 +12,7 @@ import fr.bio.apiauthentication.exceptions.invalid.InvalidCredentialsException;
 import fr.bio.apiauthentication.exceptions.not_found.RoleNotFoundException;
 import fr.bio.apiauthentication.repositories.RoleRepository;
 import fr.bio.apiauthentication.repositories.UserRepository;
-import fr.bio.apiauthentication.services.interfaces.IAuthenticationService;
+import fr.bio.apiauthentication.services.interfaces.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +42,7 @@ public class AuthenticationService implements IAuthenticationService {
     private final HttpHeadersUtil httpHeadersUtil;
 
     private final UserDetailsService userDetailsService;
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
 
     @Override
     public ResponseEntity<MessageResponse> register(

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/reset")
+@RequestMapping("/api-auth/v1/reset")
 public class ResetController {
     private final IResetService resetService;
 
