@@ -62,12 +62,12 @@ public class AdminUserRolesService implements IAdminUserRolesService {
     }
 
     @Override
-    public ResponseEntity<List<ResponseEntity<MessageResponse>>>  modifyUsersRoles(
+    public ResponseEntity<List<MessageResponse>>  modifyUsersRoles(
             String token,
             List<UserRolesRequest> requests
     ) {
-        final List<ResponseEntity<MessageResponse>> responses = requests.stream()
-                .map(request -> modifyUserRoles(token, request))
+        final List<MessageResponse> responses = requests.stream()
+                .map(request -> modifyUserRoles(token, request).getBody())
                 .toList();
 
         return ResponseEntity.ok()

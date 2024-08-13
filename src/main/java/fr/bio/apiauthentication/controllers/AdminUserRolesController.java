@@ -25,7 +25,7 @@ public class AdminUserRolesController {
     }
 
     @PostMapping(value = "/modifies")
-    public ResponseEntity<List<ResponseEntity<MessageResponse>>> modifyUsersRoles(
+    public ResponseEntity<List<MessageResponse>> modifyUsersRoles(
             @RequestHeader("Authorization") String token,
             @RequestBody @Validated List<UserRolesRequest> request
     ) {

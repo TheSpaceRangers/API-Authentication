@@ -9,5 +9,5 @@ import java.util.List;
 public interface IAdminUserRolesService {
     ResponseEntity<MessageResponse> modifyUserRoles(String token, UserRolesRequest request);
 
-    ResponseEntity<List<ResponseEntity<MessageResponse>>> modifyUsersRoles(String token, List<UserRolesRequest> requests);
+    ResponseEntity<List<MessageResponse>> modifyUsersRoles(String token, List<UserRolesRequest> requests);
 }
