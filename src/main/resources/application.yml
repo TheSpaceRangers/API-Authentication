@@ -14,7 +14,7 @@ spring:
 
   # Configuration de JPA (Java Persistence API)
   jpa:
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: none
     show-sql: false
     properties:
       hibernate:
