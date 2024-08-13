@@ -31,11 +31,11 @@ public class AdminRoleService implements IAdminRoleService {
     @Override
     public ResponseEntity<List<RoleStructureResponse>> getAllByStatus(
             String token,
-            Boolean isActive
+            Boolean isEnabled
     ) {
-        List<Role> roles = isActive == null
+        final List<Role> roles = isEnabled == null
                 ? roleRepository.findAll()
-                : roleRepository.findAllByEnabled(isActive);
+                : roleRepository.findAllByEnabled(isEnabled);
 
         return ResponseEntity.ok()
                 .headers(httpHeadersUtil.createHeaders(token))
@@ -70,7 +70,7 @@ public class AdminRoleService implements IAdminRoleService {
             String token,
             RoleRequest request
     ) {
-        Role role = roleRepository.findByAuthority(request.authority())
+        final Role role = roleRepository.findByAuthority(request.authority())
                 .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         boolean isModified = false;
@@ -108,7 +108,7 @@ public class AdminRoleService implements IAdminRoleService {
             RoleRequest request,
             boolean status
     ) {
-        Role role = roleRepository.findByAuthority(request.authority())
+        final Role role = roleRepository.findByAuthority(request.authority())
                 .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, request.authority())));
 
         role.setEnabled(status);

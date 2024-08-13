@@ -23,14 +23,14 @@ public class AdminRoleController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "status", required = false) String status
     ) {
-        Boolean isActive = null;
+        Boolean isEnabled = null;
 
-        if (status.equalsIgnoreCase("active"))
-            isActive = true;
-        else if (status.equalsIgnoreCase("inactive"))
-            isActive = false;
+        if (status!= null && status.equalsIgnoreCase("active"))
+            isEnabled = true;
+        else if (status != null && status.equalsIgnoreCase("inactive"))
+            isEnabled = false;
 
-        return adminRoleService.getAllByStatus(token, isActive);
+        return adminRoleService.getAllByStatus(token, isEnabled);
     }
 
     @PostMapping(value = "/role/new")
