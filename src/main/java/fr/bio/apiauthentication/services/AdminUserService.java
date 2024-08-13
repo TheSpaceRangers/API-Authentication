@@ -53,7 +53,7 @@ public class AdminUserService implements IAdminUserService {
         if (user != null)
             throw new UserAlreadyExistsException(Messages.ENTITY_ALREADY_EXISTS.formatMessage(USER, request.email()));
 
-        List<Role> roles = request.roles() != null
+        final List<Role> roles = request.roles() != null
                 ? request.roles().stream()
                     .map(role -> roleRepository.findByAuthority(role)
                             .orElseThrow(() -> new RoleNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(ROLE, role))))
@@ -78,7 +78,7 @@ public class AdminUserService implements IAdminUserService {
             String token,
             UserRequest request
     ) {
-        User user = userRepository.findByEmail(request.email())
+        final User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
 
         boolean isModified = false;
@@ -116,7 +116,7 @@ public class AdminUserService implements IAdminUserService {
             UserRequest request,
             boolean status
     ) {
-        User user = userRepository.findByEmail(request.email())
+        final User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
 
         user.setEnabled(status);
