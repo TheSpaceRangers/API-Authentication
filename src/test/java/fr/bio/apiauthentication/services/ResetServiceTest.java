@@ -115,14 +115,8 @@ public class ResetServiceTest {
         final SendResetEmailRequest request = new SendResetEmailRequest(user.getEmail());
         final MessageResponse exceptedResponse = MessageResponse.fromMessage(Messages.SEND_RESET_MAIL.formatMessage(user.getEmail()));
 
-        final UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities(user.getAuthorities())
-                .build();
-
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(userDetailsService.loadUserByUsername(user.getEmail())).thenReturn(userDetails);
-        when(jwtService.generateToken(userDetails)).thenReturn(tokenString);
+        when(jwtService.generateToken(user)).thenReturn(tokenString);
         when(httpHeadersUtil.createHeaders(tokenString)).thenReturn(headers);
 
         final ResponseEntity<MessageResponse> response = resetService.passwordResetEmail(tokenString, request);
@@ -131,8 +125,8 @@ public class ResetServiceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(exceptedResponse);
 
-        verify(jwtService).revokeAllUserTokens(userDetails, TokenType.PASSWORD_RESET);
-        verify(jwtService).saveUserToken(userDetails, tokenString, TokenType.PASSWORD_RESET);
+        verify(jwtService).revokeAllUserTokens(user, TokenType.PASSWORD_RESET);
+        verify(jwtService).saveUserToken(user, tokenString, TokenType.PASSWORD_RESET);
         verify(emailService).sendPasswordResetEmail(user.getEmail(), tokenString);
     }
 
