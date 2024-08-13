@@ -45,6 +45,6 @@ public class AccountController {
         else
             throw new IllegalArgumentException(Messages.STATUS_PARAMETER_INVALID.formatMessage());
 
-        return accountService.modifyStatus(token, status);
+        return accountService.modifyStatus(token.substring(7), status);
     }
 }
