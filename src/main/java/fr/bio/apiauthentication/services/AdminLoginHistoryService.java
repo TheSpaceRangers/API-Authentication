@@ -41,7 +41,8 @@ public class AdminLoginHistoryService implements IAdminLoginHistoryService {
 
     @Override
     public ResponseEntity<List<LoginHistoryStructureResponse>> getAllLoginHistoryByUser(
-            String token, LoginHistoryRequest request
+            String token,
+            LoginHistoryRequest request
     ) {
         final User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));

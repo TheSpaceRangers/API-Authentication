@@ -11,18 +11,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api-auth/v1/admin")
+@RequestMapping("/api-auth/v1/admin/login-histories")
 public class AdminLoginHistoryController {
     private final IAdminLoginHistoryService loginHistoryService;
 
-    @GetMapping(value = "/login-histories")
+    @GetMapping(value = "")
     public ResponseEntity<List<LoginHistoryStructureResponse>> getAllLoginHistory(
             @RequestHeader("Authorization") String token
     ) {
         return loginHistoryService.getAllLoginHistory(token);
     }
 
-    @GetMapping(value = "/login-histories/user")
+    @GetMapping(value = "/user")
     public ResponseEntity<List<LoginHistoryStructureResponse>> getAllLoginHistoryByUser(
             @RequestHeader("Authorization") String token,
             @RequestBody LoginHistoryRequest request
