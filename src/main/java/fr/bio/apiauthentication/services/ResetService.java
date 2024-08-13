@@ -46,13 +46,12 @@ public class ResetService implements IResetService {
             String token,
             SendResetEmailRequest request
     ) {
-        User user = userRepository.findByEmail(request.email())
+        final User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.ENTITY_NOT_FOUND.formatMessage(USER, request.email())));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
-        final String resetToken = jwtService.generateToken(userDetails);
-        jwtService.revokeAllUserTokens(userDetails, PASSWORD_RESET);
-        jwtService.saveUserToken(userDetails, resetToken, PASSWORD_RESET);
+        final String resetToken = jwtService.generateToken(user);
+        jwtService.revokeAllUserTokens(user, PASSWORD_RESET);
+        jwtService.saveUserToken(user, resetToken, PASSWORD_RESET);
 
         emailService.sendPasswordResetEmail(
                 user.getEmail(),
@@ -69,10 +68,10 @@ public class ResetService implements IResetService {
             String token,
             ResetPasswordRequest request
     ) {
-        Token resetToken = tokenRepository.findByToken(token)
+        final Token resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new InvalidTokenException(Messages.INVALID_TOKEN.formatMessage()));
 
-        User user = resetToken.getUser();
+        final User user = resetToken.getUser();
 
         if (!jwtService.validateToken(token, user))
             throw new TokenExpiredException(Messages.EXPIRED_TOKEN.formatMessage());
