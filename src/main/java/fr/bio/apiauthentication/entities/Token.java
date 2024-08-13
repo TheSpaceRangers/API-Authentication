@@ -25,6 +25,7 @@ public class Token {
     private String token;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "token_type")
     @Builder.Default
     private TokenType type = TokenType.BEARER;
 
@@ -35,6 +36,6 @@ public class Token {
     private boolean expired = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id_user_fk")
     public User user;
 }
