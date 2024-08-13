@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
                         .requestMatchers("/api-auth/v1/auth/**").permitAll()
                         .requestMatchers("/api-auth/v1/reset/**").permitAll()
-                        .requestMatchers("/api-auth/v1/account/**").hasAuthority("USER")
+                        .requestMatchers("/api-auth/v1/account/**").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("/api-auth/v1/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
