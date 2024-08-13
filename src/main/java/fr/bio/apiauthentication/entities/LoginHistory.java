@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "login_history")
+@Table(name = "login_histories")
 public class LoginHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class LoginHistory {
     private long idLoginHistory;
 
     @ManyToOne
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "id_user_fk")
     private User user;
 
     @Column(name = "ip_address")
