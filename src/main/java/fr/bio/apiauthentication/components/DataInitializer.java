@@ -63,10 +63,12 @@ public class DataInitializer {
                         .lastName("Charles")
                         .email("c.tronel@beneteauhabitat.com")
                         .password(passwordEncoder.encode("JeSuisNeeLe15/11/99@Armentieres"))
-                        .roles(List.of(admin_role))
                         .build();
                 return userRepository.save(admin);
             });
+
+            ADMIN_USER.setRoles(List.of(admin_role));
+            userRepository.save(ADMIN_USER);
         };
     }
 }
