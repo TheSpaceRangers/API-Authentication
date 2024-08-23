@@ -1,0 +1,51 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: ${APP_NAME:API-Authentication}
+
+  # Configuration de la source de données MySQL
+  datasource:
+    url: ${DATA_URL}
+    username: ${DATA_USERNAME}
+    password: ${DATE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Configuration de JPA (Java Persistence API)
+  jpa:
+    hibernate.ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  # Email Configuration
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# JWT Token Configuration
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_KEY}
+      expiration: ${JWT_EXPIRATION}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULTZONE}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
