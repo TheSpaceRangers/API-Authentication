@@ -69,8 +69,8 @@ public class RegisterRequestTest {
         RegisterRequest actualRequest = mapper.readValue(json, RegisterRequest.class);
 
         String expectedJson = "{" +
-                "\"firstName\":\"" + firstName + "\"," +
-                "\"lastName\":\"" + lastName + "\"," +
+                "\"first_name\":\"" + firstName + "\"," +
+                "\"last_name\":\"" + lastName + "\"," +
                 "\"email\":\"" + email + "\"," +
                 "\"password\":\"" + password + "\"" +
                 "}";
@@ -82,8 +82,8 @@ public class RegisterRequestTest {
     @Test
     public void testDeserialize() throws Exception {
         String json = "{" +
-                "\"firstName\":\"" + firstName + "\"," +
-                "\"lastName\":\"" + lastName + "\"," +
+                "\"first_name\":\"" + firstName + "\"," +
+                "\"last_name\":\"" + lastName + "\"," +
                 "\"email\":\"" + email + "\"," +
                 "\"password\":\"" + password + "\"" +
                 "}";
